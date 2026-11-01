@@ -25,7 +25,7 @@ type Props = {
 /** "Add layer" popover, grouped by shelf. */
 function AddMenu({ state, onAdd, onClose }: { state: StudioState; onAdd: (k: SectionKey) => void; onClose: () => void }) {
   return (
-    <div className="anim-menu glass-panel absolute bottom-[calc(100%+12px)] right-0 z-40 w-[420px] rounded-[20px] p-3 [transform-origin:bottom_right]">
+    <div className="anim-menu glass-panel absolute bottom-[calc(100%+12px)] right-0 z-40 w-[min(420px,calc(100vw-24px))] rounded-[20px] p-3 [transform-origin:bottom_right]">
       <p className="px-1 pb-2 text-[12.5px] text-bone/50">Add a layer</p>
       <div className="grid grid-cols-2 gap-x-3 gap-y-3">
         {CATEGORIES.map((cat) => {

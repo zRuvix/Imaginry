@@ -36,11 +36,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // Browser extensions often inject attributes into <html>/<body> before React
+    // hydrates; this ignores attribute differences on these two elements only.
     <html
+      suppressHydrationWarning
       lang="en"
       className={`${familjen.variable} ${specialGothic.variable} ${cabinCondensed.variable} ${outfit.variable} h-full antialiased`}
     >
-      <body className="h-full">{children}</body>
+      <body className="h-full" suppressHydrationWarning>{children}</body>
     </html>
   );
 }

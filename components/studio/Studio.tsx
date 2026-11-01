@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { GROUPS, groupFor, PALETTES, PRESETS_BY_ID, type Preset } from "@/lib/studio/presets";
 import { renderOffscreen } from "@/lib/studio/renderer";
 import {
@@ -20,6 +20,7 @@ import ExportPanel from "./ExportPanel";
 import Inspector from "./Inspector";
 import LayerDock from "./LayerDock";
 import Library from "./Library";
+import MobileStudio, { type MobileSheet } from "./MobileStudio";
 import Shortcuts from "./Shortcuts";
 import Stage, { ASPECTS, type Aspect } from "./Stage";
 
@@ -72,7 +73,22 @@ function randomHex() {
 const INSETS = { top: 84, left: 320, right: 344, bottom: 108 };
 const ZEN_INSETS = { top: 16, left: 16, right: 16, bottom: 16 };
 
+/** Phones get their own layout; desktop stays exactly as designed. */
+function useLayout() {
+  const [layout, setLayout] = useState<"mobile" | "desktop" | null>(null);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setLayout(mq.matches ? "mobile" : "desktop");
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return layout;
+}
+
 export default function Studio() {
+  const layout = useLayout();
+  const [sheet, setSheet] = useState<MobileSheet | null>(null);
   const history = useHistory<StudioState>(initialState);
   const { state, set } = history;
 
@@ -335,15 +351,42 @@ export default function Studio() {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#${encodeShare(state)}`;
-    window.history.replaceState(null, "", url);
+    const design = encodeShare(state);
+    const longUrl = `${window.location.origin}${window.location.pathname}#${design}`;
+    window.history.replaceState(null, "", longUrl);
+    // Ask the server for a short /s/<code> link; fall back to the design-in-URL link.
+    let url = longUrl;
+    try {
+      const res = await fetch("/api/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ design }),
+      });
+      if (res.ok) url = `${window.location.origin}${(await res.json()).path}`;
+    } catch {
+      // Offline or the link service is down: the long link still works.
+    }
     try {
       await navigator.clipboard.writeText(url);
       notify(image ? "Link copied (uploaded photos aren't included)" : "Link copied");
     } catch {
-      notify("Link added to the address bar");
+      notify(`Copy this link: ${url.replace(/^https?:\/\//, "")}`);
     }
   };
+
+  // Someone opened a short link that doesn't exist (or the service was down).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("link") !== "missing") return;
+    notify("That link doesn't exist anymore");
+    params.delete("link");
+    const rest = params.toString();
+    window.history.replaceState(
+      null,
+      "",
+      `${window.location.pathname}${rest ? `?${rest}` : ""}${window.location.hash}`,
+    );
+  }, [notify]);
 
   const deleteSaved = (id: string) => {
     const next = saved.filter((d) => d.id !== id);
@@ -356,7 +399,8 @@ export default function Studio() {
   actions.current = { randomize, deleteLayer, flipFlag };
   const { undo, redo } = history;
   useEffect(() => {
-    const typing = (t: EventTarget | null) => !!(t as HTMLElement)?.closest?.("input, select, textarea, [contenteditable]");
+    const typing = (t: EventTarget | null) =>
+      !!(t as HTMLElement)?.closest?.("input, select, textarea, [contenteditable]");
     const onKey = (e: KeyboardEvent) => {
       if (typing(e.target)) return;
       const mod = e.metaKey || e.ctrlKey;
@@ -410,6 +454,160 @@ export default function Studio() {
   const insets = zen ? ZEN_INSETS : INSETS;
   const panelMotion = "transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]";
 
+  const libraryEl = (
+    <Library
+      state={state}
+      onToggle={togglePreset}
+      saved={saved}
+      onLoadSaved={(d) => {
+        set(d.state);
+        setSelected(d.state.order[0] ?? null);
+        notify("Loaded saved design");
+      }}
+      onDeleteSaved={deleteSaved}
+      onLoadLook={(look) => {
+        const next = stateForLook(look);
+        set(next);
+        setSelected(next.order[0] ?? null);
+        notify(`Loaded “${look.name}”`);
+      }}
+      imageUrl={image?.src ?? null}
+      onPickImage={() => fileRef.current?.click()}
+      onDropImage={loadImageFile}
+      onDragPreset={setPresetDragging}
+    />
+  );
+  const exportEl = (
+    <ExportPanel
+      state={state}
+      image={image}
+      aspect={aspect}
+      onAspect={setAspect}
+      previewSize={previewSize}
+      timeRef={timeRef}
+      speed={speed}
+      onClose={() => {
+        setExportOpen(false);
+        setSheet(null);
+      }}
+      notify={notify}
+    />
+  );
+  const inspectorEl = (
+    <Inspector
+      state={state}
+      selected={selected}
+      imageUrl={image?.src ?? null}
+      onChange={updateSection}
+      onShuffle={shuffleLayer}
+      onReset={resetLayer}
+      onToggleVisible={(k) => flipFlag(k, "enabled")}
+      onToggleLock={(k) => flipFlag(k, "locked")}
+      onToggleAnimated={toggleAnimated}
+      onDelete={deleteLayer}
+      onPickImage={() => fileRef.current?.click()}
+      onRemoveImage={removeImage}
+      onBrowse={() =>
+        layout === "mobile"
+          ? setSheet("effects")
+          : document.querySelector<HTMLInputElement>('input[aria-label="Search effects"]')?.focus()
+      }
+    />
+  );
+  const dockEl = (
+    <LayerDock
+      state={state}
+      time={timeRef.current}
+      selected={selected}
+      imageUrl={image?.src ?? null}
+      onSelect={(k) => {
+        setSelected(k);
+        setExportOpen(false);
+        if (layout === "mobile") setSheet("edit");
+      }}
+      onReorder={(order) => set((s) => ({ ...s, order }))}
+      onToggleVisible={(k) => flipFlag(k, "enabled")}
+      onAdd={addLayerFromMenu}
+      onDropPreset={dropPreset}
+      presetDragging={presetDragging}
+    />
+  );
+  const stageEl = (style: CSSProperties) => (
+    <Stage
+      state={shown}
+      image={image}
+      aspect={aspect}
+      playing={playing}
+      speed={speed}
+      timeRef={timeRef}
+      sizeRef={sizeRef}
+      onDropImage={loadImageFile}
+      onResize={setPreviewSize}
+      style={style}
+    >
+      {compare && (
+        <span className="anim-pop pointer-events-none absolute left-1/2 top-5 -translate-x-1/2 rounded-full bg-ink/75 px-3.5 py-1.5 text-[12.5px] text-bone backdrop-blur">
+          Original · release to return
+        </span>
+      )}
+    </Stage>
+  );
+  const toastEl = (bottom: number) =>
+    toast && (
+      <div
+        key={toast.n}
+        role="status"
+        className="anim-pop glass-panel pointer-events-none absolute left-1/2 z-50 max-w-[calc(100vw-24px)] -translate-x-1/2 rounded-full px-4 py-2 text-center text-[13px] text-bone"
+        style={{ bottom }}
+      >
+        {toast.msg}
+      </div>
+    );
+  const fileInputEl = (
+    <input
+      ref={fileRef}
+      type="file"
+      accept="image/*"
+      hidden
+      onChange={(e) => {
+        const file = e.target.files?.[0];
+        if (file) loadImageFile(file);
+        e.target.value = "";
+      }}
+    />
+  );
+
+  // Until we know the screen size, render nothing rather than flash the wrong layout.
+  if (layout === null) return <div className="h-dvh bg-ink" suppressHydrationWarning />;
+
+  if (layout === "mobile") {
+    return (
+      <MobileStudio
+        stage={stageEl}
+        library={libraryEl}
+        inspector={inspectorEl}
+        exportPanel={exportEl}
+        dock={dockEl}
+        sheet={sheet}
+        onSheet={setSheet}
+        playing={playing}
+        onTogglePlay={() => setPlaying((v) => !v)}
+        canUndo={history.canUndo}
+        canRedo={history.canRedo}
+        onUndo={history.undo}
+        onRedo={history.redo}
+        onRandomize={randomize}
+        onShare={handleShare}
+        extras={
+          <>
+            {fileInputEl}
+            {toastEl(sheet ? 76 : 158)}
+          </>
+        }
+      />
+    );
+  }
+
   return (
     <div className="relative h-dvh min-w-[1100px] overflow-hidden bg-ink text-bone">
       {/* Soft ember glow behind the stage */}
@@ -418,24 +616,7 @@ export default function Studio() {
         className="pointer-events-none absolute left-1/2 top-1/2 h-[70vh] w-[70vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/[0.06] blur-[120px]"
       />
 
-      <Stage
-        state={shown}
-        image={image}
-        aspect={aspect}
-        playing={playing}
-        speed={speed}
-        timeRef={timeRef}
-        sizeRef={sizeRef}
-        onDropImage={loadImageFile}
-        onResize={setPreviewSize}
-        style={insets}
-      >
-        {compare && (
-          <span className="anim-pop pointer-events-none absolute left-1/2 top-5 -translate-x-1/2 rounded-full bg-ink/75 px-3.5 py-1.5 text-[12.5px] text-bone backdrop-blur">
-            Original · release to return
-          </span>
-        )}
-      </Stage>
+      {stageEl(insets)}
 
       <div className={`${panelMotion} ${zen ? "pointer-events-none -translate-y-24 opacity-0" : ""}`}>
         <CommandBar
@@ -466,27 +647,7 @@ export default function Studio() {
           zen ? "pointer-events-none -translate-x-[110%] opacity-0" : ""
         }`}
       >
-        <Library
-          state={state}
-          onToggle={togglePreset}
-          saved={saved}
-          onLoadSaved={(d) => {
-            set(d.state);
-            setSelected(d.state.order[0] ?? null);
-            notify("Loaded saved design");
-          }}
-          onDeleteSaved={deleteSaved}
-          onLoadLook={(look) => {
-            const next = stateForLook(look);
-            set(next);
-            setSelected(next.order[0] ?? null);
-            notify(`Loaded “${look.name}”`);
-          }}
-          imageUrl={image?.src ?? null}
-          onPickImage={() => fileRef.current?.click()}
-          onDropImage={loadImageFile}
-          onDragPreset={setPresetDragging}
-        />
+        {libraryEl}
       </aside>
 
       <aside
@@ -497,34 +658,10 @@ export default function Studio() {
       >
         {exportOpen ? (
           <div key="export" className="anim-rise h-full">
-            <ExportPanel
-              state={state}
-              image={image}
-              aspect={aspect}
-              onAspect={setAspect}
-              previewSize={previewSize}
-              timeRef={timeRef}
-              speed={speed}
-              onClose={() => setExportOpen(false)}
-              notify={notify}
-            />
+            {exportEl}
           </div>
         ) : (
-          <Inspector
-            state={state}
-            selected={selected}
-            imageUrl={image?.src ?? null}
-            onChange={updateSection}
-            onShuffle={shuffleLayer}
-            onReset={resetLayer}
-            onToggleVisible={(k) => flipFlag(k, "enabled")}
-            onToggleLock={(k) => flipFlag(k, "locked")}
-            onToggleAnimated={toggleAnimated}
-            onDelete={deleteLayer}
-            onPickImage={() => fileRef.current?.click()}
-            onRemoveImage={removeImage}
-            onBrowse={() => document.querySelector<HTMLInputElement>('input[aria-label="Search effects"]')?.focus()}
-          />
+          inspectorEl
         )}
       </aside>
 
@@ -533,21 +670,7 @@ export default function Studio() {
           zen ? "pointer-events-none translate-y-32 opacity-0" : ""
         }`}
       >
-        <LayerDock
-          state={state}
-          time={timeRef.current}
-          selected={selected}
-          imageUrl={image?.src ?? null}
-          onSelect={(k) => {
-            setSelected(k);
-            setExportOpen(false);
-          }}
-          onReorder={(order) => set((s) => ({ ...s, order }))}
-          onToggleVisible={(k) => flipFlag(k, "enabled")}
-          onAdd={addLayerFromMenu}
-          onDropPreset={dropPreset}
-          presetDragging={presetDragging}
-        />
+        {dockEl}
       </div>
 
       {zen && (
@@ -562,27 +685,9 @@ export default function Studio() {
 
       {shortcutsOpen && <Shortcuts onClose={() => setShortcutsOpen(false)} />}
 
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) loadImageFile(file);
-          e.target.value = "";
-        }}
-      />
+      {fileInputEl}
 
-      {toast && (
-        <div
-          key={toast.n}
-          role="status"
-          className="anim-pop glass-panel pointer-events-none absolute bottom-[112px] left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] text-bone"
-        >
-          {toast.msg}
-        </div>
-      )}
+      {toastEl(112)}
     </div>
   );
 }
