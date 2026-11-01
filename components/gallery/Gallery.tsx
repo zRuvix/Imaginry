@@ -4,10 +4,13 @@ import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Search, Share2, X } from "@/components/icons";
+import { ArrowRight, Plus, Search, Share2, X } from "@/components/icons";
 import { useLookImages } from "@/components/landing/useLookImages";
 import { GALLERY, GALLERY_TAGS, stateForLook, type CuratedLook, type GalleryTag } from "@/lib/studio/looks";
+import { SPONSORS } from "@/lib/sponsors";
 import { encodeShare } from "@/lib/studio/storage";
+import { Logo } from "@/components/Logo";
+import { Credit } from "@/components/Credit";
 
 type Filter = "All" | GalleryTag;
 
@@ -75,6 +78,47 @@ function Card({
   );
 }
 
+/** Sponsors in the sidebar; an open slot invites brands when there are none. */
+function SponsorBlock() {
+  return (
+    <div className="mb-3 rounded-[18px] bg-white/[0.04] p-3">
+      <p className="px-1 pb-2 text-[12px] text-bone/45">Sponsored by</p>
+      <div className="space-y-1.5">
+        {SPONSORS.slice(0, 3).map((s) => (
+          <a
+            key={s.name}
+            href={s.href}
+            target="_blank"
+            rel="noopener sponsored"
+            className="press group flex items-center gap-2.5 rounded-[12px] px-1.5 py-1.5 text-[13.5px] text-bone/80 hover:bg-white/[0.06] hover:text-bone"
+          >
+            <span className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-bone/90 font-display text-[12px] text-ink transition-transform duration-500 group-hover:rotate-[-8deg]">
+              {s.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={s.logo} alt="" className="size-full object-cover" />
+              ) : (
+                s.name.charAt(0)
+              )}
+            </span>
+            <span className="truncate">{s.name}</span>
+          </a>
+        ))}
+        {SPONSORS.length < 3 && (
+          <Link
+            href="/sponsor"
+            className="press group flex items-center gap-2.5 rounded-[12px] px-1.5 py-1.5 text-[13px] text-bone/45 hover:bg-white/[0.06] hover:text-bone"
+          >
+            <span className="flex size-7 items-center justify-center rounded-full bg-white/[0.06] transition-[transform,background-color] duration-500 group-hover:rotate-90 group-hover:bg-ember group-hover:text-ink">
+              <Plus size={12} />
+            </span>
+            Your brand here
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Gallery() {
   const urls = useLookImages(GALLERY, 720);
   const [filter, setFilter] = useState<Filter>("All");
@@ -124,10 +168,28 @@ export default function Gallery() {
           {/* Sidebar */}
           <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col py-6 lg:flex">
             <div className="glass-panel flex h-full flex-col rounded-[26px] p-5">
-              <Link href="/" className="press self-start font-display text-[18px] tracking-tight text-bone hover:text-white">
-                imaginry
+              <Link href="/" aria-label="Imaginry home" className="press group self-start text-bone hover:text-white">
+                <Logo size={28} textClass="text-[18px]" />
               </Link>
-              <h1 className="mt-8 font-display text-[30px] leading-none tracking-[-0.02em]">Gallery</h1>
+              <nav aria-label="Site" className="-ml-2.5 mt-3 flex gap-0.5 text-[13px]">
+                {[
+                  ["/gallery", "Gallery"],
+                  ["/studio", "Studio"],
+                  ["/sponsor", "Sponsor"],
+                ].map(([href, label]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    aria-current={href === "/gallery" ? "page" : undefined}
+                    className={`press rounded-full px-2.5 py-1 ${
+                      href === "/gallery" ? "bg-white/[0.08] text-bone" : "text-bone/55 hover:text-bone"
+                    }`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+              <h1 className="mt-7 font-display text-[30px] leading-none tracking-[-0.02em]">Gallery</h1>
               <p className="mt-2 text-[13.5px] leading-relaxed text-bone/55">
                 {GALLERY.length} premade looks. Open any of them in the studio and make it yours.
               </p>
@@ -174,12 +236,14 @@ export default function Gallery() {
               </nav>
 
               <div className="mt-auto space-y-2 pt-6">
+                <SponsorBlock />
                 <Link
                   href="/studio"
                   className="press flex h-11 items-center justify-center gap-2 rounded-full bg-bone text-[14px] font-medium text-ink hover:bg-white"
                 >
                   Open a blank studio <ArrowRight size={14} />
                 </Link>
+                <Credit className="block pt-2 text-center font-condensed text-[12.5px] text-bone/40" />
               </div>
             </div>
           </aside>
@@ -188,8 +252,8 @@ export default function Gallery() {
           <main className="min-w-0 flex-1 py-6">
             <header className="mb-6 flex flex-wrap items-end justify-between gap-4 pt-2 lg:pt-6">
               <div>
-                <Link href="/" className="font-display text-[16px] text-bone lg:hidden">
-                  imaginry
+                <Link href="/" aria-label="Imaginry home" className="group text-bone lg:hidden">
+                  <Logo size={24} textClass="text-[16px]" />
                 </Link>
                 <h2 className="mt-4 font-display text-[clamp(28px,3.4vw,46px)] leading-[1] tracking-[-0.02em] lg:mt-0">
                   {filter === "All" ? "Every look" : `${filter} looks`}
@@ -198,6 +262,9 @@ export default function Gallery() {
                   {shown.length} {shown.length === 1 ? "design" : "designs"} · rendered live in your browser
                 </p>
               </div>
+              <Link href="/sponsor" className="press text-[13.5px] text-bone/60 hover:text-bone lg:hidden">
+                Sponsor
+              </Link>
               <Link
                 href="/studio"
                 className="press inline-flex h-10 items-center gap-2 rounded-full bg-bone px-4 text-[13.5px] font-medium text-ink hover:bg-white lg:hidden"
@@ -231,6 +298,9 @@ export default function Gallery() {
                 ))}
               </div>
             )}
+            <footer className="mt-12 pb-4 text-center font-condensed text-[13px] text-bone/40 lg:hidden">
+              <Credit />
+            </footer>
           </main>
         </div>
 

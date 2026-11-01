@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Blend, Dices, Download, Pause, Play, Redo2, Share2, Undo2 } from "@/components/icons";
 import { CATEGORY_ICONS } from "@/components/icons";
+import { Logo } from "@/components/Logo";
 
 export type MobileSheet = "effects" | "edit" | "export";
 
@@ -124,9 +125,9 @@ export default function MobileStudio(p: Props) {
       {p.stage(stageStyle)}
 
       {/* Top bar */}
-      <header className="glass-panel fixed inset-x-2.5 top-2.5 z-30 flex h-[52px] items-center gap-0.5 rounded-full pl-4 pr-1.5">
-        <Link href="/" className="mr-auto font-display text-[15px] tracking-tight text-bone">
-          imaginry
+      <header className="glass-panel fixed inset-x-2.5 top-2.5 z-30 flex h-[52px] items-center gap-0.5 rounded-full pl-2.5 pr-1.5">
+        <Link href="/" aria-label="Imaginry home" className="group mr-auto text-bone">
+          <Logo size={28} textClass="text-[15px]" />
         </Link>
         <BarButton label="Undo" onClick={p.onUndo} disabled={!p.canUndo}>
           <Undo2 size={16} />

@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import {
   Cabin_Condensed,
   Familjen_Grotesk,
   Outfit,
   Special_Gothic_Expanded_One,
 } from "next/font/google";
+import { CREATOR, DEFAULT_DESCRIPTION, KEYWORDS, SITE_NAME, SITE_URL, pageMeta } from "@/lib/seo";
 import "./globals.css";
 
 const familjen = Familjen_Grotesk({
@@ -30,8 +31,29 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Imaginry Studio",
-  description: "Generate images with WebGL effects",
+  ...pageMeta({
+    description: DEFAULT_DESCRIPTION,
+    path: "/",
+    image: "/og/home.png",
+    imageAlt: "Imaginry — backgrounds that move",
+  }),
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} — generative backgrounds, live in your browser`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  applicationName: SITE_NAME,
+  keywords: KEYWORDS,
+  authors: [{ name: "zRuvix", url: "https://x.com/zRuvix1" }],
+  creator: CREATOR,
+  publisher: SITE_NAME,
+  category: "design",
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0d0c0b",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

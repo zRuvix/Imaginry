@@ -107,7 +107,11 @@ export default function Stage({
       }
       rendererRef.current = renderer;
       renderer.ready.then(
-        () => (dirty.current = true),
+        () => {
+          dirty.current = true;
+          // Embedded on the landing page: tell the host the first frame is coming.
+          if (window.parent !== window) window.parent.postMessage({ imaginry: "ready" }, window.location.origin);
+        },
         (e: unknown) => setError(e instanceof Error ? e.message : String(e)),
       );
     } catch (e) {
@@ -116,9 +120,21 @@ export default function Stage({
     }
     let raf = 0;
     let last = performance.now();
+    // The landing page embeds the studio; it says when the frame is off screen
+    // so the embed stops drawing instead of competing with the page's scroll.
+    let hostVisible = true;
+    const onMessage = (e: MessageEvent) => {
+      if (e.source !== window.parent || e.origin !== window.location.origin) return;
+      if (e.data?.imaginry === "visible") hostVisible = Boolean(e.data.value);
+    };
+    window.addEventListener("message", onMessage);
     const frame = (now: number) => {
       const dt = Math.min((now - last) / 1000, 0.1);
       last = now;
+      if (!hostVisible) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const { state, playing, speed } = live.current;
       if (playing) timeRef.current += dt * speed;
       if (playing || dirty.current) {
@@ -130,6 +146,7 @@ export default function Stage({
     raf = requestAnimationFrame(frame);
     return () => {
       cancelAnimationFrame(raf);
+      window.removeEventListener("message", onMessage);
       rendererRef.current = null;
     };
   }, [timeRef, generation]);

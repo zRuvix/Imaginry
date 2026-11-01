@@ -10,6 +10,8 @@ import { useLookImages } from "@/components/landing/useLookImages";
 import { Segmented } from "@/components/studio/controls";
 import { GALLERY } from "@/lib/studio/looks";
 import { PLANS, SPONSOR_CONTACT, type Billing, type Plan } from "@/lib/sponsors";
+import { Logo } from "@/components/Logo";
+import { Credit } from "@/components/Credit";
 
 const FAQ: [string, string][] = [
   [
@@ -120,8 +122,8 @@ function Nav() {
       />
       <nav className="relative mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-7">
-          <Link href="/" className="font-display text-[17px] tracking-tight text-bone">
-            imaginry
+          <Link href="/" aria-label="Imaginry home" className="group text-bone">
+            <Logo size={26} />
           </Link>
           <div className="hidden gap-6 text-[14px] text-bone/65 md:flex">
             <Link href="/gallery" className="hover:text-bone">
@@ -129,6 +131,10 @@ function Nav() {
             </Link>
             <Link href="/studio" className="hover:text-bone">
               Studio
+            </Link>
+            <Link href="/sponsor" aria-current="page" className="flex items-center gap-1.5 text-bone">
+              <span className="size-1.5 rounded-full bg-ember" />
+              Sponsor
             </Link>
           </div>
         </div>
@@ -348,7 +354,7 @@ export default function SponsorPage() {
           </Reveal>
         </section>
         <footer className="mx-auto flex max-w-[1200px] justify-between px-4 pb-8 font-condensed text-[13px] text-bone/40 md:px-6">
-          <span className="font-display text-bone/80">imaginry</span>
+          <Credit />
           <span>Sponsorships</span>
         </footer>
       </div>

@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { X } from "@/components/icons";
 import { useClickOutside } from "./controls";
+import { Credit } from "@/components/Credit";
 
 const KEYS: [string, string][] = [
   ["Space", "Play or pause animation"],
@@ -49,6 +50,7 @@ export default function Shortcuts({ onClose }: { onClose: () => void }) {
             </li>
           ))}
         </ul>
+        <Credit className="mt-4 block text-center font-condensed text-[12.5px] text-bone/40" />
       </div>
     </div>
   );

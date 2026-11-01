@@ -24,6 +24,7 @@ import { SPONSORS, STUDIO_SLOTS } from "@/lib/sponsors";
 import { IconButton, Segmented, useClickOutside } from "./controls";
 import SponsorSlots from "./SponsorSlots";
 import { LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, type Aspect } from "./Stage";
+import { Logo } from "@/components/Logo";
 
 const SPEEDS = [0.25, 0.5, 1, 1.5, 2, 3];
 const MAIN = ["fill", "1:1", "4:5", "16:9"] as const;
@@ -65,10 +66,24 @@ export default function CommandBar(p: Props) {
 
   return (
     <div className="pointer-events-none absolute inset-x-4 top-4 z-30 flex items-start justify-between gap-3">
-      <div className={`${pill} pl-5 pr-2`}>
-        <Link href="/" className="press mr-2 font-display text-[16px] tracking-tight text-bone hover:text-white">
-          imaginry
+      <div className={`${pill} pl-3 pr-2`}>
+        <Link href="/" aria-label="Imaginry home" className="press group mr-2 text-bone hover:text-white">
+          <Logo size={28} textClass="text-[16px]" />
         </Link>
+        <nav aria-label="Site" className="mr-1 hidden items-center xl:flex">
+          {[
+            ["/gallery", "Gallery"],
+            ["/sponsor", "Sponsor"],
+          ].map(([href, label]) => (
+            <Link
+              key={href}
+              href={href}
+              className="press rounded-full px-2.5 py-1.5 text-[13px] text-bone/60 hover:bg-white/[0.08] hover:text-bone"
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
         <IconButton label="Undo (Ctrl+Z)" onClick={p.onUndo} disabled={!p.canUndo}>
           <Undo2 size={15} />
         </IconButton>

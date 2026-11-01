@@ -6,6 +6,8 @@ import { useRef, useState } from "react";
 import type { CuratedLook } from "@/lib/studio/looks";
 import LiveLook from "./LiveLook";
 import { clamp01 } from "./motion";
+import { Logo } from "@/components/Logo";
+import { Credit } from "@/components/Credit";
 
 const AMBIENT: CuratedLook = {
   name: "Ambient",
@@ -79,7 +81,9 @@ export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement |
       <div className="relative mx-auto max-w-[1200px] px-4 pt-24 md:px-6 md:pt-32">
         <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
-            <p className="font-display text-[20px] text-[var(--bone)]">imaginry</p>
+            <p className="group text-[var(--bone)]">
+              <Logo size={30} textClass="text-[20px]" />
+            </p>
             <p className="mt-3 max-w-[340px] text-[15px] leading-relaxed text-[var(--bone)]/70">
               Generative textures and looping backgrounds, made in your browser.
             </p>
@@ -122,7 +126,7 @@ export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement |
         </p>
       </div>
       <div className="relative mx-auto flex max-w-[1200px] justify-between px-4 pb-6 pt-4 font-condensed text-[13px] text-[var(--bone)]/45 md:px-6">
-        <span>© imaginry</span>
+        <Credit />
         <span>Rendered with WebGL, on your device</span>
       </div>
     </footer>

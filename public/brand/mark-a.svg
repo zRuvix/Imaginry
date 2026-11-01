@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Imaginry mark A, "Stack": three layer cards fanning out, front one in ember -->
+  <defs>
+    <linearGradient id="stack-front" x1="12" y1="24" x2="42" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffc58f"/>
+      <stop offset="0.5" stop-color="#ff5a2c"/>
+      <stop offset="1" stop-color="#9c1f3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0d0c0b"/>
+  <rect x="23" y="10" width="29" height="29" rx="9" fill="#ede7dc" fill-opacity="0.16"/>
+  <rect x="17.5" y="17" width="29" height="29" rx="9" fill="#ede7dc" fill-opacity="0.36"/>
+  <rect x="12" y="24" width="29" height="29" rx="9" fill="url(#stack-front)"/>
+  <path d="M18 30.5h11" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
