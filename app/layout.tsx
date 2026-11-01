@@ -18,6 +18,8 @@ const specialGothic = Special_Gothic_Expanded_One({
   variable: "--font-special-gothic",
   subsets: ["latin"],
   weight: "400",
+  // Next has no metrics for this font, so it can't size a fallback; skip it.
+  adjustFontFallback: false,
 });
 
 const cabinCondensed = Cabin_Condensed({
