@@ -4,6 +4,7 @@ import { useRef, useState, type DragEvent } from "react";
 import { ArrowRight, CATEGORY_ICONS, Eye, EyeOff, Image as ImageIcon, Lock, Plus } from "@/components/icons";
 import { CATEGORIES, SCHEMA, SCHEMA_BY_KEY, type SectionKey, type StudioState } from "@/lib/studio/schema";
 import { useClickOutside } from "./controls";
+import { isPresetDrag, PRESET_MIME } from "./dnd";
 import { useLayerThumbs } from "./thumbs";
 
 type Props = {
@@ -15,6 +16,10 @@ type Props = {
   onReorder: (order: SectionKey[]) => void;
   onToggleVisible: (key: SectionKey) => void;
   onAdd: (key: SectionKey) => void;
+  /** A preset dropped from the library, at a position in the dock (0 = bottom). */
+  onDropPreset: (presetId: string, index: number) => void;
+  /** True while a preset is being dragged anywhere on the page. */
+  presetDragging: boolean;
 };
 
 /** "Add layer" popover, grouped by shelf. */
@@ -76,14 +81,18 @@ export default function LayerDock(p: Props) {
   const lane = [...state.order].reverse();
 
   const onDragOver = (e: DragEvent, index: number) => {
-    if (!dragging) return;
+    if (!dragging && !isPresetDrag(e)) return;
     e.preventDefault();
+    e.stopPropagation();
     const r = e.currentTarget.getBoundingClientRect();
     setDrop(e.clientX < r.left + r.width / 2 ? index : index + 1);
   };
 
-  const onDrop = () => {
-    if (dragging != null && drop != null) {
+  const onDrop = (e: DragEvent) => {
+    if (isPresetDrag(e)) {
+      e.preventDefault();
+      p.onDropPreset(e.dataTransfer.getData(PRESET_MIME), drop ?? lane.length);
+    } else if (dragging != null && drop != null) {
       const from = lane.indexOf(dragging);
       const next = lane.filter((k) => k !== dragging);
       next.splice(drop > from ? drop - 1 : drop, 0, dragging);
@@ -95,12 +104,27 @@ export default function LayerDock(p: Props) {
   };
 
   return (
-    <div className="glass-panel flex h-[76px] max-w-full items-center gap-1.5 rounded-[24px] p-2">
-      <div
-        className="no-scrollbar flex min-w-0 items-center gap-1.5 overflow-x-auto"
-        onDragOver={(e) => dragging && e.preventDefault()}
-        onDrop={onDrop}
-      >
+    <div
+      className={`glass-panel relative flex h-[76px] max-w-full items-center gap-1.5 rounded-[24px] p-2 transition-[transform,box-shadow] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+        p.presetDragging ? "-translate-y-1 scale-[1.02] !shadow-[0_0_0_2px_rgba(255,90,44,0.55),0_30px_70px_-20px_rgba(255,90,44,0.45)]" : ""
+      }`}
+      onDragOver={(e) => {
+        if (!dragging && !isPresetDrag(e)) return;
+        e.preventDefault();
+        // Over the dock but not a chip: add on top.
+        if (isPresetDrag(e)) setDrop((d) => d ?? lane.length);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) setDrop(null);
+      }}
+      onDrop={onDrop}
+    >
+      {p.presetDragging && (
+        <span className="anim-pop pointer-events-none absolute -top-11 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ember px-3.5 py-1.5 text-[12.5px] font-medium text-ink shadow-lg">
+          Drop to add it as a layer
+        </span>
+      )}
+      <div className="no-scrollbar flex min-w-0 items-center gap-1.5 overflow-x-auto">
         {lane.length === 0 && <p className="px-4 text-[13px] text-bone/45">No layers yet. Add one to start.</p>}
         {lane.map((key, i) => {
           const section = state.sections[key];

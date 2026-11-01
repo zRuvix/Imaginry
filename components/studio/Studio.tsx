@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { GROUPS, PALETTES, type Preset } from "@/lib/studio/presets";
+import { GROUPS, groupFor, PALETTES, PRESETS_BY_ID, type Preset } from "@/lib/studio/presets";
 import { renderOffscreen } from "@/lib/studio/renderer";
 import {
   addLayer,
@@ -13,6 +13,7 @@ import {
   type Value,
 } from "@/lib/studio/schema";
 import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } from "@/lib/studio/storage";
+import { stateForLook } from "@/lib/studio/looks";
 import { useHistory } from "@/lib/studio/useHistory";
 import CommandBar from "./CommandBar";
 import ExportPanel from "./ExportPanel";
@@ -87,6 +88,7 @@ export default function Studio() {
   const [zen, setZen] = useState(false);
   const [compare, setCompare] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [presetDragging, setPresetDragging] = useState(false);
 
   const timeRef = useRef(0);
   const sizeRef = useRef({ width: 1, height: 1 });
@@ -101,14 +103,19 @@ export default function Studio() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Restore a shared design from the URL and the saved list from storage.
+  // Restore a shared design from the URL (also when a link is pasted into an
+  // open tab, which only changes the hash) and the saved list from storage.
   useEffect(() => {
-    const shared = decodeShare(window.location.hash);
-    if (shared) {
+    const load = () => {
+      const shared = decodeShare(window.location.hash);
+      if (!shared) return;
       set(shared);
       setSelected(shared.order[0] ?? null);
-    }
+    };
+    load();
     setSaved(loadSaved());
+    window.addEventListener("hashchange", load);
+    return () => window.removeEventListener("hashchange", load);
   }, [set]);
 
   // Keep the selection on a layer that still exists.
@@ -227,6 +234,25 @@ export default function Studio() {
     setSelected(key);
   };
 
+  /** A preset dropped on the dock: add (or move) its layer to that slot. */
+  const dropPreset = (presetId: string, laneIndex: number) => {
+    setPresetDragging(false);
+    const preset = PRESETS_BY_ID[presetId];
+    if (!preset || isLocked(preset.section)) return;
+    const key = preset.section;
+    set((s) => {
+      const lane = [...s.order].reverse(); // bottom first, like the dock
+      const from = lane.indexOf(key);
+      const at = from >= 0 && laneIndex > from ? laneIndex - 1 : laneIndex;
+      const next = withPreset(s, preset);
+      const rest = lane.filter((k) => k !== key);
+      rest.splice(Math.min(at, rest.length), 0, key);
+      return { ...next, order: rest.reverse() };
+    });
+    setSelected(key);
+    notify(`${SCHEMA_BY_KEY[key].label}: ${preset.name} added`);
+  };
+
   const shuffleLayer = (key: SectionKey) => {
     if (isLocked(key)) return;
     const schema = SCHEMA_BY_KEY[key];
@@ -275,11 +301,19 @@ export default function Studio() {
       next.sections[key] = { ...next.sections[key], enabled: false, preset: null };
     }
     next.order = [];
-    next = withPreset(next, pick(GROUPS[0].presets));
+    next = withPreset(next, pick(groupFor("gradient")!.presets));
     const others = GROUPS.slice(1).filter((g) => g.section !== "grain" && g.section !== "gradient");
     const count = 1 + Math.floor(Math.random() * 3);
     for (let i = 0; i < count; i++) next = withPreset(next, pick(pick(others).presets));
     next = withPreset(next, GROUPS.find((g) => g.section === "grain")!.presets[0]);
+    // An uploaded photo survives: keep it as the base and let the new
+    // gradient blend over it instead of covering it.
+    const current = stateRef.current;
+    if (image && current.order.includes("image")) {
+      next.sections.image = { ...current.sections.image };
+      next.sections.gradient = { ...next.sections.gradient, layerBlend: "overlay", layerOpacity: 0.85 };
+      next.order = [...next.order.filter((k) => k !== "image"), "image"];
+    }
     set(next);
     setSelected(next.order[1] ?? next.order[0]);
   };
@@ -301,7 +335,7 @@ export default function Studio() {
   };
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${window.location.pathname}#s=${encodeShare(state)}`;
+    const url = `${window.location.origin}${window.location.pathname}#${encodeShare(state)}`;
     window.history.replaceState(null, "", url);
     try {
       await navigator.clipboard.writeText(url);
@@ -442,6 +476,16 @@ export default function Studio() {
             notify("Loaded saved design");
           }}
           onDeleteSaved={deleteSaved}
+          onLoadLook={(look) => {
+            const next = stateForLook(look);
+            set(next);
+            setSelected(next.order[0] ?? null);
+            notify(`Loaded “${look.name}”`);
+          }}
+          imageUrl={image?.src ?? null}
+          onPickImage={() => fileRef.current?.click()}
+          onDropImage={loadImageFile}
+          onDragPreset={setPresetDragging}
         />
       </aside>
 
@@ -501,6 +545,8 @@ export default function Studio() {
           onReorder={(order) => set((s) => ({ ...s, order }))}
           onToggleVisible={(k) => flipFlag(k, "enabled")}
           onAdd={addLayerFromMenu}
+          onDropPreset={dropPreset}
+          presetDragging={presetDragging}
         />
       </div>
 

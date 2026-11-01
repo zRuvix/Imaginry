@@ -20,7 +20,9 @@ import {
   Undo2,
   Zen,
 } from "@/components/icons";
+import { SPONSORS, STUDIO_SLOTS } from "@/lib/sponsors";
 import { IconButton, Segmented, useClickOutside } from "./controls";
+import SponsorSlots from "./SponsorSlots";
 import { LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, type Aspect } from "./Stage";
 
 const SPEEDS = [0.25, 0.5, 1, 1.5, 2, 3];
@@ -74,6 +76,8 @@ export default function CommandBar(p: Props) {
           <Redo2 size={15} />
         </IconButton>
       </div>
+
+      <SponsorSlots sponsors={SPONSORS} slots={Math.floor(STUDIO_SLOTS / 2)} offset={0} />
 
       <div className={pill}>
         <IconButton label="Surprise me (R)" onClick={p.onRandomize}>
@@ -161,6 +165,8 @@ export default function CommandBar(p: Props) {
           <Keyboard size={15} />
         </IconButton>
       </div>
+
+      <SponsorSlots sponsors={SPONSORS} slots={Math.ceil(STUDIO_SLOTS / 2)} offset={Math.floor(STUDIO_SLOTS / 2)} />
 
       <div className={pill}>
         <IconButton label="Copy share link" onClick={p.onShare}>

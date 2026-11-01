@@ -131,7 +131,7 @@ export default function Inspector(p: Props) {
 
       <fieldset
         disabled={locked}
-        className="scroll-thin flex-1 space-y-5 overflow-y-auto px-3 pb-5 transition-opacity duration-300 disabled:opacity-45"
+        className="scroll-thin min-w-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-3 pb-5 transition-opacity duration-300 disabled:opacity-45"
       >
         {selected === "image" && (
           <Group title="Photo" delay={40}>

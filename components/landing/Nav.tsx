@@ -6,7 +6,7 @@ import { useState } from "react";
 import { EASE } from "./motion";
 
 const LINKS = [
-  { href: "#gallery", label: "Gallery" },
+  { href: "/gallery", label: "Gallery" },
   { href: "#how", label: "How it works" },
   { href: "#export", label: "Export" },
 ];
@@ -23,7 +23,8 @@ export default function Nav() {
   });
 
   const go = (href: string) => (e: React.MouseEvent) => {
-    if (!lenis) return;
+    // Page links navigate normally; in-page anchors glide there with Lenis.
+    if (!lenis || !href.startsWith("#")) return;
     e.preventDefault();
     lenis.scrollTo(href, { duration: 1.8 });
   };

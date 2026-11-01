@@ -123,7 +123,7 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
           ref={(el) => {
             cards.current[i] = el;
           }}
-          href={`/studio#s=${encodeShare(stateForLook(look))}`}
+          href={`/studio#${encodeShare(stateForLook(look))}`}
           draggable={false}
           aria-label={`Open “${look.name}” in the studio`}
           className="group absolute left-1/2 top-1/2 block w-[clamp(132px,15vw,220px)] will-change-transform"

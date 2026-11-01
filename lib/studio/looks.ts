@@ -12,7 +12,12 @@ export type CuratedLook = {
   /** Width / height of the card. */
   ratio: number;
   time?: number;
+  /** Moods for the gallery filter. */
+  tags?: GalleryTag[];
 };
+
+export const GALLERY_TAGS = ["Warm", "Cool", "Neon", "Mono", "Retro", "Organic", "Glass", "Graphic"] as const;
+export type GalleryTag = (typeof GALLERY_TAGS)[number];
 
 export function stateForLook(look: CuratedLook): StudioState {
   const state = emptyState(look.seed);
@@ -129,4 +134,49 @@ export const CURATED: CuratedLook[] = [
     seed: 10.2,
     ratio: 1,
   },
+];
+
+/** Moods for the landing-page looks, which are also in the gallery. */
+const CURATED_TAGS: Record<string, GalleryTag[]> = {
+  "Ember Reeds": ["Warm", "Glass"],
+  "Cobalt Bloom": ["Cool", "Organic"],
+  "Pearl Screen": ["Cool", "Graphic"],
+  "Moss Haze": ["Organic", "Glass"],
+  "Lilac Static": ["Neon", "Retro"],
+  "Night Weave": ["Cool", "Graphic"],
+  "Acid Ripple": ["Warm", "Glass"],
+  "Ice Lens": ["Cool", "Glass"],
+  "Gold Dust": ["Warm", "Organic"],
+  "Violet Signal": ["Neon", "Retro"],
+  "Rust Columns": ["Warm", "Glass"],
+  "Spectrum Grid": ["Neon", "Glass"],
+};
+
+/** Premade designs for the gallery page and the studio's Gallery tab. */
+export const GALLERY: CuratedLook[] = [
+  ...CURATED.map((look) => ({ ...look, tags: CURATED_TAGS[look.name] ?? [] })),
+  { name: "Opal Drift", recipe: "Iridescent & grain", presets: ["g-lilac", "ir-opal", "gr-fine"], seed: 2.2, ratio: 4 / 5, tags: ["Cool", "Organic"] },
+  { name: "Oil Slick", recipe: "Iridescent & waves", presets: ["g-nebula", "w-liquid", "ir-oil", "gr-fine"], seed: 6.4, ratio: 1, tags: ["Neon", "Organic"] },
+  { name: "Sunday Matinee", recipe: "Film dust & light leak", presets: ["g-gold", "lk-burn", "fd-reel", "gr-film"], seed: 3.9, ratio: 16 / 9, tags: ["Warm", "Retro"] },
+  { name: "Cathedral", recipe: "God rays & grid", presets: ["g-violet", "pt-grid", "gr-over", "gr-fine"], seed: 8.8, ratio: 3 / 4, tags: ["Cool", "Graphic"] },
+  { name: "After Hours", recipe: "Bokeh & flare", presets: ["g-nebula", "bk-city", "fl-ana", "gr-fine"], seed: 5.5, ratio: 4 / 3, tags: ["Cool", "Neon"] },
+  { name: "Wishing Well", recipe: "Twirl & glass", presets: ["g-teal", "tw-whirl", "gl-rings"], seed: 1.3, ratio: 1, tags: ["Cool", "Glass"] },
+  { name: "Planetoid", recipe: "Polar & bloom", presets: ["g-sunset", "po-planet", "bl-soft", "gr-fine"], seed: 9.1, ratio: 1, tags: ["Warm", "Organic"] },
+  { name: "Corrupted", recipe: "Glitch & CRT", presets: ["g-spectrum", "gl-heavy", "crt-classic"], seed: 4.7, ratio: 16 / 9, tags: ["Neon", "Retro"] },
+  { name: "Broken Mirror", recipe: "Shatter & split tone", presets: ["g-ice", "sh-glass", "st-dusk", "gr-fine"], seed: 7.2, ratio: 4 / 5, tags: ["Cool", "Glass"] },
+  { name: "Wallpaper No. 4", recipe: "Tile & posterize", presets: ["g-acid", "ti-wall", "po-5"], seed: 2.9, ratio: 1, tags: ["Warm", "Graphic"] },
+  { name: "Gallery Oil", recipe: "Oil paint & paper", presets: ["g-ember", "b-lava", "op-brush", "pa-cotton"], seed: 10.6, ratio: 4 / 5, tags: ["Warm", "Organic"] },
+  { name: "Field Notes", recipe: "Cross-hatch", presets: ["g-magenta", "b-duo", "ch-sepia"], seed: 3.3, ratio: 3 / 4, tags: ["Mono", "Graphic"] },
+  { name: "Brass Plate", recipe: "Emboss & split tone", presets: ["g-mono", "pt-diamonds", "em-metal", "st-teal"], seed: 6.1, ratio: 4 / 3, tags: ["Mono", "Graphic"] },
+  { name: "Photocopy", recipe: "Threshold & grain", presets: ["g-violet", "b-swarm", "th-copy", "gr-film"], seed: 11.8, ratio: 3 / 4, tags: ["Mono", "Retro"] },
+  { name: "Riso Print", recipe: "Threshold & paper", presets: ["g-ember", "w-liquid", "th-risograph", "pa-wash"], seed: 0.8, ratio: 4 / 5, tags: ["Warm", "Retro"] },
+  { name: "Toy Box", recipe: "Bricks", presets: ["g-spectrum", "b-lava", "br-toy"], seed: 5.9, ratio: 1, tags: ["Neon", "Graphic"] },
+  { name: "Stadium", recipe: "LED wall & bloom", presets: ["g-acid", "w-swirl", "le-stadium", "bl-hot"], seed: 12.2, ratio: 16 / 9, tags: ["Neon", "Retro"] },
+  { name: "Marble Hall", recipe: "Ridged noise & gradient map", presets: ["g-mono", "nz-marble", "gm-sepia", "gr-fine"], seed: 4.1, ratio: 3 / 4, tags: ["Mono", "Organic"] },
+  { name: "Warp Speed", recipe: "Zoom blur & sparkle", presets: ["g-nebula", "sp-stars", "zb-warp"], seed: 8.4, ratio: 16 / 9, tags: ["Cool", "Neon"] },
+  { name: "Model Town", recipe: "Tilt-shift & dots", presets: ["g-teal", "pt-dots", "ts-mini"], seed: 1.7, ratio: 4 / 3, tags: ["Cool", "Graphic"] },
+  { name: "Solar Print", recipe: "Solarize & halftone", presets: ["g-sunset", "so-classic", "h-coarse"], seed: 9.6, ratio: 3 / 4, tags: ["Warm", "Retro"] },
+  { name: "Lagoon Lens", recipe: "Bulge & glass", presets: ["g-teal", "bu-bubble", "gl-lens", "gr-fine"], seed: 2.6, ratio: 1, tags: ["Cool", "Glass"] },
+  { name: "Neon Contour", recipe: "Edges & bloom", presets: ["g-magenta", "gl-wavy", "ed-neon", "bl-dream"], seed: 7.7, ratio: 4 / 5, tags: ["Neon", "Glass"] },
+  { name: "Kodachrome", recipe: "Split tone & dust", presets: ["g-sunset", "st-teal", "fd-light", "gr-film"], seed: 6.9, ratio: 4 / 3, tags: ["Warm", "Retro"] },
 ];

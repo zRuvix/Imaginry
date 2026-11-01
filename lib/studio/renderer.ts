@@ -1,21 +1,9 @@
+import { EFFECTS } from "./effects";
+import type { Sections, Uniform } from "./effects/define";
+import { BLEND_MODES, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
-import { BLEND_MODES, SCHEMA_BY_KEY, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 
-type Uniform = number | number[];
-
-export function hexToRgb(hex: string): [number, number, number] {
-  const h = hex.replace("#", "");
-  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h.padEnd(6, "0");
-  const n = parseInt(full.slice(0, 6), 16);
-  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
-}
-
-/** Up to five hex colors packed into the vec3[5] the shaders expect. */
-function flatColors(colors: string[]) {
-  const flat = new Array(15).fill(0);
-  colors.slice(0, 5).forEach((c, i) => flat.splice(i * 3, 3, ...hexToRgb(c)));
-  return flat;
-}
+export { hexToRgb } from "./effects/define";
 
 /** How a layer sits on the one below: its opacity and blend mode index. */
 export function layerMix(state: StudioState, key: SectionKey) {
@@ -25,175 +13,12 @@ export function layerMix(state: StudioState, key: SectionKey) {
   return { opacity: Number.isFinite(opacity) ? opacity : 1, blend };
 }
 
-/** Index of a select option, so the shader can branch on it. */
-function opt(section: SectionKey, key: string, value: unknown): number {
-  const control = SCHEMA_BY_KEY[section].controls.find((c) => c.key === key);
-  if (!control || control.type !== "select") return 0;
-  return Math.max(0, control.options.indexOf(String(value)));
-}
-
+/** Uniforms for every effect (each effect file supplies its own), plus the seed. */
 export function toUniforms(state: StudioState, hasImage: boolean): Record<string, Uniform> {
-  const s = state.sections;
-  const n = (v: unknown) => Number(v) || 0;
-  const on = (k: SectionKey) => (s[k].enabled ? 1 : 0);
-  const colors = (s.gradient.colors as string[]).slice(0, 5);
-  const flat = flatColors(colors);
-  const mapColors = ((s.gradientmap.colors as string[]) ?? []).slice(0, 5);
-
-  return {
-    uSeed: state.seed,
-
-    uImgOn: on("image") && hasImage ? 1 : 0,
-    uImgScale: n(s.image.scale) || 1,
-    uImgPos: [n(s.image.x), n(s.image.y)],
-    uImgBlur: n(s.image.blur),
-    uImgBright: n(s.image.brightness),
-    uImgContrast: s.image.contrast == null ? 1 : n(s.image.contrast),
-    uImgSat: s.image.saturation == null ? 1 : n(s.image.saturation),
-    uImgExposure: n(s.image.exposure),
-    uImgFilter: opt("image", "filter", s.image.filter),
-
-    uGradOn: on("gradient"),
-    uGradType: opt("gradient", "type", s.gradient.type),
-    uColors: flat,
-    uColorCount: colors.length,
-    uGradAngle: n(s.gradient.angle),
-    uGradScale: n(s.gradient.scale) || 1,
-    uGradWarp: n(s.gradient.warp),
-    uGradSpeed: n(s.gradient.speed),
-
-    uPatOn: on("pattern"),
-    uPatType: opt("pattern", "type", s.pattern.type),
-    uPatScale: n(s.pattern.scale),
-    uPatSize: n(s.pattern.size),
-    uPatAngle: n(s.pattern.angle),
-    uPatSoft: n(s.pattern.softness),
-    uPatBg: hexToRgb(String(s.pattern.background)),
-
-    uOptOn: on("optics"),
-    uOptAberr: n(s.optics.aberration),
-    uOptLens: n(s.optics.distortion),
-    uOptVig: n(s.optics.vignette),
-    uOptGlow: n(s.optics.glow),
-
-    uLightOn: on("light"),
-    uLightType: opt("light", "type", s.light.type),
-    uLightIntensity: n(s.light.intensity),
-    uLightColor: hexToRgb(String(s.light.color)),
-    uLightSpread: n(s.light.spread) || 1,
-    uLightAngle: n(s.light.angle),
-    uLightPos: [n(s.light.x), n(s.light.y)],
-
-    uWaveOn: on("waves"),
-    uWaveType: opt("waves", "type", s.waves.type),
-    uWaveAmp: n(s.waves.amplitude),
-    uWaveFreq: n(s.waves.frequency),
-    uWaveSpeed: n(s.waves.speed),
-    uWaveAngle: n(s.waves.angle),
-
-    uBlobOn: on("blobs"),
-    uBlobCount: n(s.blobs.count),
-    uBlobSize: n(s.blobs.size),
-    uBlobSoft: n(s.blobs.softness),
-    uBlobSpeed: n(s.blobs.speed),
-    uBlobMix: n(s.blobs.mix),
-
-    uGlassOn: on("glass"),
-    uGlassType: opt("glass", "type", s.glass.type),
-    uGlassSeg: n(s.glass.segments),
-    uGlassDist: n(s.glass.distortion),
-    uGlassAngle: n(s.glass.angle),
-    uGlassShade: n(s.glass.shading),
-    uGlassFrost: n(s.glass.frost),
-    uGlassZoom: n(s.glass.zoom),
-    uGlassStagger: n(s.glass.stagger),
-    uGlassDisp: n(s.glass.dispersion),
-
-    uPixOn: on("pixelate"),
-    uPixSize: n(s.pixelate.size),
-
-    uDithOn: on("dither"),
-    uDithLevels: n(s.dither.levels),
-    uDithScale: n(s.dither.scale),
-    uDithMono: s.dither.mono ? 1 : 0,
-
-    uHalfOn: on("halftone"),
-    uHalfSize: n(s.halftone.size),
-    uHalfAngle: n(s.halftone.angle),
-    uHalfMono: s.halftone.mono ? 1 : 0,
-    uHalfInk: hexToRgb(String(s.halftone.ink)),
-    uHalfPaper: hexToRgb(String(s.halftone.paper)),
-
-    uPlaidOn: on("plaid"),
-    uPlaidScale: n(s.plaid.scale),
-    uPlaidOpacity: n(s.plaid.opacity),
-    uPlaidAngle: n(s.plaid.angle),
-    uPlaidColor: hexToRgb(String(s.plaid.color)),
-
-    uAsciiOn: on("ascii"),
-    uAsciiSize: n(s.ascii.size),
-    uAsciiColored: s.ascii.colored ? 1 : 0,
-
-    uGrainOn: on("grain"),
-    uGrainAmount: n(s.grain.amount),
-    uGrainSize: n(s.grain.size) || 1,
-
-    uAdjBright: n(s.adjust.brightness),
-    uAdjContrast: n(s.adjust.contrast),
-    uAdjSat: n(s.adjust.saturation),
-    uAdjHue: n(s.adjust.hue),
-    uAdjExposure: n(s.adjust.exposure),
-    uAdjTemp: n(s.adjust.temperature),
-
-    uMapColors: flatColors(mapColors),
-    uMapCount: mapColors.length,
-    uMapReverse: s.gradientmap.reverse ? 1 : 0,
-
-    uPostLevels: n(s.posterize.levels),
-    uPostGamma: n(s.posterize.gamma) || 1,
-
-    uBloomThreshold: n(s.bloom.threshold),
-    uBloomIntensity: n(s.bloom.intensity),
-    uBloomRadius: n(s.bloom.radius),
-
-    uRgbAmount: n(s.rgbshift.amount),
-    uRgbAngle: n(s.rgbshift.angle),
-    uRgbJitter: n(s.rgbshift.jitter),
-
-    uKalSegments: n(s.kaleido.segments),
-    uKalRotate: n(s.kaleido.rotate),
-    uKalZoom: n(s.kaleido.zoom) || 1,
-    uKalSpeed: n(s.kaleido.speed),
-
-    uMirrorMode: opt("mirror", "mode", s.mirror.mode),
-    uMirrorOffset: n(s.mirror.offset),
-
-    uMosScale: n(s.mosaic.scale),
-    uMosEdge: n(s.mosaic.edge),
-    uMosJitter: n(s.mosaic.jitter),
-    uMosEdgeColor: hexToRgb(String(s.mosaic.edgeColor)),
-
-    uCrtLines: n(s.crt.lines),
-    uCrtCurve: n(s.crt.curve),
-    uCrtMask: n(s.crt.mask),
-    uCrtFlicker: n(s.crt.flicker),
-
-    uEdgeStrength: n(s.edges.strength),
-    uEdgeThick: n(s.edges.thickness) || 1,
-    uEdgeMode: opt("edges", "mode", s.edges.mode),
-    uEdgeColor: hexToRgb(String(s.edges.color)),
-
-    uEngSize: n(s.engrave.size),
-    uEngAngle: n(s.engrave.angle),
-    uEngWave: n(s.engrave.wave),
-    uEngInk: hexToRgb(String(s.engrave.ink)),
-    uEngPaper: hexToRgb(String(s.engrave.paper)),
-
-    uSparkDensity: n(s.sparkle.density),
-    uSparkSize: n(s.sparkle.size),
-    uSparkSpeed: n(s.sparkle.speed),
-    uSparkColor: hexToRgb(String(s.sparkle.color)),
-  };
+  const sections = state.sections as unknown as Sections;
+  const out: Record<string, Uniform> = { uSeed: state.seed };
+  for (const effect of EFFECTS) Object.assign(out, effect.uniforms(sections, { hasImage }));
+  return out;
 }
 
 type Pass = { program: WebGLProgram; locations: Map<string, WebGLUniformLocation | null> };

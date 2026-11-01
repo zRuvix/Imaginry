@@ -124,6 +124,20 @@ body {
   animation: shimmer 1.6s linear infinite;
 }
 
+/* Breathing glow on the sponsor slot in the /sponsor mock-up */
+@keyframes sponsor-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 90, 44, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 90, 44, 0);
+  }
+}
+.sponsor-glow {
+  animation: sponsor-glow 2.4s ease-in-out infinite;
+}
+
 /* Hide scrollbars on horizontal chip rows */
 .no-scrollbar {
   scrollbar-width: none;

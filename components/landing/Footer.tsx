@@ -22,7 +22,7 @@ const COLUMNS = [
   {
     title: "Explore",
     links: [
-      { label: "Gallery", href: "/#gallery" },
+      { label: "Gallery", href: "/gallery" },
       { label: "How it works", href: "/#how" },
       { label: "Export", href: "/#export" },
     ],
@@ -32,6 +32,7 @@ const COLUMNS = [
     links: [
       { label: "Open studio", href: "/studio" },
       { label: "Start from a photo", href: "/studio" },
+      { label: "Sponsor", href: "/sponsor" },
     ],
   },
 ];

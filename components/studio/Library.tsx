@@ -1,14 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CATEGORY_ICONS, Check, Search, X } from "@/components/icons";
+import Link from "next/link";
+import { ArrowUpRight, CATEGORY_ICONS, Check, Search, Upload, X } from "@/components/icons";
+import { useLookImages } from "@/components/landing/useLookImages";
+import { GALLERY, type CuratedLook } from "@/lib/studio/looks";
 import { GROUPS, type Preset } from "@/lib/studio/presets";
-import { CATEGORIES, SCHEMA_BY_KEY, type Category, type StudioState } from "@/lib/studio/schema";
+import { CATEGORIES, SCHEMA, SCHEMA_BY_KEY, type Category, type StudioState } from "@/lib/studio/schema";
 import type { SavedDesign } from "@/lib/studio/storage";
 import { Segmented } from "./controls";
+import { PRESET_MIME } from "./dnd";
 import { usePresetThumbs } from "./thumbs";
 
-type Tab = "Effects" | "Saved";
+type Tab = "Effects" | "Gallery" | "Saved";
 type Shelf = "All" | Category;
 
 function PresetCard({
@@ -17,17 +21,29 @@ function PresetCard({
   selected,
   index,
   onClick,
+  onDragChange,
 }: {
   preset: Preset;
   thumb?: string;
   selected: boolean;
   index: number;
   onClick: () => void;
+  onDragChange: (dragging: boolean) => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      draggable
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "copy";
+        e.dataTransfer.setData(PRESET_MIME, preset.id);
+        // Drag the thumbnail itself rather than the whole card.
+        const img = e.currentTarget.querySelector("img");
+        if (img) e.dataTransfer.setDragImage(img, img.width / 2, img.height / 2);
+        onDragChange(true);
+      }}
+      onDragEnd={() => onDragChange(false)}
       aria-pressed={selected}
       aria-label={`${SCHEMA_BY_KEY[preset.section].label}: ${preset.name}`}
       className="anim-rise group text-left"
@@ -64,18 +80,119 @@ function PresetCard({
   );
 }
 
+/** First item in the effects list: bring your own photo in as the base. */
+function ImageTile({
+  imageUrl,
+  onPick,
+  onDrop,
+}: {
+  imageUrl: string | null;
+  onPick: () => void;
+  onDrop: (file: File) => void;
+}) {
+  const [over, setOver] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setOver(true);
+      }}
+      onDragLeave={() => setOver(false)}
+      onDrop={(e) => {
+        e.preventDefault();
+        setOver(false);
+        const file = e.dataTransfer.files[0];
+        if (file?.type.startsWith("image/")) onDrop(file);
+      }}
+      aria-label={imageUrl ? "Replace your image" : "Upload an image"}
+      className={`anim-rise group mt-2 flex w-full items-center gap-3 rounded-[18px] p-2 pr-3 text-left transition-[background-color,transform] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-0.5 active:scale-[0.97] ${
+        over ? "bg-ember/20" : "bg-white/[0.05] hover:bg-white/[0.08]"
+      }`}
+    >
+      <span className="relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-raised text-bone/70 shadow-[0_8px_18px_-10px_rgba(0,0,0,0.9)]">
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} alt="" className="size-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        ) : (
+          <Upload size={20} className="transition-transform duration-500 group-hover:-translate-y-0.5 group-hover:text-ember" />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block text-[13.5px] font-medium text-bone">Your image</span>
+        <span className="block truncate text-[12px] text-bone/50">
+          {over ? "Drop to use it as the base" : imageUrl ? "Click to replace" : "Upload, paste or drop a photo"}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** Premade designs; only rendered while this tab is open. */
+function GalleryTab({ onLoad }: { onLoad: (look: CuratedLook) => void }) {
+  const urls = useLookImages(GALLERY, 260);
+  return (
+    <div className="scroll-thin flex-1 overflow-y-auto px-3 pb-4 pt-1">
+      <Link
+        href="/gallery"
+        className="press mb-3 flex items-center justify-between rounded-[14px] bg-white/[0.05] px-3.5 py-2.5 text-[13px] text-bone/75 hover:bg-white/[0.09] hover:text-bone"
+      >
+        Browse the full gallery
+        <ArrowUpRight size={13} />
+      </Link>
+      <div className="grid grid-cols-2 gap-x-2 gap-y-3">
+        {GALLERY.map((look, i) => (
+          <button
+            key={look.name}
+            type="button"
+            onClick={() => onLoad(look)}
+            className="anim-rise group text-left"
+            style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
+          >
+            <span className="block aspect-square overflow-hidden rounded-[16px] bg-raised shadow-[0_10px_24px_-14px_rgba(0,0,0,0.9)] transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-translate-y-1 group-active:scale-95">
+              {urls[i] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={urls[i]!}
+                  alt=""
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+              ) : (
+                <span className="skeleton block size-full" />
+              )}
+            </span>
+            <span className="mt-1.5 block truncate px-0.5 text-[12.5px] text-bone/80">{look.name}</span>
+            <span className="block truncate px-0.5 text-[11.5px] text-bone/40">{look.recipe}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Library({
   state,
   onToggle,
   saved,
   onLoadSaved,
   onDeleteSaved,
+  onLoadLook,
+  imageUrl,
+  onPickImage,
+  onDropImage,
+  onDragPreset,
 }: {
   state: StudioState;
   onToggle: (preset: Preset) => void;
   saved: SavedDesign[];
   onLoadSaved: (d: SavedDesign) => void;
   onDeleteSaved: (id: string) => void;
+  onLoadLook: (look: CuratedLook) => void;
+  imageUrl: string | null;
+  onPickImage: () => void;
+  onDropImage: (file: File) => void;
+  onDragPreset: (dragging: boolean) => void;
 }) {
   const thumbs = usePresetThumbs();
   const [tab, setTab] = useState<Tab>("Effects");
@@ -96,7 +213,7 @@ export default function Library({
   return (
     <div className="flex h-full flex-col">
       <div className="space-y-3 p-3 pb-2">
-        <Segmented label="Library" value={tab} options={["Effects", "Saved"] as const} onChange={setTab} />
+        <Segmented label="Library" value={tab} options={["Effects", "Gallery", "Saved"] as const} onChange={setTab} />
         {tab === "Effects" && (
           <>
             <label className="flex h-10 items-center gap-2.5 rounded-[12px] bg-white/[0.05] px-3 transition-colors focus-within:bg-white/[0.08]">
@@ -104,7 +221,7 @@ export default function Library({
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search 26 effects"
+                placeholder={`Search ${SCHEMA.length} effects`}
                 aria-label="Search effects"
                 className="min-w-0 flex-1 bg-transparent text-[13px] text-bone outline-none placeholder:text-bone/35"
               />
@@ -138,8 +255,13 @@ export default function Library({
         )}
       </div>
 
-      {tab === "Effects" ? (
+      {tab === "Gallery" ? (
+        <GalleryTab onLoad={onLoadLook} />
+      ) : tab === "Effects" ? (
         <div key={`${shelf}-${query}`} className="scroll-thin flex-1 overflow-y-auto px-3 pb-4">
+          {(shelf === "All" || shelf === "Color") && (!query || /image|photo|upload|picture/i.test(query)) && (
+            <ImageTile imageUrl={imageUrl} onPick={onPickImage} onDrop={onDropImage} />
+          )}
           {groups.length === 0 && (
             <p className="anim-rise px-1 py-6 text-center text-[13px] text-bone/45">Nothing matches “{query}”.</p>
           )}
@@ -164,6 +286,7 @@ export default function Library({
                         selected={section.enabled && section.preset === preset.id}
                         index={gi * 3 + i}
                         onClick={() => onToggle(preset)}
+                        onDragChange={onDragPreset}
                       />
                     );
                   })}
