@@ -65,6 +65,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${familjen.variable} ${specialGothic.variable} ${cabinCondensed.variable} ${outfit.variable} h-full antialiased`}
     >
+      <head>
+        {/* Rybbit analytics */}
+        <script src="https://stats.zruvix.com/api/script.js?siteId=d699af3edc35" defer />
+      </head>
       <body className="h-full" suppressHydrationWarning>{children}</body>
     </html>
   );
