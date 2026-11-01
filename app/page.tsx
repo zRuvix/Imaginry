@@ -16,7 +16,7 @@ const jsonLd = {
   url: SITE_URL,
   description: DEFAULT_DESCRIPTION,
   applicationCategory: "DesignApplication",
-  operatingSystem: "Any (WebGL2 browser)",
+  operatingSystem: "Any (modern browser)",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
   image: `${SITE_URL}/og/home.png`,
   creator: { "@type": "Person", name: "zRuvix", url: CREATOR_URL },

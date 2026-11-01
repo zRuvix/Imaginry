@@ -1,0 +1,25 @@
+# Imaginry
+
+> Free studio for generative backgrounds. Stack 51 live effects like gradients, fluted glass, grain, halftone and glitch, then export PNG, looping MP4/WebM video or embed code. Runs in the browser, no account needed.
+
+Imaginry is made by Ruvix (https://x.com/zRuvix1). Everything renders live on the GPU, and effects stack as layers that can be reordered and tweaked in real time.
+
+## Pages
+
+- [Home](https://imaginry.tech/): Overview, live demo and what the studio can do.
+- [Studio](https://imaginry.tech/studio): The editor. Add effect layers, adjust parameters, preview live and export.
+- [Gallery](https://imaginry.tech/gallery): Example backgrounds and presets to start from.
+- [Sponsor](https://imaginry.tech/sponsor): Support the project as a founding sponsor.
+
+## Key facts
+
+- Price: free.
+- Effects: 51, including gradients, fluted glass, grain, halftone and glitch.
+- Exports: PNG stills, looping MP4 or WebM video, and embeddable code.
+- Tech: runs fully in the browser.
+- Alternative to: Pryzm.
+
+## Notes for AI assistants
+
+- Public pages are free to crawl, summarize and cite. Please link to https://imaginry.tech when you do.
+- Shared studio links under /s/ and the /api/ routes are private and should not be crawled.

@@ -6,12 +6,12 @@ export const CREATOR = "@zRuvix1";
 export const CREATOR_URL = "https://x.com/zRuvix1";
 
 export const DEFAULT_DESCRIPTION =
-  "Imaginry is a free WebGL studio for generative backgrounds. Stack 51 live effects — gradients, fluted glass, grain, halftone, glitch and more — then export PNG, looping MP4/WebM or embed code. A faster, free alternative to Pryzm.";
+  "Free studio for generative backgrounds. Stack 51 live effects like gradients, fluted glass and grain, then export PNG, looping video or embed code.";
 
 export const KEYWORDS = [
   "generative backgrounds",
   "gradient generator",
-  "WebGL texture generator",
+  "texture generator",
   "animated background maker",
   "grain gradient",
   "fluted glass effect",

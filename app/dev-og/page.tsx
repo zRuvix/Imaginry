@@ -11,7 +11,7 @@ const find = (name: string) => [...CURATED, ...GALLERY].find((l) => l.name === n
 
 type Card = { name: string; look: string; kicker: string; title: string; sub: string; tiles?: string[] };
 const CARDS: Card[] = [
-  { name: "home", look: "Ember Reeds", kicker: "Free WebGL studio", title: "Backgrounds that\nmove.", sub: "Stack 51 live effects. Export PNG, MP4 or embed code." },
+  { name: "home", look: "Ember Reeds", kicker: "Free studio", title: "Backgrounds that\nmove.", sub: "Stack 51 live effects. Export PNG, MP4 or embed code." },
   { name: "studio", look: "Oil Slick", kicker: "Studio", title: "Layer it. Loop it.\nShip it.", sub: "Gradients, glass, grain and 48 more effects in your browser." },
   { name: "gallery", look: "Cobalt Bloom", kicker: "Gallery", title: "36 looks,\nready to remix.", sub: "Open any design in the studio and make it yours.", tiles: ["Sunday Matinee", "Neon Contour", "Marble Hall", "Riso Print"] },
   { name: "sponsor", look: "Gold Dust", kicker: "Sponsor", title: "Put your brand\nin the studio.", sub: "Weekly or monthly slots, seen by designers every day." },

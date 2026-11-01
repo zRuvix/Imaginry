@@ -127,7 +127,7 @@ export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement |
       </div>
       <div className="relative mx-auto flex max-w-[1200px] justify-between px-4 pb-6 pt-4 font-condensed text-[13px] text-[var(--bone)]/45 md:px-6">
         <Credit />
-        <span>Rendered with WebGL, on your device</span>
+        <span>Rendered live, on your device</span>
       </div>
     </footer>
   );
