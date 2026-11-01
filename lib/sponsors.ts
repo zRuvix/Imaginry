@@ -19,8 +19,6 @@ export const SPONSORS: Sponsor[] = [
   // { name: "Acme", href: "https://acme.example", logo: "/sponsors/acme.svg" },
 ];
 
-/** Where "Book a slot" sends people. Replace with your real address. */
-export const SPONSOR_CONTACT = "mailto:sponsors@imaginry.tech?subject=Sponsoring%20Imaginry";
 
 export type Billing = "weekly" | "monthly";
 
@@ -38,14 +36,14 @@ export const PLANS: Plan[] = [
     id: "bar",
     name: "Studio bar",
     blurb: "Your logo and name in the studio's top bar, in front of everyone making something.",
-    price: { weekly: 49, monthly: 149 },
+    price: { weekly: 5, monthly: 15 },
     features: ["Logo + name chip in the studio top bar", "Links straight to your site", "Rotates with up to 3 other brands"],
   },
   {
     id: "gallery",
     name: "Gallery feature",
     blurb: "A design built around your brand colors, pinned first in the gallery.",
-    price: { weekly: 89, monthly: 279 },
+    price: { weekly: 10, monthly: 30 },
     features: [
       "Everything in Studio bar",
       "A custom look in your palette, pinned in /gallery",
@@ -57,7 +55,7 @@ export const PLANS: Plan[] = [
     id: "spotlight",
     name: "Spotlight",
     blurb: "The whole site: studio, gallery and a card on the landing page.",
-    price: { weekly: 149, monthly: 449 },
+    price: { weekly: 15, monthly: 49 },
     features: [
       "Everything in Gallery feature",
       "Your card in the landing page orbit",

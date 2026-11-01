@@ -9,7 +9,8 @@ import { Reveal } from "@/components/landing/motion";
 import { useLookImages } from "@/components/landing/useLookImages";
 import { Segmented } from "@/components/studio/controls";
 import { GALLERY } from "@/lib/studio/looks";
-import { PLANS, SPONSOR_CONTACT, type Billing, type Plan } from "@/lib/sponsors";
+import { PLANS, type Billing } from "@/lib/sponsors";
+import { CREATOR_URL } from "@/lib/seo";
 import { Logo, LogoMark } from "@/components/Logo";
 import { Credit } from "@/components/Credit";
 
@@ -35,9 +36,6 @@ const FAQ: [string, string][] = [
     "Weekly is good for a launch. Monthly costs noticeably less per week if you want steady presence.",
   ],
 ];
-
-const bookHref = (plan: Plan, billing: Billing) =>
-  `${SPONSOR_CONTACT}&body=${encodeURIComponent(`Hi! I'd like to book the ${plan.name} plan, billed ${billing}.`)}`;
 
 /** Counts toward a new value instead of jumping. */
 function AnimatedPrice({ value }: { value: number }) {
@@ -466,7 +464,9 @@ export default function SponsorPage() {
                     ))}
                   </ul>
                   <a
-                    href={bookHref(plan, billing)}
+                    href={CREATOR_URL}
+                    target="_blank"
+                    rel="noopener"
                     className={`press mt-8 inline-flex h-11 items-center justify-center gap-2 rounded-full text-[14.5px] font-medium ${
                       plan.featured ? "bg-ember text-ink hover:brightness-110" : "bg-bone text-ink hover:bg-white"
                     }`}
@@ -479,10 +479,18 @@ export default function SponsorPage() {
           </div>
           <p className="mt-6 text-center text-[13.5px] text-bone/45">
             Prices in USD. Want something custom, like a longer run or a co-branded preset pack?{" "}
-            <a href={SPONSOR_CONTACT} className="text-bone/80 underline-offset-4 hover:underline">
+            <a
+              href={CREATOR_URL}
+              target="_blank"
+              rel="noopener"
+              className="text-bone/80 underline-offset-4 hover:underline"
+            >
               Get in touch
             </a>
             .
+          </p>
+          <p className="mt-2 text-center text-[13.5px] text-ember/80">
+            Founding rates while Imaginry is new — they go up as the audience grows.
           </p>
         </section>
 
@@ -538,7 +546,7 @@ export default function SponsorPage() {
               <Button href="#plans" primary>
                 Choose a plan <ArrowRight size={15} />
               </Button>
-              <Button href={SPONSOR_CONTACT}>Email us</Button>
+              <Button href={CREATOR_URL}>Message us on X</Button>
             </div>
           </Reveal>
         </section>
