@@ -4,11 +4,11 @@ import { ReactLenis, useLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 import { ArrowRight, ArrowUpRight, Hand } from "@/components/icons";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CURATED, type CuratedLook } from "@/lib/studio/looks";
 import ExportStack from "./ExportStack";
 import Footer from "./Footer";
-import LayersStory, { STORY } from "./LayersStory";
+import LayersStory, { randomStory } from "./LayersStory";
 import LiveLook from "./LiveLook";
 import { clamp01, EASE, Reveal, useScrollFx } from "./motion";
 import Nav from "./Nav";
@@ -78,7 +78,7 @@ function RisingTitle({ text, className }: { text: string; className?: string }) 
   );
 }
 
-function Hero({ urls }: { urls: (string | null)[] }) {
+function Hero({ looks, urls }: { looks: CuratedLook[]; urls: (string | null)[] }) {
   const lenis = useLenis();
   return (
     <section id="gallery" className="relative h-[100svh] overflow-hidden">
@@ -111,7 +111,7 @@ function Hero({ urls }: { urls: (string | null)[] }) {
       </div>
 
       <Reveal delay={400} y={60} scale={0.9} className="absolute inset-x-0 bottom-[10svh] z-10 h-[40svh] md:h-[42svh]">
-        <Orbit looks={CURATED} urls={urls} />
+        <Orbit looks={looks} urls={urls} />
       </Reveal>
 
       <p className="pointer-events-none absolute inset-x-0 bottom-5 z-20 flex items-center justify-center gap-2 font-condensed text-[14px] text-[var(--bone)]/40">
@@ -248,12 +248,24 @@ function Closing() {
 
 // ---------------------------------------------------------------- page
 
+const STORY_PX = 1600;
+const EMPTY: CuratedLook[] = [];
+
 export default function Landing() {
   // One render queue for every still on the page, gallery first.
-  const looks = useMemo(() => [...CURATED, ...STORY], []);
-  const urls = useLookImages(looks);
-  const gallery = urls.slice(0, CURATED.length);
-  const story = urls.slice(CURATED.length);
+  // Fresh seeds every visit. Picked after mount so the prerendered page stays
+  // stable; nothing is rendered until they exist.
+  const [fresh, setFresh] = useState<{ gallery: CuratedLook[]; story: CuratedLook[] } | null>(null);
+  useEffect(() => {
+    setFresh({
+      gallery: CURATED.map((l) => ({ ...l, seed: l.seed + Math.random() * 40 })),
+      story: randomStory(),
+    });
+  }, []);
+  const looks = fresh?.gallery ?? CURATED;
+  const gallery = useLookImages(fresh?.gallery ?? EMPTY);
+  // The layer plates fill the screen, so they get a much larger render.
+  const story = useLookImages(fresh?.story ?? EMPTY, STORY_PX);
 
   const page = useRef<HTMLDivElement>(null);
   const hero = useRef<HTMLDivElement>(null);
@@ -301,14 +313,14 @@ export default function Landing() {
         >
           <div className="sticky top-0 z-0 h-[100svh]">
             <div ref={hero} className="h-full origin-top will-change-transform">
-              <Hero urls={gallery} />
+              <Hero looks={looks} urls={gallery} />
             </div>
           </div>
           <div
             ref={sheet}
             className="relative z-10 rounded-[36px] bg-[var(--ink)] shadow-[0_-40px_100px_rgba(0,0,0,0.65)]"
           >
-            <LayersStory urls={story} />
+            <LayersStory looks={fresh?.story} urls={story} />
             <StudioPreview previewUrl={gallery[10]} />
             <ExportStack stills={[gallery[1], gallery[0], gallery[5], gallery[8], gallery[6]]} />
             <Closing />

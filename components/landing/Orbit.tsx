@@ -29,6 +29,8 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
   useEffect(() => {
     const el = wrap.current!;
     const m = motion.current;
+    // Start the ring at a different angle each visit.
+    m.rot = Math.random() * Math.PI * 2;
     const reduced = prefersReducedMotion();
     let raf = 0;
     let last = performance.now();

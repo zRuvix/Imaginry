@@ -4,15 +4,48 @@ import { useRef } from "react";
 import type { CuratedLook } from "@/lib/studio/looks";
 import { clamp01, useSmoothProgress } from "./motion";
 
-const base = { seed: 12.5, ratio: 4 / 3 };
+type Layer = { id: string; name: string; recipe: string };
+
+const GRADIENTS = ["g-ember", "g-sunset", "g-violet", "g-magenta", "g-teal", "g-spectrum", "g-gold", "g-ice"];
+const GLASS: Layer[] = [
+  { id: "gl-fluted", name: "Fluted glass", recipe: "Bends what's below" },
+  { id: "gl-grid", name: "Grid glass", recipe: "Tiles what's below" },
+  { id: "gl-frosted", name: "Frosted glass", recipe: "Softens what's below" },
+  { id: "gl-rings", name: "Ring glass", recipe: "Ripples what's below" },
+  { id: "gl-wavy", name: "Wavy glass", recipe: "Warps what's below" },
+  { id: "gl-lens", name: "Lens glass", recipe: "Magnifies what's below" },
+];
+const OPTICS: Layer[] = [
+  { id: "o-subtle", name: "Optics", recipe: "Aberration and glow" },
+  { id: "o-prism", name: "Prism", recipe: "Splits the color" },
+  { id: "o-dream", name: "Dream", recipe: "Soft glow and vignette" },
+];
+const GRAIN: Layer[] = [
+  { id: "gr-fine", name: "Fine grain", recipe: "A light tooth" },
+  { id: "gr-film", name: "Film grain", recipe: "The finishing tooth" },
+  { id: "gr-heavy", name: "Heavy grain", recipe: "Rough and analog" },
+];
 
 /** Cumulative renders: each plate is the design with one more layer on. */
-export const STORY: CuratedLook[] = [
-  { ...base, name: "Gradient", recipe: "The color underneath", presets: ["g-ember"] },
-  { ...base, name: "Fluted glass", recipe: "Bends what's below", presets: ["g-ember", "gl-fluted"] },
-  { ...base, name: "Optics", recipe: "Aberration and glow", presets: ["g-ember", "gl-fluted", "o-subtle"] },
-  { ...base, name: "Grain", recipe: "The finishing tooth", presets: ["g-ember", "gl-fluted", "o-subtle", "gr-film"] },
-];
+export function makeStory(gradient: string, layers: Layer[], seed: number): CuratedLook[] {
+  const plates = [{ id: gradient, name: "Gradient", recipe: "The color underneath" }, ...layers];
+  return plates.map((l, i) => ({
+    name: l.name,
+    recipe: l.recipe,
+    presets: plates.slice(0, i + 1).map((p) => p.id),
+    seed,
+    ratio: 4 / 3,
+  }));
+}
+
+const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+
+/** A different gradient, glass, optics and grain every page load. */
+export function randomStory(): CuratedLook[] {
+  return makeStory(pick(GRADIENTS), [pick(GLASS), pick(OPTICS), pick(GRAIN)], Math.random() * 100);
+}
+
+export const STORY = makeStory("g-ember", [GLASS[0], OPTICS[0], GRAIN[1]], 12.5);
 
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
@@ -20,7 +53,7 @@ const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t 
  * A pinned "exploded view": the design starts as four floating plates, one
  * per layer, and scrolling presses them together into the finished image.
  */
-export default function LayersStory({ urls }: { urls: (string | null)[] }) {
+export default function LayersStory({ looks = STORY, urls }: { looks?: CuratedLook[]; urls: (string | null)[] }) {
   const outer = useRef<HTMLElement>(null);
   const stack = useRef<HTMLDivElement>(null);
   const plates = useRef<(HTMLDivElement | null)[]>([]);
@@ -42,7 +75,7 @@ export default function LayersStory({ urls }: { urls: (string | null)[] }) {
       const p = clamp01((v - 1) / pinned);
       const enter = clamp01(v);
       const merge = easeInOut(clamp01((p - 0.14) / 0.6)); // 0 exploded → 1 pressed flat
-      const n = STORY.length;
+      const n = looks.length;
       const gap = Math.min(window.innerWidth * 0.085, 96);
 
       if (stack.current) {
@@ -106,9 +139,9 @@ export default function LayersStory({ urls }: { urls: (string | null)[] }) {
             className="relative aspect-[4/3] w-[min(520px,72vw,58svh)] will-change-transform"
             style={{ transformStyle: "preserve-3d" }}
           >
-            {STORY.map((s, i) => (
+            {looks.map((s, i) => (
               <div
-                key={s.name}
+                key={i}
                 ref={(el) => {
                   plates.current[i] = el;
                 }}
@@ -142,9 +175,9 @@ export default function LayersStory({ urls }: { urls: (string | null)[] }) {
 
         <div className="relative z-10 flex flex-col items-center gap-4 pb-[7svh]">
           <div className="flex flex-wrap justify-center gap-2">
-            {STORY.map((s, i) => (
+            {looks.map((s, i) => (
               <span
-                key={s.name}
+                key={i}
                 ref={(el) => {
                   pills.current[i] = el;
                 }}

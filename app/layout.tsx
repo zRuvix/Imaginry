@@ -6,6 +6,7 @@ import {
   Special_Gothic_Expanded_One,
 } from "next/font/google";
 import { CREATOR, DEFAULT_DESCRIPTION, KEYWORDS, SITE_NAME, SITE_URL, pageMeta } from "@/lib/seo";
+import NoImageDrag from "@/components/NoImageDrag";
 import "./globals.css";
 
 const familjen = Familjen_Grotesk({
@@ -69,7 +70,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Rybbit analytics */}
         <script src="https://stats.zruvix.com/api/script.js?siteId=d699af3edc35" defer />
       </head>
-      <body className="h-full" suppressHydrationWarning>{children}</body>
+      <body className="h-full" suppressHydrationWarning><NoImageDrag />
+        {children}
+      </body>
     </html>
   );
 }

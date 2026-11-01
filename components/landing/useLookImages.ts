@@ -22,6 +22,7 @@ export function useLookImages(lookList: CuratedLook[], longSide = LONG_SIDE) {
 
   useEffect(() => {
     let cancelled = false;
+    setUrls(looks.map(() => null));
     const made: string[] = [];
     (async () => {
       for (let i = 0; i < looks.length; i++) {
