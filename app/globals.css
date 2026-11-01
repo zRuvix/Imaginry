@@ -242,3 +242,69 @@ input[type="number"] {
   appearance: textfield;
 }
 
+
+/* Landing: loader shown while the embedded studio boots */
+@keyframes loader-bar {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(330%); }
+}
+@keyframes loader-breathe {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.07) rotate(-6deg); }
+}
+@keyframes loader-ring {
+  0% { opacity: 0.55; transform: scale(0.85); }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+@keyframes loader-dots {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75%, 100% { content: "..."; }
+}
+.studio-loader-bar { animation: loader-bar 1.4s cubic-bezier(0.65, 0, 0.35, 1) infinite; }
+.studio-loader-mark { animation: loader-breathe 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.studio-loader-ring {
+  border: 1.5px solid var(--ember);
+  animation: loader-ring 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.loader-dots::after {
+  display: inline-block;
+  width: 1.2em;
+  text-align: left;
+  content: "";
+  animation: loader-dots 1.6s steps(1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .studio-loader-bar, .studio-loader-mark, .studio-loader-ring, .loader-dots::after { animation: none; }
+}
+
+/* Sponsor hero: a pointer clicks the sponsor chip and its link card pops open */
+@keyframes sponsor-pointer {
+  0%, 10% { transform: translate(0, 0); opacity: 0; }
+  16% { opacity: 1; }
+  40% { transform: translate(var(--to-x), var(--to-y)); }
+  44% { transform: translate(var(--to-x), var(--to-y)) scale(0.8); }
+  48%, 80% { transform: translate(var(--to-x), var(--to-y)) scale(1); opacity: 1; }
+  92%, 100% { transform: translate(30%, 40%); opacity: 0; }
+}
+@keyframes sponsor-card {
+  0%, 44% { opacity: 0; transform: translateY(-6px) scale(0.94); }
+  50%, 84% { opacity: 1; transform: none; }
+  92%, 100% { opacity: 0; transform: translateY(-6px) scale(0.96); }
+}
+.sponsor-pointer {
+  --to-x: -420%;
+  --to-y: -500%;
+  animation: sponsor-pointer 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+.sponsor-card {
+  opacity: 0;
+  transform-origin: top left;
+  animation: sponsor-card 6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sponsor-pointer { animation: none; opacity: 0; }
+  .sponsor-card { animation: none; opacity: 1; transform: none; }
+}

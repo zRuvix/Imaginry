@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { stateForLook, type CuratedLook } from "@/lib/studio/looks";
 import { renderOffscreen } from "@/lib/studio/renderer";
 
@@ -12,7 +12,12 @@ const REFERENCE_PX = 900;
  * Renders each look once on the shared offscreen WebGL context and returns
  * object URLs, filled in progressively.
  */
-export function useLookImages(looks: CuratedLook[], longSide = LONG_SIDE) {
+export function useLookImages(lookList: CuratedLook[], longSide = LONG_SIDE) {
+  // Keyed by content, so a fresh array with the same looks (e.g. an inline
+  // slice) doesn't re-render everything and revoke the URLs on screen.
+  const key = lookList.map((l) => l.name).join("|");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const looks = useMemo(() => lookList, [key]);
   const [urls, setUrls] = useState<(string | null)[]>(() => looks.map(() => null));
 
   useEffect(() => {

@@ -125,6 +125,7 @@ export default function ExportStack({ stills }: { stills: (string | null)[] }) {
     });
   };
 
+  const trackX = useRef(0);
   useSmoothProgress(
     outer,
     (rect, vh) => clamp01(-rect.top / Math.max(1, rect.height - vh)),
@@ -137,7 +138,16 @@ export default function ExportStack({ stills }: { stills: (string | null)[] }) {
       // panel play out in place before the section scrolls away.
       const travel = clamp01(p / 0.8);
       const settle = smooth(clamp01((p - 0.62) / 0.3));
-      t.style.transform = `translate3d(${-travel * distance}px, 0, 0)`;
+      // Measure every panel before writing anything (reading after a write
+      // forces a layout per panel), then shift by how far the track moves.
+      const tx = -travel * distance;
+      const shift = tx - trackX.current;
+      const lefts = panels.current.map((panel) => {
+        const r = panel?.getBoundingClientRect();
+        return r ? { left: r.left + shift, width: r.width } : null;
+      });
+      trackX.current = tx;
+      t.style.transform = `translate3d(${tx}px, 0, 0)`;
       if (bar.current) bar.current.style.transform = `scaleX(${p})`;
       if (counter.current) {
         counter.current.textContent = `0${Math.min(4, Math.floor(travel * 3.999) + 1)} / 04`;
@@ -145,8 +155,8 @@ export default function ExportStack({ stills }: { stills: (string | null)[] }) {
       playFormats(settle);
       const last = panels.current.length - 1;
       panels.current.forEach((panel, i) => {
-        if (!panel) return;
-        const r = panel.getBoundingClientRect();
+        const r = lefts[i];
+        if (!panel || !r) return;
         // 0 just entering on the right, 0.5 centred, 1 gone on the left.
         const lp = clamp01((vw - r.left) / (vw + r.width));
         fx.current[i]?.(lp);

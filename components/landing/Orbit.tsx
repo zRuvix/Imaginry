@@ -55,8 +55,15 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
         card.style.transform = `translate3d(calc(-50% + ${x.toFixed(1)}px), calc(-50% + ${y.toFixed(1)}px), 0) scale(${scale.toFixed(3)})`;
         card.style.zIndex = String(Math.round(depth * 100));
         card.style.opacity = (0.18 + 0.82 * depth ** 1.6).toFixed(3);
-        card.style.filter = depth < 0.5 ? `blur(${((0.5 - depth) * 8).toFixed(1)}px)` : "none";
-        card.dataset.front = i === frontIndex ? "1" : "0";
+        // Blur is the costly part (the card re-rasterizes whenever it changes),
+        // so it moves in half-pixel steps and is only written when it does.
+        const b = depth < 0.5 ? Math.round((0.5 - depth) * 16) / 2 : 0;
+        if (card.dataset.blur !== String(b)) {
+          card.dataset.blur = String(b);
+          card.style.filter = b ? `blur(${b}px)` : "none";
+        }
+        const front = i === frontIndex ? "1" : "0";
+        if (card.dataset.front !== front) card.dataset.front = front;
       });
     };
 

@@ -12,6 +12,34 @@ export function prefersReducedMotion() {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+type ScrollJob = { el: () => HTMLElement | null; fn: (rect: DOMRect, vh: number) => void };
+
+const pending = new Set<ScrollJob>();
+let queued = false;
+
+/**
+ * Every scroll effect on a page runs in one batch: all rects are measured
+ * first, then all styles written. Interleaving them (read, write, read…)
+ * forces a fresh layout per effect on every frame.
+ */
+function schedule(job: ScrollJob) {
+  pending.add(job);
+  if (queued) return;
+  queued = true;
+  // Lenis notifies every listener synchronously; the microtask runs once they all have.
+  queueMicrotask(() => {
+    queued = false;
+    const jobs = [...pending];
+    pending.clear();
+    const vh = window.innerHeight;
+    const rects = jobs.map((j) => j.el()?.getBoundingClientRect() ?? null);
+    jobs.forEach((j, i) => {
+      const r = rects[i];
+      if (r) j.fn(r, vh);
+    });
+  });
+}
+
 /**
  * Calls `fn` with the element's rect on every Lenis scroll frame (and once on
  * mount / resize). Style elements directly in `fn`; it must not set state on
@@ -20,10 +48,8 @@ export function prefersReducedMotion() {
 export function useScrollFx<T extends HTMLElement>(ref: RefObject<T | null>, fn: (rect: DOMRect, vh: number) => void) {
   const fnRef = useRef(fn);
   fnRef.current = fn;
-  const run = () => {
-    const el = ref.current;
-    if (el) fnRef.current(el.getBoundingClientRect(), window.innerHeight);
-  };
+  const job = useRef<ScrollJob>({ el: () => ref.current, fn: (r, vh) => fnRef.current(r, vh) });
+  const run = () => schedule(job.current);
   useLenis(run);
   useEffect(() => {
     run();
