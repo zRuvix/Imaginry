@@ -4,7 +4,8 @@ import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Plus, Search, Share2, X } from "@/components/icons";
+import { Plus, Search, Share2, X } from "@/components/icons";
+import LaunchButton from "@/components/landing/LaunchButton";
 import { useLookImages } from "@/components/landing/useLookImages";
 import { GALLERY, GALLERY_TAGS, stateForLook, type CuratedLook, type GalleryTag } from "@/lib/studio/looks";
 import { SPONSORS } from "@/lib/sponsors";
@@ -45,12 +46,14 @@ function Card({
         )}
         {/* Actions fade up on hover */}
         <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4 pt-16 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-          <a
-            href={linkFor(look)}
-            className="press inline-flex h-10 translate-y-2 items-center gap-2 rounded-full bg-bone px-4 text-[13.5px] font-medium text-ink transition-transform duration-500 group-hover:translate-y-0 hover:bg-white"
-          >
-            Remix in studio <ArrowRight size={13} />
-          </a>
+          <span className="translate-y-2 transition-transform duration-500 group-hover:translate-y-0">
+            <LaunchButton
+              href={linkFor(look)}
+              label="Remix in studio"
+              className="h-10 pl-3.5 pr-4 text-[13.5px] bg-bone text-ink hover:bg-white"
+              iconSize={13}
+            />
+          </span>
           <button
             type="button"
             aria-label={`Copy a link to ${look.name}`}
@@ -237,12 +240,11 @@ export default function Gallery() {
 
               <div className="mt-auto space-y-2 pt-6">
                 <SponsorBlock />
-                <Link
-                  href="/studio"
-                  className="press flex h-11 items-center justify-center gap-2 rounded-full bg-bone text-[14px] font-medium text-ink hover:bg-white"
-                >
-                  Open a blank studio <ArrowRight size={14} />
-                </Link>
+                <LaunchButton
+                  label="Open a blank studio"
+                  className="h-11 w-full text-[14px] bg-bone text-ink hover:bg-white"
+                  iconSize={14}
+                />
                 <Credit className="block pt-2 text-center font-condensed text-[12.5px] text-bone/40" />
               </div>
             </div>
@@ -265,12 +267,12 @@ export default function Gallery() {
               <Link href="/sponsor" className="press text-[13.5px] text-bone/60 hover:text-bone lg:hidden">
                 Sponsor
               </Link>
-              <Link
-                href="/studio"
-                className="press inline-flex h-10 items-center gap-2 rounded-full bg-bone px-4 text-[13.5px] font-medium text-ink hover:bg-white lg:hidden"
-              >
-                Open studio <ArrowRight size={13} />
-              </Link>
+              <span className="lg:hidden">
+                <LaunchButton
+                  className="h-10 pl-3.5 pr-4 text-[13.5px] bg-bone text-ink hover:bg-white"
+                  iconSize={13}
+                />
+              </span>
             </header>
 
             {/* Mobile filters */}

@@ -2,6 +2,7 @@
 
 import { useLenis } from "lenis/react";
 import Link from "next/link";
+import LaunchButton from "./LaunchButton";
 import { useState } from "react";
 import { EASE } from "./motion";
 import { Logo } from "@/components/Logo";
@@ -60,12 +61,10 @@ export default function Nav() {
             ))}
           </div>
         </div>
-        <Link
-          href="/studio"
-          className="inline-flex h-9 items-center rounded-full bg-[var(--bone)] px-4 text-[14px] font-medium text-[var(--ink)] transition-colors hover:bg-white"
-        >
-          Open studio
-        </Link>
+        <LaunchButton
+          className="h-9 pl-3.5 pr-4 text-[14px] bg-[var(--bone)] text-[var(--ink)] hover:bg-white"
+          iconSize={14}
+        />
       </nav>
     </header>
   );
