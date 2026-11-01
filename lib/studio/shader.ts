@@ -36,8 +36,6 @@ uniform float uImgContrast;
 uniform float uImgSat;
 uniform float uImgExposure;
 uniform float uImgFilter;
-uniform float uImgBlend;
-uniform float uImgOpacity;
 
 uniform float uGradOn;
 uniform float uGradType;
@@ -47,8 +45,6 @@ uniform float uGradAngle;
 uniform float uGradScale;
 uniform float uGradWarp;
 uniform float uGradSpeed;
-uniform float uGradBlend;
-uniform float uGradOpacity;
 
 uniform float uPatOn;
 uniform float uPatType;
@@ -126,6 +122,65 @@ uniform float uGrainOn;
 uniform float uGrainAmount;
 uniform float uGrainSize;
 
+uniform float uLayerOpacity;
+uniform float uLayerBlend;
+
+uniform float uAdjBright;
+uniform float uAdjContrast;
+uniform float uAdjSat;
+uniform float uAdjHue;
+uniform float uAdjExposure;
+uniform float uAdjTemp;
+
+uniform vec3 uMapColors[5];
+uniform float uMapCount;
+uniform float uMapReverse;
+
+uniform float uPostLevels;
+uniform float uPostGamma;
+
+uniform float uBloomThreshold;
+uniform float uBloomIntensity;
+uniform float uBloomRadius;
+
+uniform float uRgbAmount;
+uniform float uRgbAngle;
+uniform float uRgbJitter;
+
+uniform float uKalSegments;
+uniform float uKalRotate;
+uniform float uKalZoom;
+uniform float uKalSpeed;
+
+uniform float uMirrorMode;
+uniform float uMirrorOffset;
+
+uniform float uMosScale;
+uniform float uMosEdge;
+uniform float uMosJitter;
+uniform vec3 uMosEdgeColor;
+
+uniform float uCrtLines;
+uniform float uCrtCurve;
+uniform float uCrtMask;
+uniform float uCrtFlicker;
+
+uniform float uEdgeStrength;
+uniform float uEdgeThick;
+uniform float uEdgeMode;
+uniform vec3 uEdgeColor;
+
+uniform float uEngSize;
+uniform float uEngAngle;
+uniform float uEngWave;
+uniform vec3 uEngInk;
+uniform vec3 uEngPaper;
+
+uniform float uSparkDensity;
+uniform float uSparkSize;
+uniform float uSparkSpeed;
+uniform vec3 uSparkColor;
+
 #define TAU 6.28318530718
 
 float aspect() { return uRes.x / uRes.y; }
@@ -172,8 +227,6 @@ vec2 fragP() { return toP(gl_FragCoord.xy); }
 vec3 inputAt(vec2 p) { return texture(uInput, p / vec2(aspect(), 1.0) + 0.5).rgb; }
 vec3 inputFc(vec2 fc) { return texture(uInput, fc / uRes).rgb; }
 float unit() { return min(uRes.x, uRes.y) / 600.0 * uDetail; }
-void emit(vec3 c) { outColor = vec4(clamp(c, 0.0, 1.0), 1.0); }
-
 // Photoshop-style blend of top over base, then faded by opacity.
 // Modes: normal, multiply, screen, overlay, soft light, difference, add.
 vec3 blendWith(vec3 base, vec3 top, float mode, float opacity) {
@@ -190,6 +243,13 @@ vec3 blendWith(vec3 base, vec3 top, float mode, float opacity) {
   else if (m == 5) r = abs(base - top);
   else if (m == 6) r = base + top;
   return mix(base, clamp(r, 0.0, 1.0), opacity);
+}
+
+// Every layer ends here: its result is blended over the layer below using
+// the layer's own blend mode and opacity.
+void emit(vec3 c) {
+  vec3 below = texture(uInput, gl_FragCoord.xy / uRes).rgb;
+  outColor = vec4(blendWith(below, clamp(c, 0.0, 1.0), uLayerBlend, uLayerOpacity), 1.0);
 }
 `;
 
@@ -241,7 +301,7 @@ vec3 gradient(vec2 p) {
 
 void main() {
   vec2 p = fragP();
-  emit(blendWith(inputAt(p), gradient(p), uGradBlend, uGradOpacity));
+  emit(gradient(p));
 }
 `),
   image: fx(/* glsl */ `
@@ -291,7 +351,7 @@ void main() {
     emit(below);
     return;
   }
-  emit(blendWith(below, adjust(imageSample(uv)), uImgBlend, uImgOpacity));
+  emit(adjust(imageSample(uv)));
 }
 `),
   blobs: fx(/* glsl */ `
@@ -646,6 +706,209 @@ void main() {
   float s = max(uGrainSize * max(unit(), 1.0), 1.0);
   float n = hash(floor(gl_FragCoord.xy / s) + fract(uTime * 7.13) * 91.7) - 0.5;
   emit(inputFc(gl_FragCoord.xy) + n * uGrainAmount);
+}
+`),
+  adjust: fx(/* glsl */ `
+vec3 hueShift(vec3 c, float a) {
+  const vec3 k = vec3(0.57735);
+  float ca = cos(a);
+  return c * ca + cross(k, c) * sin(a) + k * dot(k, c) * (1.0 - ca);
+}
+
+void main() {
+  vec3 c = inputFc(gl_FragCoord.xy);
+  c *= exp2(uAdjExposure);
+  c += uAdjBright;
+  c = (c - 0.5) * uAdjContrast + 0.5;
+  c = mix(vec3(luma(c)), c, uAdjSat);
+  c = hueShift(c, radians(uAdjHue));
+  c += vec3(uAdjTemp, uAdjTemp * 0.25, -uAdjTemp) * 0.08;
+  emit(c);
+}
+`),
+  gradientmap: fx(/* glsl */ `
+vec3 mapRamp(float t) {
+  t = clamp(t, 0.0, 1.0);
+  float n = max(uMapCount - 1.0, 1.0);
+  float f = t * n;
+  int i = int(min(floor(f), n - 1.0));
+  float k = smoothstep(0.0, 1.0, f - float(i));
+  return mix(uMapColors[i], uMapColors[min(i + 1, int(n))], k);
+}
+
+void main() {
+  float l = clamp(luma(inputFc(gl_FragCoord.xy)), 0.0, 1.0);
+  emit(mapRamp(uMapReverse > 0.5 ? 1.0 - l : l));
+}
+`),
+  posterize: fx(/* glsl */ `
+void main() {
+  vec3 c = pow(clamp(inputFc(gl_FragCoord.xy), 0.0, 1.0), vec3(uPostGamma));
+  float lv = max(uPostLevels, 2.0);
+  c = floor(c * lv) / (lv - 1.0);
+  emit(pow(clamp(c, 0.0, 1.0), vec3(1.0 / uPostGamma)));
+}
+`),
+  bloom: fx(/* glsl */ `
+void main() {
+  vec2 p = fragP();
+  vec3 c = inputAt(p);
+  float r = uBloomRadius * 0.12;
+  float spin = hash(gl_FragCoord.xy) * TAU;
+  vec3 acc = vec3(0.0);
+  float total = 0.0;
+  for (int i = 0; i < 24; i++) {
+    float fi = float(i);
+    float d = sqrt((fi + 0.5) / 24.0) * r;
+    vec2 o = vec2(cos(fi * 2.39996 + spin), sin(fi * 2.39996 + spin)) * d;
+    vec3 s = inputAt(p + o);
+    float w = 1.0 - 0.6 * d / max(r, 1e-4);
+    acc += max(s - uBloomThreshold, 0.0) / max(1.0 - uBloomThreshold, 0.02) * w;
+    total += w;
+  }
+  emit(c + acc / total * uBloomIntensity * 1.4);
+}
+`),
+  rgbshift: fx(/* glsl */ `
+void main() {
+  vec2 p = fragP();
+  float a = radians(uRgbAngle);
+  vec2 d = vec2(cos(a), sin(a)) * uRgbAmount * 0.04;
+  if (uRgbJitter > 0.0) {
+    float band = hash(vec2(floor(uTime * 10.0), floor(p.y * 36.0)));
+    d *= 1.0 + (band - 0.5) * uRgbJitter * 4.0;
+    p.x += step(0.93, band) * (band - 0.95) * uRgbJitter * 0.6;
+  }
+  emit(vec3(inputAt(p + d).r, inputAt(p).g, inputAt(p - d).b));
+}
+`),
+  kaleido: fx(/* glsl */ `
+void main() {
+  vec2 p = fragP() / uKalZoom;
+  float r = length(p);
+  float a = atan(p.y, p.x) + radians(uKalRotate) + uTime * uKalSpeed * 0.25;
+  float seg = TAU / max(uKalSegments, 1.0);
+  a = mod(a, seg);
+  a = abs(a - seg * 0.5);
+  emit(inputAt(vec2(cos(a), sin(a)) * r));
+}
+`),
+  mirror: fx(/* glsl */ `
+void main() {
+  vec2 p = fragP();
+  float o = uMirrorOffset * 0.5;
+  int m = int(uMirrorMode + 0.5);
+  if (m == 0 || m == 2) p.x = o + abs(p.x - o);
+  if (m == 1 || m == 2) p.y = o + abs(p.y - o);
+  if (m == 3 && p.y > p.x) p = p.yx;
+  emit(inputAt(p));
+}
+`),
+  mosaic: fx(/* glsl */ `
+vec2 hash2(vec2 p) {
+  return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+}
+
+void main() {
+  vec2 p = fragP() * uMosScale;
+  vec2 ip = floor(p);
+  vec2 fp = fract(p);
+  float d1 = 8.0;
+  float d2 = 8.0;
+  vec2 best = vec2(0.0);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      vec2 g = vec2(float(i), float(j));
+      vec2 o = 0.5 + (hash2(ip + g + uSeed) - 0.5) * uMosJitter;
+      vec2 r = g + o - fp;
+      float d = dot(r, r);
+      if (d < d1) {
+        d2 = d1;
+        d1 = d;
+        best = ip + g + o;
+      } else if (d < d2) {
+        d2 = d;
+      }
+    }
+  }
+  vec3 c = inputAt(best / uMosScale);
+  float edge = sqrt(d2) - sqrt(d1);
+  float e = (1.0 - smoothstep(uMosEdge * 0.5, uMosEdge * 0.5 + 0.04, edge)) * step(0.001, uMosEdge);
+  emit(mix(c, uMosEdgeColor, e));
+}
+`),
+  crt: fx(/* glsl */ `
+void main() {
+  vec2 uv = gl_FragCoord.xy / uRes;
+  vec2 cc = uv - 0.5;
+  cc *= 1.0 + uCrtCurve * 0.35 * dot(cc, cc);
+  uv = cc + 0.5;
+  if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) {
+    emit(vec3(0.0));
+    return;
+  }
+  vec3 c = texture(uInput, uv).rgb;
+  float lines = 0.5 + 0.5 * sin(uv.y * uRes.y / max(unit() * 2.5, 1.0) * 3.14159);
+  c *= mix(1.0, 0.55 + 0.45 * lines, uCrtLines);
+  float m = mod(gl_FragCoord.x, 3.0);
+  vec3 mask = vec3(m < 1.0 ? 1.0 : 0.7, m >= 1.0 && m < 2.0 ? 1.0 : 0.7, m >= 2.0 ? 1.0 : 0.7);
+  c *= mix(vec3(1.0), mask * 1.18, uCrtMask);
+  c *= 1.0 - uCrtFlicker * 0.12 * hash(vec2(floor(uTime * 24.0), 1.0));
+  c *= 1.0 - dot(cc, cc) * (0.4 + uCrtCurve);
+  emit(c);
+}
+`),
+  edges: fx(/* glsl */ `
+void main() {
+  vec2 fc = gl_FragCoord.xy;
+  float t = max(uEdgeThick * unit(), 1.0);
+  float tl = luma(inputFc(fc + vec2(-t, t)));
+  float tc = luma(inputFc(fc + vec2(0.0, t)));
+  float tr = luma(inputFc(fc + vec2(t, t)));
+  float ml = luma(inputFc(fc + vec2(-t, 0.0)));
+  float mr = luma(inputFc(fc + vec2(t, 0.0)));
+  float bl = luma(inputFc(fc + vec2(-t, -t)));
+  float bc = luma(inputFc(fc + vec2(0.0, -t)));
+  float br = luma(inputFc(fc + vec2(t, -t)));
+  float gx = (tr + 2.0 * mr + br) - (tl + 2.0 * ml + bl);
+  float gy = (tl + 2.0 * tc + tr) - (bl + 2.0 * bc + br);
+  float g = clamp(length(vec2(gx, gy)) * uEdgeStrength * 2.0, 0.0, 1.0);
+  int m = int(uEdgeMode + 0.5);
+  if (m == 0) emit(inputFc(fc) + uEdgeColor * g);
+  else if (m == 1) emit(mix(vec3(0.95, 0.93, 0.88), uEdgeColor, g));
+  else emit(uEdgeColor * g);
+}
+`),
+  engrave: fx(/* glsl */ `
+void main() {
+  vec2 fc = gl_FragCoord.xy;
+  float s = max(uEngSize * unit(), 2.0);
+  vec2 q = rot(radians(uEngAngle)) * fc / s;
+  q.y += sin(q.x * 0.35) * uEngWave;
+  float l = luma(inputFc(fc));
+  float w = (1.0 - l) * 0.5;
+  float d = abs(fract(q.y) - 0.5);
+  float aa = 1.2 / s;
+  emit(mix(uEngPaper, uEngInk, 1.0 - smoothstep(w - aa, w + aa, d)));
+}
+`),
+  sparkle: fx(/* glsl */ `
+void main() {
+  vec3 c = inputFc(gl_FragCoord.xy);
+  vec2 p = fragP() * uSparkDensity * 10.0;
+  vec2 ip = floor(p);
+  vec2 fp = fract(p) - 0.5;
+  float h = hash(ip + uSeed);
+  if (h > 0.55) {
+    vec2 d = fp - (vec2(hash(ip + 3.1), hash(ip + 7.7)) - 0.5) * 0.6;
+    float twinkle = 0.5 + 0.5 * sin(uTime * uSparkSpeed * 3.0 + h * 40.0);
+    float s = uSparkSize * 0.12 * (0.5 + h);
+    float rays = max(0.0, 1.0 - abs(d.x) / (s * 0.12)) * max(0.0, 1.0 - abs(d.y) / (s * 2.2))
+                + max(0.0, 1.0 - abs(d.y) / (s * 0.12)) * max(0.0, 1.0 - abs(d.x) / (s * 2.2));
+    float core = exp(-dot(d, d) / (s * s * 0.04));
+    c = screen(c, clamp(uSparkColor * (rays * 0.8 + core) * twinkle, 0.0, 1.0));
+  }
+  emit(c);
 }
 `),
 };

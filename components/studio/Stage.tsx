@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { Renderer } from "@/lib/studio/renderer";
 import type { StudioState } from "@/lib/studio/schema";
 
@@ -41,9 +41,24 @@ type Props = {
   sizeRef: RefObject<{ width: number; height: number }>;
   onDropImage: (file: File) => void;
   onResize?: (size: { width: number; height: number }) => void;
+  /** Where the stage sits between the floating panels. */
+  style?: CSSProperties;
+  children?: ReactNode;
 };
 
-export default function Stage({ state, image, aspect, playing, speed, timeRef, sizeRef, onDropImage, onResize }: Props) {
+export default function Stage({
+  state,
+  image,
+  aspect,
+  playing,
+  speed,
+  timeRef,
+  sizeRef,
+  onDropImage,
+  onResize,
+  style,
+  children,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<Renderer | null>(null);
@@ -154,7 +169,8 @@ export default function Stage({ state, image, aspect, playing, speed, timeRef, s
   return (
     <div
       ref={containerRef}
-      className="relative flex min-h-0 flex-1 items-center justify-center"
+      className="absolute flex items-center justify-center transition-[top,left,right,bottom] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+      style={style}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -170,15 +186,16 @@ export default function Stage({ state, image, aspect, playing, speed, timeRef, s
       <canvas
         ref={canvasRef}
         style={{ width: box.width, height: box.height }}
-        className="block rounded-[12px] bg-neutral-950"
+        className="block rounded-[22px] bg-surface shadow-[0_40px_100px_-30px_rgba(0,0,0,0.9)]"
       />
+      {children}
       {dragging && (
-        <div className="pointer-events-none absolute inset-2 flex items-center justify-center rounded-[12px] border-2 border-dashed border-white/60 bg-black/50 text-sm">
-          Drop image to use as source
+        <div className="anim-pop pointer-events-none absolute inset-2 flex items-center justify-center rounded-[22px] bg-ember/15 backdrop-blur-sm">
+          <span className="rounded-full bg-ink/80 px-4 py-2 text-[14px] text-bone">Drop to use as the base image</span>
         </div>
       )}
       {error && (
-        <div className="absolute inset-2 flex items-center justify-center whitespace-pre-wrap rounded-[12px] bg-neutral-950 p-6 text-center font-mono text-xs text-neutral-400">
+        <div className="absolute inset-2 flex items-center justify-center whitespace-pre-wrap rounded-[22px] bg-surface p-6 text-center font-mono text-xs text-bone/60">
           {error}
         </div>
       )}

@@ -3,6 +3,8 @@ import { emptyState, GLASS_FLUTED, orderFromEnabled, type SectionKey, type Studi
 export type Preset = {
   id: string;
   section: SectionKey;
+  /** Display name in the library. */
+  name: string;
   values: Record<string, Value>;
 };
 
@@ -33,11 +35,16 @@ const magenta = {
   speed: 0.4,
 };
 
-const p = (section: SectionKey, id: string, values: Record<string, Value>): Preset => ({
-  id,
-  section,
-  values,
-});
+/** "l-rays-top" -> "Rays top" when a preset has no explicit name. */
+const nameFromId = (id: string) => {
+  const words = id.split("-").slice(1).join(" ");
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
+const p = (section: SectionKey, id: string, values: Record<string, Value>): Preset => {
+  const { name, ...rest } = values;
+  return { id, section, name: typeof name === "string" ? name : nameFromId(id), values: rest };
+};
 
 export const GROUPS: PresetGroup[] = [
   {
@@ -332,6 +339,129 @@ export const GROUPS: PresetGroup[] = [
       p("grain", "gr-heavy", { amount: 0.35, size: 2.5 }),
     ],
   },
+  {
+    label: "Adjust",
+    section: "adjust",
+    thumbBase: { gradient: magenta },
+    presets: [
+      p("adjust", "ad-warm", { name: "Warm film", exposure: 0.1, brightness: 0, contrast: 1.1, saturation: 0.9, hue: 0, temperature: 0.6 }),
+      p("adjust", "ad-cool", { name: "Cool fade", exposure: 0, brightness: 0.06, contrast: 0.85, saturation: 0.8, hue: 0, temperature: -0.6 }),
+      p("adjust", "ad-punch", { name: "Punch", exposure: 0.1, brightness: 0, contrast: 1.4, saturation: 1.5, hue: 0, temperature: 0 }),
+      p("adjust", "ad-shift", { name: "Hue shift", exposure: 0, brightness: 0, contrast: 1.05, saturation: 1.1, hue: 120, temperature: 0 }),
+    ],
+  },
+  {
+    label: "Gradient Map",
+    section: "gradientmap",
+    thumbBase: { gradient: mono },
+    presets: [
+      p("gradientmap", "gm-ember", { name: "Ember", colors: ["#120a1e", "#ff5a2c", "#ffe2b8"], reverse: false }),
+      p("gradientmap", "gm-ocean", { name: "Ocean", colors: ["#04132b", "#2b7bd6", "#d9f2ff"], reverse: false }),
+      p("gradientmap", "gm-neon", { name: "Neon", colors: ["#0a0014", "#ff00aa", "#00ffd5"], reverse: false }),
+      p("gradientmap", "gm-sepia", { name: "Sepia", colors: ["#1a1008", "#c08a4a", "#f4e3c3"], reverse: false }),
+    ],
+  },
+  {
+    label: "Posterize",
+    section: "posterize",
+    thumbBase: { gradient: magenta },
+    presets: [
+      p("posterize", "po-3", { name: "Three tone", levels: 3, gamma: 1 }),
+      p("posterize", "po-5", { name: "Screenprint", levels: 5, gamma: 0.8 }),
+      p("posterize", "po-8", { name: "Banding", levels: 8, gamma: 1.4 }),
+    ],
+  },
+  {
+    label: "Bloom",
+    section: "bloom",
+    thumbBase: { gradient: violet },
+    presets: [
+      p("bloom", "bl-soft", { name: "Soft", threshold: 0.6, intensity: 0.7, radius: 0.35 }),
+      p("bloom", "bl-dream", { name: "Dreamy", threshold: 0.35, intensity: 1.1, radius: 0.8 }),
+      p("bloom", "bl-hot", { name: "Hot spots", threshold: 0.75, intensity: 1.8, radius: 0.25 }),
+    ],
+  },
+  {
+    label: "RGB Split",
+    section: "rgbshift",
+    thumbBase: { gradient: magenta },
+    presets: [
+      p("rgbshift", "rg-subtle", { name: "Subtle", amount: 0.2, angle: 0, jitter: 0 }),
+      p("rgbshift", "rg-glitch", { name: "Glitch", amount: 0.45, angle: 0, jitter: 0.7 }),
+      p("rgbshift", "rg-wide", { name: "Wide", amount: 0.8, angle: 90, jitter: 0 }),
+    ],
+  },
+  {
+    label: "Kaleidoscope",
+    section: "kaleido",
+    thumbBase: { gradient: magenta },
+    presets: [
+      p("kaleido", "ka-6", { name: "Six fold", segments: 6, rotate: 0, zoom: 1, speed: 0 }),
+      p("kaleido", "ka-8", { name: "Spinning", segments: 8, rotate: 20, zoom: 1.4, speed: 0.6 }),
+      p("kaleido", "ka-12", { name: "Rosette", segments: 12, rotate: 0, zoom: 0.7, speed: 0 }),
+    ],
+  },
+  {
+    label: "Mirror",
+    section: "mirror",
+    thumbBase: { gradient: violet },
+    presets: [
+      p("mirror", "mi-h", { name: "Book", mode: "horizontal", offset: 0 }),
+      p("mirror", "mi-v", { name: "Lake", mode: "vertical", offset: 0 }),
+      p("mirror", "mi-q", { name: "Quad", mode: "quad", offset: 0 }),
+      p("mirror", "mi-d", { name: "Diagonal", mode: "diagonal", offset: 0 }),
+    ],
+  },
+  {
+    label: "Mosaic",
+    section: "mosaic",
+    thumbBase: { gradient: magenta },
+    presets: [
+      p("mosaic", "mo-stained", { name: "Stained glass", scale: 12, edge: 0.1, jitter: 0.9, edgeColor: "#0d0c0b" }),
+      p("mosaic", "mo-tiles", { name: "Tiles", scale: 24, edge: 0.03, jitter: 0.2, edgeColor: "#0d0c0b" }),
+      p("mosaic", "mo-crystal", { name: "Crystal", scale: 6, edge: 0.02, jitter: 1, edgeColor: "#f4ecdf" }),
+    ],
+  },
+  {
+    label: "CRT",
+    section: "crt",
+    thumbBase: { gradient: violet },
+    presets: [
+      p("crt", "crt-classic", { name: "Classic", lines: 0.6, curve: 0.4, mask: 0.4, flicker: 0.3 }),
+      p("crt", "crt-tube", { name: "Old tube", lines: 0.8, curve: 1, mask: 0.6, flicker: 0.6 }),
+      p("crt", "crt-clean", { name: "Scanlines", lines: 0.5, curve: 0, mask: 0, flicker: 0 }),
+    ],
+  },
+  {
+    label: "Edges",
+    section: "edges",
+    thumbBase: { gradient: magenta, glass: { ...GLASS_FLUTED, type: "lens", segments: 5 } },
+    presets: [
+      p("edges", "ed-glow", { name: "Glow", mode: "glow", strength: 1.2, thickness: 1.2, color: "#ffd2a8" }),
+      p("edges", "ed-ink", { name: "Ink", mode: "ink", strength: 1.6, thickness: 1, color: "#1a1410" }),
+      p("edges", "ed-neon", { name: "Neon", mode: "neon", strength: 2, thickness: 1.4, color: "#5cf2ff" }),
+    ],
+  },
+  {
+    label: "Engrave",
+    section: "engrave",
+    thumbBase: { gradient: magenta },
+    presets: [
+      p("engrave", "en-note", { name: "Banknote", size: 7, angle: 30, wave: 0.3, ink: "#1a1410", paper: "#efe6d4" }),
+      p("engrave", "en-fine", { name: "Fine", size: 4, angle: -20, wave: 0, ink: "#13233f", paper: "#f2efe6" }),
+      p("engrave", "en-wave", { name: "Wavy", size: 10, angle: 0, wave: 1.2, ink: "#2a0f1f", paper: "#ffd9c7" }),
+    ],
+  },
+  {
+    label: "Sparkle",
+    section: "sparkle",
+    thumbBase: { gradient: { ...violet, colors: ["#0b0b1e", "#2a2366", "#5a5adb", "#141432"] } },
+    presets: [
+      p("sparkle", "sp-dust", { name: "Dust", density: 2.5, size: 0.5, speed: 1, color: "#fff4e0" }),
+      p("sparkle", "sp-stars", { name: "Stars", density: 1.2, size: 1.2, speed: 1.4, color: "#ffffff" }),
+      p("sparkle", "sp-glitter", { name: "Glitter", density: 3.5, size: 0.8, speed: 3, color: "#ffc9e8" }),
+    ],
+  },
 ];
 
 export const PRESETS_BY_ID: Record<string, Preset> = Object.fromEntries(
@@ -354,3 +484,17 @@ export function thumbState(group: PresetGroup, preset: Preset): StudioState {
   state.order = orderFromEnabled(state.sections);
   return state;
 }
+
+/** Curated palettes for the gradient and gradient-map color pickers. */
+export const PALETTES: { name: string; colors: string[] }[] = [
+  { name: "Ember", colors: ["#16100c", "#9c4a26", "#ff5a2c", "#ffd2a8"] },
+  { name: "Lagoon", colors: ["#04132b", "#0f5e7a", "#2bb0a0", "#d9f2ff"] },
+  { name: "Orchid", colors: ["#2a1b6e", "#8a4fff", "#ff7ac6", "#ffe0f0"] },
+  { name: "Moss", colors: ["#0f2414", "#3f6b3a", "#a7c48a", "#efe6cf"] },
+  { name: "Citrus", colors: ["#2e1b4a", "#ff6a00", "#ffd600", "#fff6d6"] },
+  { name: "Ink", colors: ["#050505", "#2b2b2b", "#8a8a8a", "#f2f2f2"] },
+  { name: "Neon", colors: ["#0a0014", "#ff00aa", "#00ffd5", "#f6ff00"] },
+  { name: "Dune", colors: ["#3a2a10", "#b07a3c", "#e8c48e", "#f8efe0"] },
+  { name: "Glacier", colors: ["#e9e4d6", "#b8d8e8", "#3d93bf", "#173f5f"] },
+  { name: "Rose", colors: ["#2a0a14", "#8a1030", "#ff5a7a", "#ffd9e0"] },
+];

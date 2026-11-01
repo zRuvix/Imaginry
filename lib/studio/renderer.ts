@@ -1,5 +1,5 @@
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
-import { SCHEMA_BY_KEY, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
+import { BLEND_MODES, SCHEMA_BY_KEY, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 
 type Uniform = number | number[];
 
@@ -8,6 +8,21 @@ export function hexToRgb(hex: string): [number, number, number] {
   const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h.padEnd(6, "0");
   const n = parseInt(full.slice(0, 6), 16);
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+}
+
+/** Up to five hex colors packed into the vec3[5] the shaders expect. */
+function flatColors(colors: string[]) {
+  const flat = new Array(15).fill(0);
+  colors.slice(0, 5).forEach((c, i) => flat.splice(i * 3, 3, ...hexToRgb(c)));
+  return flat;
+}
+
+/** How a layer sits on the one below: its opacity and blend mode index. */
+export function layerMix(state: StudioState, key: SectionKey) {
+  const s = state.sections[key];
+  const opacity = s.layerOpacity == null ? 1 : Number(s.layerOpacity);
+  const blend = Math.max(0, BLEND_MODES.indexOf(String(s.layerBlend ?? "normal")));
+  return { opacity: Number.isFinite(opacity) ? opacity : 1, blend };
 }
 
 /** Index of a select option, so the shader can branch on it. */
@@ -22,8 +37,8 @@ export function toUniforms(state: StudioState, hasImage: boolean): Record<string
   const n = (v: unknown) => Number(v) || 0;
   const on = (k: SectionKey) => (s[k].enabled ? 1 : 0);
   const colors = (s.gradient.colors as string[]).slice(0, 5);
-  const flat = new Array(15).fill(0);
-  colors.forEach((c, i) => flat.splice(i * 3, 3, ...hexToRgb(c)));
+  const flat = flatColors(colors);
+  const mapColors = ((s.gradientmap.colors as string[]) ?? []).slice(0, 5);
 
   return {
     uSeed: state.seed,
@@ -37,8 +52,6 @@ export function toUniforms(state: StudioState, hasImage: boolean): Record<string
     uImgSat: s.image.saturation == null ? 1 : n(s.image.saturation),
     uImgExposure: n(s.image.exposure),
     uImgFilter: opt("image", "filter", s.image.filter),
-    uImgBlend: opt("image", "blend", s.image.blend),
-    uImgOpacity: s.image.opacity == null ? 1 : n(s.image.opacity),
 
     uGradOn: on("gradient"),
     uGradType: opt("gradient", "type", s.gradient.type),
@@ -48,8 +61,6 @@ export function toUniforms(state: StudioState, hasImage: boolean): Record<string
     uGradScale: n(s.gradient.scale) || 1,
     uGradWarp: n(s.gradient.warp),
     uGradSpeed: n(s.gradient.speed),
-    uGradBlend: opt("gradient", "blend", s.gradient.blend),
-    uGradOpacity: s.gradient.opacity == null ? 1 : n(s.gradient.opacity),
 
     uPatOn: on("pattern"),
     uPatType: opt("pattern", "type", s.pattern.type),
@@ -126,6 +137,62 @@ export function toUniforms(state: StudioState, hasImage: boolean): Record<string
     uGrainOn: on("grain"),
     uGrainAmount: n(s.grain.amount),
     uGrainSize: n(s.grain.size) || 1,
+
+    uAdjBright: n(s.adjust.brightness),
+    uAdjContrast: n(s.adjust.contrast),
+    uAdjSat: n(s.adjust.saturation),
+    uAdjHue: n(s.adjust.hue),
+    uAdjExposure: n(s.adjust.exposure),
+    uAdjTemp: n(s.adjust.temperature),
+
+    uMapColors: flatColors(mapColors),
+    uMapCount: mapColors.length,
+    uMapReverse: s.gradientmap.reverse ? 1 : 0,
+
+    uPostLevels: n(s.posterize.levels),
+    uPostGamma: n(s.posterize.gamma) || 1,
+
+    uBloomThreshold: n(s.bloom.threshold),
+    uBloomIntensity: n(s.bloom.intensity),
+    uBloomRadius: n(s.bloom.radius),
+
+    uRgbAmount: n(s.rgbshift.amount),
+    uRgbAngle: n(s.rgbshift.angle),
+    uRgbJitter: n(s.rgbshift.jitter),
+
+    uKalSegments: n(s.kaleido.segments),
+    uKalRotate: n(s.kaleido.rotate),
+    uKalZoom: n(s.kaleido.zoom) || 1,
+    uKalSpeed: n(s.kaleido.speed),
+
+    uMirrorMode: opt("mirror", "mode", s.mirror.mode),
+    uMirrorOffset: n(s.mirror.offset),
+
+    uMosScale: n(s.mosaic.scale),
+    uMosEdge: n(s.mosaic.edge),
+    uMosJitter: n(s.mosaic.jitter),
+    uMosEdgeColor: hexToRgb(String(s.mosaic.edgeColor)),
+
+    uCrtLines: n(s.crt.lines),
+    uCrtCurve: n(s.crt.curve),
+    uCrtMask: n(s.crt.mask),
+    uCrtFlicker: n(s.crt.flicker),
+
+    uEdgeStrength: n(s.edges.strength),
+    uEdgeThick: n(s.edges.thickness) || 1,
+    uEdgeMode: opt("edges", "mode", s.edges.mode),
+    uEdgeColor: hexToRgb(String(s.edges.color)),
+
+    uEngSize: n(s.engrave.size),
+    uEngAngle: n(s.engrave.angle),
+    uEngWave: n(s.engrave.wave),
+    uEngInk: hexToRgb(String(s.engrave.ink)),
+    uEngPaper: hexToRgb(String(s.engrave.paper)),
+
+    uSparkDensity: n(s.sparkle.density),
+    uSparkSize: n(s.sparkle.size),
+    uSparkSpeed: n(s.sparkle.speed),
+    uSparkColor: hexToRgb(String(s.sparkle.color)),
   };
 }
 
@@ -326,7 +393,13 @@ export class Renderer {
       const last = i === layers.length - 1;
       gl.bindFramebuffer(gl.FRAMEBUFFER, last ? null : this.targets[i % 2].fbo);
       gl.useProgram(pass.program);
-      this.applyUniforms(pass, { ...shared, uTime: layerTime(state, key, time) });
+      const mix = layerMix(state, key);
+      this.applyUniforms(pass, {
+        ...shared,
+        uTime: layerTime(state, key, time),
+        uLayerOpacity: mix.opacity,
+        uLayerBlend: mix.blend,
+      });
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, i === 0 ? this.baseTex : this.targets[(i - 1) % 2].tex);
       gl.uniform1i(this.location(pass, "uInput"), 1);
@@ -364,5 +437,11 @@ export async function renderOffscreen(
   }
   renderer.setImage(options.image ?? null);
   renderer.render(state, options.time ?? 0, options.detail ?? 1);
-  return canvas;
+  // Hand back a private copy: callers await, and another render could reuse
+  // the shared canvas before they read it.
+  const copy = document.createElement("canvas");
+  copy.width = width;
+  copy.height = height;
+  copy.getContext("2d")!.drawImage(canvas, 0, 0);
+  return copy;
 }

@@ -1,41 +1,30 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { GROUPS, type Preset } from "@/lib/studio/presets";
+import { GROUPS, PALETTES, type Preset } from "@/lib/studio/presets";
 import { renderOffscreen } from "@/lib/studio/renderer";
 import {
   addLayer,
   initialState,
   SCHEMA_BY_KEY,
   type SectionKey,
+  type SectionState,
   type StudioState,
   type Value,
 } from "@/lib/studio/schema";
 import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } from "@/lib/studio/storage";
 import { useHistory } from "@/lib/studio/useHistory";
-import EffectsPanel from "./EffectsPanel";
+import CommandBar from "./CommandBar";
 import ExportPanel from "./ExportPanel";
-import LayersPanel from "./LayersPanel";
-import PropsPanel from "./PropsPanel";
-import Rail, { type PanelId } from "./Rail";
-import { SavedPanel } from "./SidePanels";
+import Inspector from "./Inspector";
+import LayerDock from "./LayerDock";
+import Library from "./Library";
+import Shortcuts from "./Shortcuts";
 import Stage, { ASPECTS, type Aspect } from "./Stage";
-import Toolbar from "./Toolbar";
 
-/** Renders a still on the shared offscreen context and copies it out. */
-async function renderStill(
-  state: StudioState,
-  width: number,
-  height: number,
-  image: HTMLImageElement | null,
-  time: number,
-) {
-  const source = await renderOffscreen(state, width, height, { time, image });
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  canvas.getContext("2d")!.drawImage(source, 0, 0);
-  return canvas;
+/** Renders a still on the shared offscreen context (returns its own canvas). */
+function renderStill(state: StudioState, width: number, height: number, image: HTMLImageElement | null, time: number) {
+  return renderOffscreen(state, width, height, { time, image });
 }
 
 function withPreset(state: StudioState, preset: Preset): StudioState {
@@ -62,42 +51,71 @@ function withoutLayer(state: StudioState, key: SectionKey): StudioState {
 /** Section fields that stay editable while a layer is locked. */
 const LAYER_FLAGS = new Set(["enabled", "locked", "animated", "frozenTime"]);
 
-const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
+
+function randomHex() {
+  const h = Math.random() * 360;
+  const s = 0.55 + Math.random() * 0.35;
+  const l = 0.35 + Math.random() * 0.35;
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const c = l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+    return Math.round(c * 255)
+      .toString(16)
+      .padStart(2, "0");
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+/** Floating panels leave this much room around the stage. */
+const INSETS = { top: 84, left: 320, right: 344, bottom: 108 };
+const ZEN_INSETS = { top: 16, left: 16, right: 16, bottom: 16 };
 
 export default function Studio() {
   const history = useHistory<StudioState>(initialState);
   const { state, set } = history;
 
-  const [panel, setPanel] = useState<PanelId | null>("effects");
   const [aspect, setAspect] = useState<Aspect>("fill");
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [saved, setSaved] = useState<SavedDesign[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; n: number } | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
   const [previewSize, setPreviewSize] = useState({ width: 1, height: 1 });
+  const [selected, setSelected] = useState<SectionKey | null>("glass");
+  const [zen, setZen] = useState(false);
+  const [compare, setCompare] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const timeRef = useRef(0);
   const sizeRef = useRef({ width: 1, height: 1 });
   const fileRef = useRef<HTMLInputElement>(null);
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
-  const notify = useCallback((msg: string) => setToast(msg), []);
+  const notify = useCallback((msg: string) => setToast((t) => ({ msg, n: (t?.n ?? 0) + 1 })), []);
   useEffect(() => {
     if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2200);
+    const t = setTimeout(() => setToast(null), 2400);
     return () => clearTimeout(t);
   }, [toast]);
 
   // Restore a shared design from the URL and the saved list from storage.
   useEffect(() => {
     const shared = decodeShare(window.location.hash);
-    if (shared) set(shared);
+    if (shared) {
+      set(shared);
+      setSelected(shared.order[0] ?? null);
+    }
     setSaved(loadSaved());
   }, [set]);
 
-  const stateRef = useRef(state);
-  stateRef.current = state;
+  // Keep the selection on a layer that still exists.
+  useEffect(() => {
+    if (selected && !state.order.includes(selected)) setSelected(state.order[0] ?? null);
+  }, [state.order, selected]);
+
   const isLocked = useCallback(
     (section: SectionKey) => {
       if (!stateRef.current.sections[section].locked) return false;
@@ -125,39 +143,40 @@ export default function Studio() {
   const togglePreset = useCallback(
     (preset: Preset) => {
       if (isLocked(preset.section)) return;
-      set((s) => {
-        const section = s.sections[preset.section];
-        if (section.enabled && section.preset === preset.id) return withoutLayer(s, preset.section);
-        return withPreset(s, preset);
-      });
+      const section = stateRef.current.sections[preset.section];
+      const removing = section.enabled && section.preset === preset.id;
+      set((s) => (removing ? withoutLayer(s, preset.section) : withPreset(s, preset)));
+      if (!removing) setSelected(preset.section);
     },
     [set, isLocked],
   );
 
+  // ---- image
   const loadImageFile = useCallback(
     (file: File) => {
       const img = new Image();
       img.onload = () => {
-        const prev = image;
-        setImage(img);
-        if (prev) URL.revokeObjectURL(prev.src);
+        setImage((prev) => {
+          if (prev) URL.revokeObjectURL(prev.src);
+          return img;
+        });
         // A solid gradient on top would hide the photo; let it blend over it instead.
         const g = stateRef.current.sections.gradient;
-        const blended = g.enabled && g.blend === "normal" && !g.locked;
+        const blended = g.enabled && g.layerBlend === "normal" && !g.locked;
         set((s) => {
           const sections = { ...s.sections, image: { ...s.sections.image, enabled: true } };
-          if (blended) sections.gradient = { ...s.sections.gradient, blend: "overlay", opacity: 0.85 };
+          if (blended) sections.gradient = { ...s.sections.gradient, layerBlend: "overlay", layerOpacity: 0.85 };
           return { ...s, sections, order: addLayer(s.order, "image") };
         });
-        if (blended) notify("Gradient now overlays your image — change it under Gradient › Blend mode");
+        setSelected("image");
+        notify(blended ? "Gradient now overlays your photo" : "Photo added");
       };
       img.onerror = () => notify("Couldn't read that image");
       img.src = URL.createObjectURL(file);
     },
-    [notify, set, image],
+    [notify, set],
   );
 
-  // Paste an image from the clipboard anywhere outside text fields.
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
       if ((e.target as HTMLElement).closest?.("input, textarea")) return;
@@ -177,55 +196,92 @@ export default function Studio() {
   };
 
   // ---- layers
-  const [selectedLayer, setSelectedLayer] = useState<SectionKey | null>(null);
-  const [focus, setFocus] = useState<{ key: SectionKey; n: number } | null>(null);
-  const selectLayer = (key: SectionKey) => {
-    setSelectedLayer(key);
-    setExportOpen(false);
-    setFocus((f) => ({ key, n: (f?.n ?? 0) + 1 }));
-  };
   const flipFlag = (key: SectionKey, flag: "enabled" | "locked") =>
     set((s) => ({
       ...s,
       sections: { ...s.sections, [key]: { ...s.sections[key], [flag]: !s.sections[key][flag] } },
     }));
+
   const toggleAnimated = (key: SectionKey) =>
     set((s) => {
       const section = s.sections[key];
       return {
         ...s,
-        sections: {
-          ...s.sections,
-          // Freeze at the current frame so holding a layer doesn't make it jump.
-          [key]: { ...section, animated: !section.animated, frozenTime: timeRef.current },
-        },
+        // Freeze at the current frame so holding a layer doesn't make it jump.
+        sections: { ...s.sections, [key]: { ...section, animated: !section.animated, frozenTime: timeRef.current } },
       };
     });
+
   const deleteLayer = (key: SectionKey) => {
     if (isLocked(key)) return;
     if (key === "image") return removeImage();
     set((s) => withoutLayer(s, key));
-    if (selectedLayer === key) setSelectedLayer(null);
-  };
-  const addLayerFromMenu = (key: SectionKey) => {
-    if (key === "image" && !image) return fileRef.current?.click();
-    updateSection(key, "enabled", true);
-    selectLayer(key);
   };
 
+  const addLayerFromMenu = (key: SectionKey) => {
+    if (key === "image" && !image) return fileRef.current?.click();
+    // Start from the effect's first preset so it looks good immediately.
+    const first = GROUPS.find((g) => g.section === key)?.presets[0];
+    if (first) set((s) => withPreset(s, first));
+    else updateSection(key, "enabled", true);
+    setSelected(key);
+  };
+
+  const shuffleLayer = (key: SectionKey) => {
+    if (isLocked(key)) return;
+    const schema = SCHEMA_BY_KEY[key];
+    set((s) => {
+      const next: SectionState = { ...s.sections[key], preset: null };
+      for (const c of schema.controls) {
+        if (c.type === "slider") {
+          const d = Number(schema.defaults[c.key] ?? (c.min + c.max) / 2);
+          const r = c.min + Math.random() * (c.max - c.min);
+          // Lean toward the default so results stay usable.
+          const v = d + (r - d) * 0.7;
+          next[c.key] = Math.min(c.max, Math.max(c.min, Math.round(v / c.step) * c.step));
+        } else if (c.type === "select") next[c.key] = pick(c.options);
+        else if (c.type === "toggle") next[c.key] = Math.random() < 0.5;
+        else if (c.type === "color") next[c.key] = randomHex();
+        else if (c.type === "colors") next[c.key] = [...pick(PALETTES).colors];
+      }
+      return { ...s, seed: Math.round(Math.random() * 1000) / 10, sections: { ...s.sections, [key]: next } };
+    });
+  };
+
+  const resetLayer = (key: SectionKey) => {
+    if (isLocked(key)) return;
+    const schema = SCHEMA_BY_KEY[key];
+    set((s) => ({
+      ...s,
+      sections: {
+        ...s.sections,
+        [key]: {
+          ...s.sections[key],
+          ...structuredClone(schema.defaults),
+          preset: null,
+          layerOpacity: 1,
+          layerBlend: "normal",
+        },
+      },
+    }));
+    notify(`${schema.label} reset`);
+  };
+
+  // ---- whole design
   const randomize = () => {
-    const next = initialState();
+    let next = initialState();
     next.seed = Math.round(Math.random() * 1000) / 10;
     for (const key of Object.keys(next.sections) as SectionKey[]) {
       next.sections[key] = { ...next.sections[key], enabled: false, preset: null };
     }
     next.order = [];
-    let result = withPreset(next, pick(GROUPS[0].presets));
-    const others = GROUPS.slice(1).filter((g) => g.section !== "grain");
-    const count = 1 + Math.floor(Math.random() * 2);
-    for (let i = 0; i < count; i++) result = withPreset(result, pick(pick(others).presets));
-    result = withPreset(result, GROUPS.find((g) => g.section === "grain")!.presets[0]);
-    set(result);
+    next = withPreset(next, pick(GROUPS[0].presets));
+    const others = GROUPS.slice(1).filter((g) => g.section !== "grain" && g.section !== "gradient");
+    const count = 1 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < count; i++) next = withPreset(next, pick(pick(others).presets));
+    next = withPreset(next, GROUPS.find((g) => g.section === "grain")!.presets[0]);
+    set(next);
+    setSelected(next.order[1] ?? next.order[0]);
   };
 
   const handleSave = async () => {
@@ -238,7 +294,7 @@ export default function Studio() {
       const next = [{ id: crypto.randomUUID(), createdAt: Date.now(), thumb, state }, ...saved];
       if (!storeSaved(next)) return notify("Storage is full — delete a saved design first");
       setSaved(next);
-      notify("Saved");
+      notify("Saved to your library");
     } catch {
       notify("Save failed");
     }
@@ -249,7 +305,7 @@ export default function Studio() {
     window.history.replaceState(null, "", url);
     try {
       await navigator.clipboard.writeText(url);
-      notify(image ? "Link copied (uploaded images aren't included)" : "Link copied");
+      notify(image ? "Link copied (uploaded photos aren't included)" : "Link copied");
     } catch {
       notify("Link added to the address bar");
     }
@@ -261,113 +317,204 @@ export default function Studio() {
     setSaved(next);
   };
 
-  // Keyboard shortcuts
+  // ---- keyboard
+  const actions = useRef({ randomize, deleteLayer, flipFlag });
+  actions.current = { randomize, deleteLayer, flipFlag };
   const { undo, redo } = history;
   useEffect(() => {
+    const typing = (t: EventTarget | null) => !!(t as HTMLElement)?.closest?.("input, select, textarea, [contenteditable]");
     const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("input, select, textarea")) return;
+      if (typing(e.target)) return;
       const mod = e.metaKey || e.ctrlKey;
-      if (mod && e.key.toLowerCase() === "z") {
+      const key = e.key.toLowerCase();
+      const sel = selectedRef.current;
+      const order = [...stateRef.current.order].reverse();
+      if (mod && key === "z") {
         e.preventDefault();
         if (e.shiftKey) redo();
         else undo();
-      } else if (mod && e.key.toLowerCase() === "y") {
+      } else if (mod && key === "y") {
         e.preventDefault();
         redo();
-      } else if (e.key === " " && !mod && target.tagName !== "BUTTON") {
+      } else if (mod) {
+        return;
+      } else if (e.key === " " && (e.target as HTMLElement).tagName !== "BUTTON") {
         e.preventDefault();
         setPlaying((v) => !v);
+      } else if (key === "r") actions.current.randomize();
+      else if (key === "f") setZen((v) => !v);
+      else if (key === "e") setExportOpen((v) => !v);
+      else if (key === "c" && !e.repeat) setCompare(true);
+      else if (e.key === "?") setShortcutsOpen((v) => !v);
+      else if (e.key === "Escape") {
+        setShortcutsOpen(false);
+        setZen(false);
+        setExportOpen(false);
+      } else if ((e.key === "Delete" || e.key === "Backspace") && sel) actions.current.deleteLayer(sel);
+      else if (key === "h" && sel) actions.current.flipFlag(sel, "enabled");
+      else if ((e.key === "[" || e.key === "]") && order.length) {
+        const i = sel ? order.indexOf(sel) : -1;
+        const next = e.key === "]" ? Math.min(order.length - 1, i + 1) : Math.max(0, i - 1);
+        setSelected(order[next]);
       }
     };
+    const onUp = (e: KeyboardEvent) => e.key.toLowerCase() === "c" && setCompare(false);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keyup", onUp);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onUp);
+    };
   }, [undo, redo]);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+
+  // Compare shows only the source layers, i.e. the design before any effects.
+  const shown: StudioState = compare
+    ? { ...state, order: state.order.filter((k) => k === "gradient" || k === "image") }
+    : state;
+  const insets = zen ? ZEN_INSETS : INSETS;
+  const panelMotion = "transition-[transform,opacity] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]";
 
   return (
-    <div className="flex h-dvh min-w-[1100px] gap-2.5 overflow-hidden bg-background p-2 pl-0 text-foreground">
-      <Rail panel={panel} onPanel={setPanel} onOpenImage={() => fileRef.current?.click()} />
+    <div className="relative h-dvh min-w-[1100px] overflow-hidden bg-ink text-bone">
+      {/* Soft ember glow behind the stage */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vh] w-[70vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ember/[0.06] blur-[120px]"
+      />
 
-      {panel === "effects" && <EffectsPanel state={state} onToggle={togglePreset} />}
-      {panel === "layers" && (
-        <LayersPanel
-          state={state}
-          time={timeRef.current}
-          selected={selectedLayer}
-          imageUrl={image?.src ?? null}
-          onSelect={selectLayer}
-          onReorder={(order) => set((s) => ({ ...s, order }))}
-          onToggleVisible={(key) => flipFlag(key, "enabled")}
-          onToggleLock={(key) => flipFlag(key, "locked")}
-          onToggleAnimated={toggleAnimated}
-          onDelete={deleteLayer}
-          onAdd={addLayerFromMenu}
-        />
-      )}
-      {panel === "saved" && (
-        <SavedPanel
-          saved={saved}
-          onLoad={(d) => {
-            set(d.state);
-            notify("Loaded saved design");
-          }}
-          onDelete={deleteSaved}
-        />
-      )}
+      <Stage
+        state={shown}
+        image={image}
+        aspect={aspect}
+        playing={playing}
+        speed={speed}
+        timeRef={timeRef}
+        sizeRef={sizeRef}
+        onDropImage={loadImageFile}
+        onResize={setPreviewSize}
+        style={insets}
+      >
+        {compare && (
+          <span className="anim-pop pointer-events-none absolute left-1/2 top-5 -translate-x-1/2 rounded-full bg-ink/75 px-3.5 py-1.5 text-[12.5px] text-bone backdrop-blur">
+            Original · release to return
+          </span>
+        )}
+      </Stage>
 
-      <main className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-xl border border-panel-border bg-panel">
-        <Toolbar
+      <div className={`${panelMotion} ${zen ? "pointer-events-none -translate-y-24 opacity-0" : ""}`}>
+        <CommandBar
+          canUndo={history.canUndo}
+          canRedo={history.canRedo}
+          onUndo={history.undo}
+          onRedo={history.redo}
+          onRandomize={randomize}
           playing={playing}
           onTogglePlay={() => setPlaying((v) => !v)}
           speed={speed}
           onSpeed={setSpeed}
           aspect={aspect}
           onAspect={setAspect}
-          onRandomize={randomize}
-          onReset={() => set(initialState())}
+          onCompare={setCompare}
+          onZen={() => setZen(true)}
+          onShortcuts={() => setShortcutsOpen(true)}
           onShare={handleShare}
           onSave={handleSave}
+          exportOpen={exportOpen}
           onExport={() => setExportOpen((v) => !v)}
         />
-        <Stage
-          state={state}
-          image={image}
-          aspect={aspect}
-          playing={playing}
-          speed={speed}
-          timeRef={timeRef}
-          sizeRef={sizeRef}
-          onDropImage={loadImageFile}
-          onResize={setPreviewSize}
-        />
-      </main>
+      </div>
 
-      {exportOpen ? (
-        <ExportPanel
+      <aside
+        aria-label="Library"
+        className={`glass-panel absolute bottom-4 left-4 top-[84px] z-20 w-[288px] overflow-hidden rounded-[24px] ${panelMotion} ${
+          zen ? "pointer-events-none -translate-x-[110%] opacity-0" : ""
+        }`}
+      >
+        <Library
           state={state}
-          image={image}
-          aspect={aspect}
-          onAspect={setAspect}
-          previewSize={previewSize}
-          timeRef={timeRef}
-          speed={speed}
-          onClose={() => setExportOpen(false)}
-          notify={notify}
+          onToggle={togglePreset}
+          saved={saved}
+          onLoadSaved={(d) => {
+            set(d.state);
+            setSelected(d.state.order[0] ?? null);
+            notify("Loaded saved design");
+          }}
+          onDeleteSaved={deleteSaved}
         />
-      ) : (
-        <PropsPanel
+      </aside>
+
+      <aside
+        aria-label={exportOpen ? "Export" : "Inspector"}
+        className={`glass-panel absolute bottom-4 right-4 top-[84px] z-20 w-[312px] overflow-hidden rounded-[24px] ${panelMotion} ${
+          zen ? "pointer-events-none translate-x-[110%] opacity-0" : ""
+        }`}
+      >
+        {exportOpen ? (
+          <div key="export" className="anim-rise h-full">
+            <ExportPanel
+              state={state}
+              image={image}
+              aspect={aspect}
+              onAspect={setAspect}
+              previewSize={previewSize}
+              timeRef={timeRef}
+              speed={speed}
+              onClose={() => setExportOpen(false)}
+              notify={notify}
+            />
+          </div>
+        ) : (
+          <Inspector
+            state={state}
+            selected={selected}
+            imageUrl={image?.src ?? null}
+            onChange={updateSection}
+            onShuffle={shuffleLayer}
+            onReset={resetLayer}
+            onToggleVisible={(k) => flipFlag(k, "enabled")}
+            onToggleLock={(k) => flipFlag(k, "locked")}
+            onToggleAnimated={toggleAnimated}
+            onDelete={deleteLayer}
+            onPickImage={() => fileRef.current?.click()}
+            onRemoveImage={removeImage}
+            onBrowse={() => document.querySelector<HTMLInputElement>('input[aria-label="Search effects"]')?.focus()}
+          />
+        )}
+      </aside>
+
+      <div
+        className={`absolute bottom-4 left-[320px] right-[344px] z-20 flex justify-center ${panelMotion} ${
+          zen ? "pointer-events-none translate-y-32 opacity-0" : ""
+        }`}
+      >
+        <LayerDock
           state={state}
-          onChange={updateSection}
-          onUndo={history.undo}
-          onRedo={history.redo}
-          canUndo={history.canUndo}
-          canRedo={history.canRedo}
+          time={timeRef.current}
+          selected={selected}
           imageUrl={image?.src ?? null}
-          onPickImage={() => fileRef.current?.click()}
-          onRemoveImage={removeImage}
-          focus={focus}
+          onSelect={(k) => {
+            setSelected(k);
+            setExportOpen(false);
+          }}
+          onReorder={(order) => set((s) => ({ ...s, order }))}
+          onToggleVisible={(k) => flipFlag(k, "enabled")}
+          onAdd={addLayerFromMenu}
         />
+      </div>
+
+      {zen && (
+        <button
+          type="button"
+          onClick={() => setZen(false)}
+          className="anim-pop glass-panel press absolute bottom-6 left-1/2 z-30 -translate-x-1/2 rounded-full px-4 py-2 text-[12.5px] text-bone/80 hover:text-bone"
+        >
+          Zen mode · press F or click to exit
+        </button>
       )}
+
+      {shortcutsOpen && <Shortcuts onClose={() => setShortcutsOpen(false)} />}
 
       <input
         ref={fileRef}
@@ -383,10 +530,11 @@ export default function Studio() {
 
       {toast && (
         <div
+          key={toast.n}
           role="status"
-          className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-neutral-800 bg-neutral-950 px-3.5 py-2 text-[13px] text-neutral-100 shadow-2xl"
+          className="anim-pop glass-panel pointer-events-none absolute bottom-[112px] left-1/2 z-50 -translate-x-1/2 rounded-full px-4 py-2 text-[13px] text-bone"
         >
-          {toast}
+          {toast.msg}
         </div>
       )}
     </div>

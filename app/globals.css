@@ -1,6 +1,14 @@
 @import "tailwindcss";
 
 :root {
+  /* Studio + landing palette: warm charcoal, bone, one ember accent */
+  --ink: #0d0c0b;
+  --surface: #171512;
+  --raised: #221f1b;
+  --bone: #ede7dc;
+  --dim: #8f887d;
+  --ember: #ff5a2c;
+
   --background: #000000;
   --foreground: #ededed;
   --panel: #111111;
@@ -16,6 +24,12 @@
   --color-panel-border: var(--panel-border);
   --color-field: var(--field);
   --color-muted: var(--muted);
+  --color-ink: var(--ink);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-bone: var(--bone);
+  --color-dim: var(--dim);
+  --color-ember: var(--ember);
   --font-sans: var(--font-familjen), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-special-gothic), var(--font-familjen), sans-serif;
   --font-condensed: var(--font-cabin-condensed), var(--font-familjen), sans-serif;
@@ -27,6 +41,104 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-familjen), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ---------------------------------------------------------------- studio */
+
+/* Floating frosted panels: no outlines, just surface and shadow */
+.glass-panel {
+  background: rgba(23, 21, 18, 0.74);
+  backdrop-filter: blur(28px) saturate(1.25);
+  -webkit-backdrop-filter: blur(28px) saturate(1.25);
+  box-shadow:
+    0 30px 70px -28px rgba(0, 0, 0, 0.8),
+    0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* Springy press feedback for anything clickable */
+.press {
+  transition:
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.25s ease,
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+.press:active {
+  transform: scale(0.93);
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-pop {
+  animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-rise {
+  animation: rise 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.anim-menu {
+  animation: menu-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top center;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(100deg, #1c1a17 30%, #2a2622 50%, #1c1a17 70%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* Hide scrollbars on horizontal chip rows */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-pop,
+  .anim-rise,
+  .anim-menu,
+  .skeleton {
+    animation: none;
+  }
 }
 
 /* Landing: loop timeline playhead and the typing caret */
@@ -115,3 +227,4 @@ input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+

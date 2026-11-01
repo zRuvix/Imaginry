@@ -13,6 +13,18 @@ export const SECTION_KEYS = [
   "plaid",
   "ascii",
   "grain",
+  "adjust",
+  "gradientmap",
+  "posterize",
+  "bloom",
+  "rgbshift",
+  "kaleido",
+  "mirror",
+  "mosaic",
+  "crt",
+  "edges",
+  "engrave",
+  "sparkle",
 ] as const;
 
 export type SectionKey = (typeof SECTION_KEYS)[number];
@@ -51,15 +63,22 @@ export type Control =
   | { key: string; label: string; type: "colors"; max: number }
   | { key: string; label: string; type: "toggle" };
 
+/** Library shelves. */
+export const CATEGORIES = ["Color", "Light", "Glass & optics", "Distort", "Texture", "Stylize"] as const;
+export type Category = (typeof CATEGORIES)[number];
+
 export type SectionSchema = {
   key: SectionKey;
   label: string;
+  category: Category;
+  /** One line shown in the inspector header. */
+  blurb: string;
   info?: string;
   controls: Control[];
   defaults: Record<string, Value>;
 };
 
-const BLEND_MODES = ["normal", "multiply", "screen", "overlay", "soft light", "difference", "add"];
+export const BLEND_MODES = ["normal", "multiply", "screen", "overlay", "soft light", "difference", "add"];
 
 /** Default glass, also the "fluted" preset: inverted, magnified flutes with offset strips. */
 export const GLASS_FLUTED = {
@@ -87,10 +106,10 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "image",
     label: "Image",
+    category: "Color",
+    blurb: "Your own photo as the base layer.",
     info: "Use a photo as the base; layers above it (like a gradient) can blend over it. Paste from the clipboard or drop an image onto the stage.",
     controls: [
-      { key: "blend", label: "Blend mode", type: "select", options: BLEND_MODES },
-      slider("opacity", "Opacity", 0, 1, 0.01),
       slider("blur", "Blur", 0, 1, 0.01),
       slider("scale", "Scale", 0.5, 3, 0.01),
       slider("x", "Position X", -1, 1, 0.01),
@@ -107,8 +126,6 @@ export const SCHEMA: SectionSchema[] = [
       },
     ],
     defaults: {
-      blend: "normal",
-      opacity: 1,
       blur: 0,
       scale: 1,
       x: 0,
@@ -123,6 +140,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "pattern",
     label: "Pattern",
+    category: "Texture",
+    blurb: "Masks the image into repeating shapes.",
     info: "Masks the image into a repeating shape. Areas outside the shape take the background color.",
     controls: [
       {
@@ -149,6 +168,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "gradient",
     label: "Gradient",
+    category: "Color",
+    blurb: "The color everything else is built on.",
     controls: [
       {
         key: "type",
@@ -161,8 +182,6 @@ export const SCHEMA: SectionSchema[] = [
       slider("scale", "Scale", 0.2, 3, 0.01),
       slider("warp", "Warp", 0, 2, 0.01),
       slider("speed", "Speed", 0, 3, 0.01),
-      { key: "blend", label: "Blend mode", type: "select", options: BLEND_MODES },
-      slider("opacity", "Opacity", 0, 1, 0.01),
     ],
     defaults: {
       type: "linear",
@@ -171,13 +190,13 @@ export const SCHEMA: SectionSchema[] = [
       scale: 1,
       warp: 0.3,
       speed: 0.5,
-      blend: "normal",
-      opacity: 1,
     },
   },
   {
     key: "optics",
     label: "Optics",
+    category: "Glass & optics",
+    blurb: "Lens distortion, fringing and glow.",
     controls: [
       slider("aberration", "Aberration", 0, 2, 0.01),
       slider("distortion", "Distortion", -1, 1, 0.01),
@@ -189,6 +208,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "light",
     label: "Light",
+    category: "Light",
+    blurb: "Rays, beams and caustics.",
     controls: [
       {
         key: "type",
@@ -216,6 +237,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "waves",
     label: "Waves",
+    category: "Distort",
+    blurb: "Ripples, swirls and liquid motion.",
     controls: [
       {
         key: "type",
@@ -239,6 +262,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "blobs",
     label: "Blobs",
+    category: "Texture",
+    blurb: "Soft shapes drifting in your colors.",
     controls: [
       slider("count", "Count", 1, 8, 1),
       slider("size", "Size", 0.05, 0.8, 0.01),
@@ -251,6 +276,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "glass",
     label: "Glass",
+    category: "Glass & optics",
+    blurb: "Refracts everything below through lenses.",
     controls: [
       {
         key: "type",
@@ -272,12 +299,16 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "pixelate",
     label: "Pixelate",
+    category: "Stylize",
+    blurb: "Big, honest pixels.",
     controls: [slider("size", "Size", 2, 120, 1)],
     defaults: { size: 16 },
   },
   {
     key: "dither",
     label: "Dither",
+    category: "Stylize",
+    blurb: "Ordered dithering, 1-bit or color.",
     controls: [
       slider("levels", "Levels", 2, 8, 1),
       slider("scale", "Scale", 1, 12, 0.5),
@@ -288,6 +319,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "halftone",
     label: "Halftone",
+    category: "Stylize",
+    blurb: "Print-style dot screens.",
     controls: [
       slider("size", "Size", 3, 60, 0.5),
       slider("angle", "Angle", -90, 90, 1),
@@ -306,6 +339,8 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "plaid",
     label: "Plaid",
+    category: "Texture",
+    blurb: "Woven tartan over the image.",
     controls: [
       slider("scale", "Scale", 1, 20, 0.1),
       slider("opacity", "Opacity", 0, 1, 0.01),
@@ -317,14 +352,166 @@ export const SCHEMA: SectionSchema[] = [
   {
     key: "ascii",
     label: "ASCII",
+    category: "Stylize",
+    blurb: "Rebuilds the image from characters.",
     controls: [slider("size", "Size", 4, 40, 0.5), { key: "colored", label: "Colored", type: "toggle" }],
     defaults: { size: 10, colored: true },
   },
   {
     key: "grain",
     label: "Grain",
+    category: "Texture",
+    blurb: "Film grain for the finishing tooth.",
     controls: [slider("amount", "Amount", 0, 0.6, 0.01), slider("size", "Size", 1, 6, 0.1)],
     defaults: { amount: 0.1, size: 1 },
+  },
+  {
+    key: "adjust",
+    label: "Adjust",
+    category: "Color",
+    blurb: "Exposure, contrast, saturation and hue.",
+    controls: [
+      slider("exposure", "Exposure", -2, 2, 0.01),
+      slider("brightness", "Brightness", -0.5, 0.5, 0.01),
+      slider("contrast", "Contrast", 0, 2, 0.01),
+      slider("saturation", "Saturation", 0, 2, 0.01),
+      slider("hue", "Hue", -180, 180, 1),
+      slider("temperature", "Temperature", -1, 1, 0.01),
+    ],
+    defaults: { exposure: 0, brightness: 0, contrast: 1.1, saturation: 1.15, hue: 0, temperature: 0.2 },
+  },
+  {
+    key: "gradientmap",
+    label: "Gradient Map",
+    category: "Color",
+    blurb: "Recolors by brightness, shadows to highlights.",
+    controls: [
+      { key: "colors", label: "Colors", type: "colors", max: 5 },
+      { key: "reverse", label: "Reverse", type: "toggle" },
+    ],
+    defaults: { colors: ["#120a1e", "#ff5a2c", "#ffe2b8"], reverse: false },
+  },
+  {
+    key: "posterize",
+    label: "Posterize",
+    category: "Color",
+    blurb: "Flattens color into a few bands.",
+    controls: [slider("levels", "Levels", 2, 16, 1), slider("gamma", "Gamma", 0.3, 2.5, 0.01)],
+    defaults: { levels: 5, gamma: 1 },
+  },
+  {
+    key: "bloom",
+    label: "Bloom",
+    category: "Light",
+    blurb: "Highlights that bleed soft light.",
+    controls: [
+      slider("threshold", "Threshold", 0, 1, 0.01),
+      slider("intensity", "Intensity", 0, 2, 0.01),
+      slider("radius", "Radius", 0.05, 1, 0.01),
+    ],
+    defaults: { threshold: 0.55, intensity: 0.9, radius: 0.4 },
+  },
+  {
+    key: "rgbshift",
+    label: "RGB Split",
+    category: "Glass & optics",
+    blurb: "Pulls the color channels apart.",
+    controls: [
+      slider("amount", "Amount", 0, 1, 0.01),
+      slider("angle", "Angle", -180, 180, 1),
+      slider("jitter", "Glitch", 0, 1, 0.01),
+    ],
+    defaults: { amount: 0.3, angle: 0, jitter: 0 },
+  },
+  {
+    key: "kaleido",
+    label: "Kaleidoscope",
+    category: "Distort",
+    blurb: "Folds the image into mirrored wedges.",
+    controls: [
+      slider("segments", "Segments", 2, 16, 1),
+      slider("rotate", "Rotate", -180, 180, 1),
+      slider("zoom", "Zoom", 0.3, 3, 0.01),
+      slider("speed", "Spin", -2, 2, 0.01),
+    ],
+    defaults: { segments: 6, rotate: 0, zoom: 1, speed: 0 },
+  },
+  {
+    key: "mirror",
+    label: "Mirror",
+    category: "Distort",
+    blurb: "Perfect symmetry, any axis.",
+    controls: [
+      { key: "mode", label: "Axis", type: "select", options: ["horizontal", "vertical", "quad", "diagonal"] },
+      slider("offset", "Offset", -1, 1, 0.01),
+    ],
+    defaults: { mode: "horizontal", offset: 0 },
+  },
+  {
+    key: "mosaic",
+    label: "Mosaic",
+    category: "Stylize",
+    blurb: "Stained-glass cells with leaded edges.",
+    controls: [
+      slider("scale", "Cells", 3, 60, 1),
+      slider("edge", "Edge", 0, 0.4, 0.01),
+      slider("jitter", "Jitter", 0, 1, 0.01),
+      { key: "edgeColor", label: "Edge color", type: "color" },
+    ],
+    defaults: { scale: 14, edge: 0.08, jitter: 0.9, edgeColor: "#0d0c0b" },
+  },
+  {
+    key: "crt",
+    label: "CRT",
+    category: "Stylize",
+    blurb: "Scanlines, phosphor mask and a curved tube.",
+    controls: [
+      slider("lines", "Scanlines", 0, 1, 0.01),
+      slider("curve", "Curvature", 0, 1, 0.01),
+      slider("mask", "Phosphor", 0, 1, 0.01),
+      slider("flicker", "Flicker", 0, 1, 0.01),
+    ],
+    defaults: { lines: 0.6, curve: 0.4, mask: 0.4, flicker: 0.3 },
+  },
+  {
+    key: "edges",
+    label: "Edges",
+    category: "Stylize",
+    blurb: "Traces every contour: glow, ink or neon.",
+    controls: [
+      { key: "mode", label: "Mode", type: "select", options: ["glow", "ink", "neon"] },
+      slider("strength", "Strength", 0, 3, 0.01),
+      slider("thickness", "Thickness", 0.5, 4, 0.1),
+      { key: "color", label: "Color", type: "color" },
+    ],
+    defaults: { mode: "glow", strength: 1.2, thickness: 1.2, color: "#ffd2a8" },
+  },
+  {
+    key: "engrave",
+    label: "Engrave",
+    category: "Stylize",
+    blurb: "Banknote-style line shading.",
+    controls: [
+      slider("size", "Line size", 3, 30, 0.5),
+      slider("angle", "Angle", -90, 90, 1),
+      slider("wave", "Wave", 0, 1.5, 0.01),
+      { key: "ink", label: "Ink", type: "color" },
+      { key: "paper", label: "Paper", type: "color" },
+    ],
+    defaults: { size: 7, angle: 30, wave: 0.3, ink: "#1a1410", paper: "#efe6d4" },
+  },
+  {
+    key: "sparkle",
+    label: "Sparkle",
+    category: "Light",
+    blurb: "Twinkling star points over everything.",
+    controls: [
+      slider("density", "Density", 0.3, 4, 0.01),
+      slider("size", "Size", 0.2, 3, 0.01),
+      slider("speed", "Twinkle", 0, 4, 0.01),
+      { key: "color", label: "Color", type: "color" },
+    ],
+    defaults: { density: 1.4, size: 1, speed: 1.2, color: "#fff4e0" },
   },
 ];
 
@@ -340,6 +527,9 @@ export function emptyState(seed = 0): StudioState {
       locked: false,
       animated: true,
       frozenTime: 0,
+      // Every layer blends over the one below.
+      layerOpacity: 1,
+      layerBlend: "normal",
       ...structuredClone(s.defaults),
     };
   }
@@ -355,15 +545,27 @@ const RANK: SectionKey[] = [
   "gradient",
   "blobs",
   "light",
+  "sparkle",
   "plaid",
   "pattern",
+  "mirror",
+  "kaleido",
   "waves",
   "glass",
+  "rgbshift",
   "optics",
+  "bloom",
+  "adjust",
+  "gradientmap",
+  "posterize",
+  "mosaic",
+  "edges",
   "pixelate",
   "halftone",
+  "engrave",
   "ascii",
   "dither",
+  "crt",
   "grain",
 ];
 

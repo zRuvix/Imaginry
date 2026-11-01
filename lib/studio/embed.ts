@@ -1,4 +1,4 @@
-import { drawList, layerTime, toUniforms } from "./renderer";
+import { drawList, layerMix, layerTime, toUniforms } from "./renderer";
 import { SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
 
@@ -15,7 +15,7 @@ function minifyGlsl(src: string) {
 export type Look = {
   uniforms: Record<string, number | number[]>;
   time: number;
-  layers: { key: SectionKey; frozen?: number }[];
+  layers: { key: SectionKey; frozen?: number; o: number; b: number }[];
 };
 
 export function lookFor(state: StudioState, time: number): Look {
@@ -24,9 +24,13 @@ export function lookFor(state: StudioState, time: number): Look {
   for (const [k, v] of Object.entries(uniforms)) {
     uniforms[k] = Array.isArray(v) ? v.map((n) => +n.toFixed(4)) : +v.toFixed(4);
   }
-  const layers = drawList(state, false).map((key) =>
-    state.sections[key].animated ? { key } : { key, frozen: +layerTime(state, key, time).toFixed(3) },
-  );
+  const layers = drawList(state, false).map((key) => {
+    const { opacity, blend } = layerMix(state, key);
+    const mix = { o: +opacity.toFixed(3), b: blend };
+    return state.sections[key].animated
+      ? { key, ...mix }
+      : { key, ...mix, frozen: +layerTime(state, key, time).toFixed(3) };
+  });
   return { uniforms, time: +time.toFixed(3), layers };
 }
 
@@ -58,7 +62,7 @@ const RUNTIME = `function mountImaginry(canvas, look, opts) {
     return p;
   }
   var layers = look.layers.filter(function (l) { return S.fx[l.key]; }).map(function (l) {
-    return { p: program(S.fx[l.key]), frozen: l.frozen };
+    return { p: program(S.fx[l.key]), frozen: l.frozen, o: l.o == null ? 1 : l.o, b: l.b || 0 };
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
@@ -107,7 +111,8 @@ const RUNTIME = `function mountImaginry(canvas, look, opts) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, last ? null : targets[i % 2].fbo);
       gl.useProgram(layer.p);
       uniforms(layer.p, Object.assign({}, look.uniforms, {
-        uRes: [w, h], uDetail: 1, uImgSize: [1, 1], uTime: layer.frozen == null ? time : layer.frozen
+        uRes: [w, h], uDetail: 1, uImgSize: [1, 1], uTime: layer.frozen == null ? time : layer.frozen,
+        uLayerOpacity: layer.o, uLayerBlend: layer.b
       }));
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, i === 0 ? base : targets[(i - 1) % 2].tex);

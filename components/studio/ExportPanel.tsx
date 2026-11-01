@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X } from "@/components/icons";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { renderOffscreen } from "@/lib/studio/renderer";
@@ -48,15 +48,15 @@ function download(blob: Blob, name: string) {
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-panel-border bg-black">
-      <h3 className="border-b border-panel-border px-3.5 py-3 text-[13px] font-semibold">{title}</h3>
-      <div className="space-y-2.5 p-3.5">{children}</div>
+    <section className="anim-rise rounded-[18px] bg-white/[0.04]">
+      <h3 className="px-4 pb-0.5 pt-3.5 text-[13.5px] font-semibold text-bone">{title}</h3>
+      <div className="space-y-2.5 p-3.5 pt-2.5">{children}</div>
     </section>
   );
 }
 
 function Note({ children }: { children: ReactNode }) {
-  return <p className="text-[12.5px] leading-snug text-neutral-400">{children}</p>;
+  return <p className="text-[12.5px] leading-snug text-bone/50">{children}</p>;
 }
 
 function Choice({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
@@ -65,10 +65,10 @@ function Choice({ active, onClick, children }: { active: boolean; onClick: () =>
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`h-[30px] rounded-lg border font-outfit text-[12.5px] font-medium transition-colors ${
+      className={`press h-9 rounded-full font-outfit text-[12.5px] font-medium ${
         active
-          ? "border-neutral-200 bg-neutral-200 text-black"
-          : "border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800"
+          ? "bg-bone text-ink"
+          : "bg-white/[0.05] text-bone/70 hover:bg-white/[0.1] hover:text-bone"
       }`}
     >
       {children}
@@ -93,7 +93,7 @@ function Dropdown<T extends string | number>({
         aria-label={label}
         value={String(value)}
         onChange={(e) => onChange(options.find((o) => String(o.value) === e.target.value)!.value)}
-        className="h-[30px] w-full cursor-pointer appearance-none rounded-lg border border-neutral-800 bg-neutral-950 pl-2.5 pr-8 text-[12.5px] text-neutral-100 outline-none focus:border-neutral-500"
+        className="h-10 w-full cursor-pointer appearance-none rounded-[12px] bg-white/[0.05] pl-3.5 pr-8 text-[13px] text-bone outline-none transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] [&>option]:bg-surface"
       >
         {options.map((o) => (
           <option key={String(o.value)} value={String(o.value)}>
@@ -101,7 +101,7 @@ function Dropdown<T extends string | number>({
           </option>
         ))}
       </select>
-      <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+      <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-bone/50" />
     </div>
   );
 }
@@ -122,10 +122,10 @@ function Action({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`relative h-[30px] w-full overflow-hidden rounded-lg text-[12.5px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`press relative h-10 w-full overflow-hidden rounded-full text-[13px] font-medium disabled:cursor-not-allowed disabled:opacity-50 ${
         primary
-          ? "bg-neutral-200 text-black hover:bg-white"
-          : "border border-neutral-800 bg-neutral-900 text-neutral-100 hover:bg-neutral-800"
+          ? "bg-bone text-ink hover:bg-white"
+          : "bg-white/[0.06] text-bone hover:bg-white/[0.1]"
       }`}
     >
       {children}
@@ -257,14 +257,14 @@ export default function ExportPanel(p: Props) {
   }[tab];
 
   return (
-    <aside className="flex w-[300px] shrink-0 flex-col overflow-hidden rounded-xl border border-panel-border bg-panel">
-      <header className="flex h-[58px] shrink-0 items-center justify-between border-b border-panel-border px-4">
+    <div className="flex h-full flex-col">
+      <header className="flex h-[58px] shrink-0 items-center justify-between px-4">
         <h2 className="text-[15px] font-semibold">Export</h2>
         <button
           type="button"
           aria-label="Close export"
           onClick={p.onClose}
-          className="flex size-[30px] items-center justify-center rounded-lg text-neutral-300 hover:bg-neutral-800"
+          className="press flex size-9 items-center justify-center rounded-full text-bone/70 hover:bg-white/[0.08] hover:text-bone"
         >
           <X size={15} />
         </button>
@@ -287,7 +287,7 @@ export default function ExportPanel(p: Props) {
             ] as const
           ).map(([label, list]) => (
             <div key={label} className="space-y-2">
-              <span className="block pt-1 text-[12.5px] text-neutral-400">{label}</span>
+              <span className="block pt-1 text-[12.5px] text-bone/50">{label}</span>
               <div className="grid grid-cols-3 gap-2">
                 {list.map((a) => (
                   <Choice key={a} active={p.aspect === a} onClick={() => p.onAspect(a)}>
@@ -361,15 +361,15 @@ export default function ExportPanel(p: Props) {
         </Card>
 
         <Card title="Embed as code">
-          <div className="grid grid-cols-3 rounded-xl bg-neutral-900 p-1">
+          <div className="grid grid-cols-3 rounded-full bg-white/[0.05] p-1">
             {(["framer", "react", "html"] as const).map((t) => (
               <button
                 key={t}
                 type="button"
                 aria-pressed={tab === t}
                 onClick={() => setTab(t)}
-                className={`h-9 rounded-lg text-[14px] font-semibold capitalize transition-colors ${
-                  tab === t ? "bg-black text-white" : "text-neutral-400 hover:text-neutral-200"
+                className={`h-9 rounded-full text-[14px] font-semibold capitalize transition-colors ${
+                  tab === t ? "bg-bone text-ink" : "text-bone/55 hover:text-bone"
                 }`}
               >
                 {t === "html" ? "HTML" : t}
@@ -381,7 +381,7 @@ export default function ExportPanel(p: Props) {
             {p.image && " Uploaded images aren't embedded."}
           </Note>
           <div
-            className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-950"
+            className="overflow-hidden rounded-[14px] bg-black/40"
             style={{ aspectRatio: String(ratio) }}
           >
             {embedPreview && (
@@ -403,6 +403,6 @@ export default function ExportPanel(p: Props) {
           )}
         </Card>
       </div>
-    </aside>
+    </div>
   );
 }

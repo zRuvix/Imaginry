@@ -9,11 +9,11 @@
   },
   "dependencies": {
     "lenis": "^1.3.27",
-    "lucide-react": "^1.65.0",
     "mp4-muxer": "^5.2.2",
     "next": "16.4.3",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "reicon-react": "^1.2.6",
     "webm-muxer": "^5.1.4"
   },
   "devDependencies": {

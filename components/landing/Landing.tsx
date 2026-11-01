@@ -2,7 +2,7 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
-import { ArrowRight, ArrowUpRight, Hand } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Hand } from "@/components/icons";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CURATED, type CuratedLook } from "@/lib/studio/looks";
