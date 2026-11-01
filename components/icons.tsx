@@ -38,6 +38,7 @@ import {
   Pause as RPause,
   Play as RPlay,
   Redo,
+  Rocket as RRocket,
   RotateLeft,
   Share,
   SidebarLeft,
@@ -88,6 +89,7 @@ export const EyeOff = filled(EyeSlash, "EyeOff");
 export const FolderOpen = filled(Folder2, "FolderOpen");
 export const GripVertical = filled(MoreH, "GripVertical", "rotate-90");
 export const Hand = filled(RHand, "Hand");
+export const Rocket = filled(RRocket, "Rocket");
 export const Image = filled(RImage, "Image");
 export const Info = filled(InfoCircle, "Info");
 export const Layers = filled(RLayers, "Layers");

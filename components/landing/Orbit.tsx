@@ -1,30 +1,79 @@
 "use client";
 
 import { useLenis } from "lenis/react";
-import { useEffect, useRef } from "react";
-import { stateForLook, type CuratedLook } from "@/lib/studio/looks";
+import { useEffect, useRef, useState } from "react";
+import { GALLERY, stateForLook, type CuratedLook } from "@/lib/studio/looks";
 import { encodeShare } from "@/lib/studio/storage";
 import { prefersReducedMotion } from "./motion";
+import { renderLookUrl } from "./useLookImages";
 
 /** Radians per second when left alone. */
 const IDLE_SPEED = 0.07;
 /** Below this many pixels of movement a press counts as a click. */
 const CLICK_SLOP = 6;
+/** Designs only change while the ring has been left alone this long. */
+const IDLE_BEFORE_SWAP = 2500;
+
+type Swap = { look: CuratedLook; url: string };
 
 /**
  * Designs riding a slow elliptical orbit. Drag or flick to spin it (with
  * inertia), scrolling nudges it along, and clicking a card opens that look in
  * the studio. Cards are placed in 2D every frame so they always face forward.
+ * While it spins on its own, each card trades its design for a new one as it
+ * passes behind the ring; dragging or scrolling pauses that.
  */
 export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (string | null)[] }) {
   const wrap = useRef<HTMLDivElement>(null);
   const cards = useRef<(HTMLAnchorElement | null)[]>([]);
-  const motion = useRef({ rot: 0, vel: 0, boost: 0, dragging: false, lastX: 0, moved: 0, lastT: 0 });
+  const motion = useRef({ rot: 0, vel: 0, boost: 0, dragging: false, lastX: 0, moved: 0, lastT: 0, touched: 0 });
+  const [swaps, setSwaps] = useState<(Swap | undefined)[]>([]);
+  const shown = looks.map((l, i) => swaps[i]?.look ?? l);
+  const shownUrls = urls.map((u, i) => swaps[i]?.url ?? u);
+
+  // Latest values for the animation loop, which only mounts once.
+  const live = useRef({ shown, urls });
+  live.current = { shown, urls };
+  const pending = useRef(new Set<number>());
 
   // Scrolling gives the ring a push in the scroll direction.
   useLenis(({ velocity }) => {
     motion.current.boost += velocity * 0.00025;
+    if (Math.abs(velocity) > 0.1) motion.current.touched = performance.now();
   });
+
+  // Fresh looks from the parent start the ring over.
+  useEffect(() => setSwaps([]), [looks]);
+
+  // Revoke swapped-in images once they're replaced or the ring unmounts.
+  const swapsRef = useRef(swaps);
+  useEffect(() => {
+    const prev = swapsRef.current;
+    swapsRef.current = swaps;
+    prev.forEach((s, i) => s && swaps[i]?.url !== s.url && URL.revokeObjectURL(s.url));
+  }, [swaps]);
+  useEffect(() => () => swapsRef.current.forEach((s) => s && URL.revokeObjectURL(s.url)), []);
+
+  const swap = async (i: number) => {
+    const { shown, urls } = live.current;
+    if (pending.current.has(i) || !urls[i]) return;
+    const onRing = new Set(shown.map((l) => l.name));
+    const options = GALLERY.filter((l) => !onRing.has(l.name));
+    const next = options[Math.floor(Math.random() * options.length)];
+    if (!next) return;
+    pending.current.add(i);
+    try {
+      const look = { ...next, seed: next.seed + Math.random() * 40 };
+      const url = await renderLookUrl(look);
+      if (url) setSwaps((prev) => Object.assign([...prev], { [i]: { look, url } }));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      pending.current.delete(i);
+    }
+  };
+  const swapRef = useRef(swap);
+  swapRef.current = swap;
 
   useEffect(() => {
     const el = wrap.current!;
@@ -35,6 +84,8 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
     let raf = 0;
     let last = performance.now();
     let visible = true;
+    // A card earns a swap by coming round the front, then spends it at the back.
+    const armed: boolean[] = [];
     const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
     io.observe(el);
 
@@ -63,6 +114,12 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
         if (card.dataset.blur !== String(b)) {
           card.dataset.blur = String(b);
           card.style.filter = b ? `blur(${b}px)` : "none";
+        }
+        if (depth > 0.6) armed[i] = true;
+        else if (depth < 0.08 && armed[i]) {
+          armed[i] = false;
+          const idle = !m.dragging && performance.now() - m.touched > IDLE_BEFORE_SWAP;
+          if (idle && !reduced) swapRef.current(i);
         }
         const front = i === frontIndex ? "1" : "0";
         if (card.dataset.front !== front) card.dataset.front = front;
@@ -101,6 +158,7 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
         m.lastT = performance.now();
         m.moved = 0;
         m.vel = 0;
+        m.touched = performance.now();
       }}
       onPointerMove={(e) => {
         const m = motion.current;
@@ -118,17 +176,22 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
         }
         m.lastX = e.clientX;
         m.lastT = now;
+        m.touched = now;
       }}
-      onPointerUp={() => (motion.current.dragging = false)}
+      onPointerUp={() => {
+        motion.current.dragging = false;
+        motion.current.touched = performance.now();
+      }}
       onPointerCancel={() => (motion.current.dragging = false)}
       onClickCapture={(e) => {
         // A drag shouldn't open the card it ended on.
         if (motion.current.moved > CLICK_SLOP) e.preventDefault();
       }}
     >
-      {looks.map((look, i) => (
+      {shown.map((look, i) => (
         <a
-          key={look.name}
+          // Keyed by slot: a swapped design reuses the card, so it keeps its place.
+          key={i}
           ref={(el) => {
             cards.current[i] = el;
           }}
@@ -138,10 +201,10 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
           className="group absolute left-1/2 top-1/2 block w-[clamp(132px,15vw,220px)] will-change-transform"
         >
           <div className="relative aspect-[4/5]">
-            {urls[i] && (
+            {shownUrls[i] && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={urls[i]!}
+                src={shownUrls[i]!}
                 alt=""
                 aria-hidden
                 draggable={false}
@@ -149,9 +212,9 @@ export default function Orbit({ looks, urls }: { looks: CuratedLook[]; urls: (st
               />
             )}
             <div className="relative h-full overflow-hidden rounded-[16px] bg-[var(--surface)] ring-1 ring-white/10">
-              {urls[i] ? (
+              {shownUrls[i] ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={urls[i]!} alt={look.name} draggable={false} className="h-full w-full object-cover" />
+                <img src={shownUrls[i]!} alt={look.name} draggable={false} className="h-full w-full object-cover" />
               ) : (
                 <div className="h-full w-full animate-pulse bg-[var(--surface)]" />
               )}

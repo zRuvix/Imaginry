@@ -2,12 +2,13 @@
 
 import { ReactLenis, useLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
-import { ArrowRight, ArrowUpRight, Hand } from "@/components/icons";
+import { ArrowUpRight, Hand } from "@/components/icons";
 import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CURATED, type CuratedLook } from "@/lib/studio/looks";
 import ExportStack from "./ExportStack";
 import Footer from "./Footer";
+import LaunchButton from "./LaunchButton";
 import LayersStory, { randomStory } from "./LayersStory";
 import LiveLook from "./LiveLook";
 import { clamp01, EASE, Reveal, useScrollFx } from "./motion";
@@ -93,9 +94,7 @@ function Hero({ looks, urls }: { looks: CuratedLook[]; urls: (string | null)[] }
             browser.
           </p>
           <div className="pointer-events-auto mt-7 flex flex-wrap justify-center gap-2.5">
-            <Button href="/studio" primary>
-              Open studio <ArrowRight size={15} />
-            </Button>
+            <LaunchButton />
             <Button
               href="#how"
               onClick={(e) => {
@@ -179,22 +178,40 @@ function StudioPreview({ previewUrl }: { previewUrl: string | null }) {
 }
 
 /** Gradient and film grain, drifting slowly behind the closing line. */
-const CLOSING_LOOK: CuratedLook = {
-  name: "Closing",
-  recipe: "",
-  presets: ["g-ember", "gr-film"],
-  // Warm copper on charcoal, in the page's own palette.
-  tweaks: {
-    gradient: { colors: ["#16100c", "#9c4a26", "#3a1f14", "#d99a6c", "#1f1510"], warp: 1.1, scale: 1.1, speed: 0.5 },
-    grain: { amount: 0.13, size: 1.3 },
-  },
-  seed: 6.2,
-  ratio: 16 / 9,
-};
+/** Deep, moody palettes so the bone headline always reads on top. */
+const CLOSING_PALETTES = [
+  ["#16100c", "#9c4a26", "#3a1f14", "#d99a6c", "#1f1510"], // copper
+  ["#06141a", "#1d5c63", "#0b2a30", "#7fb8b0", "#0a1c20"], // deep teal
+  ["#140a1c", "#5e2a7a", "#2a1238", "#c58adf", "#1a0e24"], // plum
+  ["#0c1a10", "#3f6b3a", "#16301c", "#a7c48a", "#101c12"], // moss
+  ["#080c1e", "#2a3f9e", "#121a44", "#8fa4f0", "#0c1028"], // indigo
+  ["#1a080c", "#8a1f34", "#3a0f18", "#e08a96", "#200a10"], // wine
+  ["#12100a", "#8a6a2a", "#2e2412", "#e0c27a", "#18140c"], // brass
+];
+
+function closingLook(colors = CLOSING_PALETTES[0], seed = 6.2): CuratedLook {
+  return {
+    name: "Closing",
+    recipe: "",
+    presets: ["g-ember", "gr-film"],
+    tweaks: {
+      gradient: { colors, warp: 1.1, scale: 1.1, speed: 0.5 },
+      grain: { amount: 0.13, size: 1.3 },
+    },
+    seed,
+    ratio: 16 / 9,
+  };
+}
 
 function Closing() {
   const lenis = useLenis();
   const card = useRef<HTMLDivElement>(null);
+  // A new palette each visit, picked after mount so the prerender stays stable.
+  const [look, setLook] = useState(closingLook);
+  useEffect(() => {
+    const colors = CLOSING_PALETTES[Math.floor(Math.random() * CLOSING_PALETTES.length)];
+    setLook(closingLook(colors, Math.random() * 20));
+  }, []);
   // The card grows out of the page and its corners relax as it arrives.
   useScrollFx(card, (rect, vh) => {
     const p = clamp01((vh - rect.top) / (vh * 0.9));
@@ -210,7 +227,7 @@ function Closing() {
         className="relative mx-auto flex min-h-[52svh] max-w-[980px] items-center justify-center overflow-hidden px-5 py-16 text-center will-change-transform md:py-20"
         style={{ borderRadius: 56 }}
       >
-        <LiveLook look={CLOSING_LOOK} speed={0.45} className="absolute inset-0 h-full w-full" />
+        <LiveLook look={look} speed={0.45} className="absolute inset-0 h-full w-full" />
         {/* Keeps the type readable over the brightest parts of the gradient */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(13,12,11,0.35),rgba(13,12,11,0)_75%)]" />
         <div className="relative">
@@ -224,9 +241,7 @@ function Closing() {
               Open a blank canvas, or remix any design from the gallery.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-2.5">
-              <Button href="/studio" primary>
-                Open studio <ArrowRight size={15} />
-              </Button>
+              <LaunchButton />
               <Link
                 href="#gallery"
                 onClick={(e) => {
