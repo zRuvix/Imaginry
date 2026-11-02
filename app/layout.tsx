@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   }),
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — generative backgrounds, live in your browser`,
+    default: `${SITE_NAME} — abstract background maker, live in your browser`,
     template: `%s · ${SITE_NAME}`,
   },
   applicationName: SITE_NAME,

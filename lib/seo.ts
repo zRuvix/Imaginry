@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://imaginry.tech";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.imaginry.tech";
 export const SITE_NAME = "Imaginry";
 export const CREATOR = "@zRuvix1";
 export const CREATOR_URL = "https://x.com/zRuvix1";
 
 export const DEFAULT_DESCRIPTION =
-  "Free studio for generative backgrounds. Stack 51 live effects like gradients, fluted glass and grain, then export PNG, looping video or embed code.";
+  "Free browser studio for abstract backgrounds. Stack 51 shader effects like gradients, fluted glass and grain, then export PNG, looping video or embed code. No AI.";
 
 export const KEYWORDS = [
   "generative backgrounds",
@@ -41,7 +41,7 @@ export function pageMeta({
   imageAlt: string;
 }): Metadata {
   const images = [{ url: image, width: 1200, height: 630, alt: imageAlt, type: "image/png" }];
-  const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME} — generative backgrounds, live in your browser`;
+  const fullTitle = title ? `${title} · ${SITE_NAME}` : `${SITE_NAME} — abstract background maker, live in your browser`;
   return {
     ...(title ? { title } : {}),
     description,

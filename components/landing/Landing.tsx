@@ -90,11 +90,22 @@ function Hero({ looks, urls }: { looks: CuratedLook[]; urls: (string | null)[] }
         />
         <Reveal delay={700} y={20} className="mt-6 max-w-[520px]">
           <p className="text-[16px] leading-relaxed text-[var(--bone)]/60 md:text-[17px]">
-            Stack gradients, glass, light and grain into one-off images and looping backgrounds, rendered live in your
-            browser.
+            Imaginry is a free design studio for abstract backgrounds. Stack gradients, glass, light and grain into
+            one-off images and looping backgrounds, rendered live in your browser by shader effects. No AI, and your
+            photos never leave your device.
           </p>
           <div className="pointer-events-auto mt-7 flex flex-wrap justify-center gap-2.5">
             <LaunchButton />
+            <Button
+              href="#about"
+              onClick={(e) => {
+                if (!lenis) return;
+                e.preventDefault();
+                lenis.scrollTo("#about", { duration: 2.4 });
+              }}
+            >
+              About
+            </Button>
             <Button
               href="#how"
               onClick={(e) => {

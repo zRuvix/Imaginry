@@ -19,7 +19,7 @@ const SECTIONS: LegalSection[] = [
     title: "Who we are",
     body: (
       <p>
-        Imaginry (imaginry.tech) is a free browser studio for generative backgrounds, run by {OPERATOR}. In this policy
+        Imaginry (imaginry.tech) is a free browser studio for abstract backgrounds made with shader effects (no AI), run by {OPERATOR}. In this policy
         &ldquo;we&rdquo; means {OPERATOR} and &ldquo;you&rdquo; means anyone using the site. We are the controller of the
         small amount of data described below.
       </p>
