@@ -13,6 +13,7 @@ import {
   type Value,
 } from "@/lib/studio/schema";
 import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } from "@/lib/studio/storage";
+import { IMAGE_PAN, IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
 import { GALLERY, stateForLook } from "@/lib/studio/looks";
 import { useHistory } from "@/lib/studio/useHistory";
 import { useMyProfile } from "@/lib/useMyProfile";
@@ -25,7 +26,7 @@ import Library from "./Library";
 import MobileStudio, { type MobileSheet } from "./MobileStudio";
 import PublishDialog from "./PublishDialog";
 import Shortcuts from "./Shortcuts";
-import Stage, { ASPECTS, type Aspect } from "./Stage";
+import Stage, { ASPECTS, type Aspect, type PanZoom } from "./Stage";
 
 /** Renders a still on the shared offscreen context (returns its own canvas). */
 function renderStill(state: StudioState, width: number, height: number, image: HTMLImageElement | null, time: number) {
@@ -229,6 +230,51 @@ export default function Studio() {
     set((s) => withoutLayer(s, "image"));
   };
 
+  // ---- photo zoom and pan (canvas gestures, keyboard and the inspector's zoom bar)
+  const [zoomHint, setZoomHint] = useState(0);
+  useEffect(() => {
+    if (!zoomHint) return;
+    const t = setTimeout(() => setZoomHint(0), 900);
+    return () => clearTimeout(t);
+  }, [zoomHint]);
+
+  const viewImage = (update: (img: SectionState) => Record<string, number>) => {
+    if (isLocked("image")) return;
+    // One undo step per gesture: updates in the same group merge.
+    set(
+      (s) => ({ ...s, sections: { ...s.sections, image: { ...s.sections.image, ...update(s.sections.image) } } }),
+      "image.view",
+    );
+    setZoomHint((n) => n + 1);
+  };
+  const clampZoom = (v: number) => Math.min(IMAGE_ZOOM.max, Math.max(IMAGE_ZOOM.min, v));
+  const clampPan = (v: number) => +Math.min(IMAGE_PAN, Math.max(-IMAGE_PAN, v)).toFixed(4);
+
+  /** Zooms by `factor`, keeping the photo point under `at` (canvas fractions) in place. */
+  const zoomImage = (factor: number, at = { x: 0.5, y: 0.5 }, aspect = 1) =>
+    viewImage((img) => {
+      const s = Number(img.scale) || 1;
+      const next = +clampZoom(s * factor).toFixed(4);
+      // Work in the shader's centered space: x spans the aspect, y spans 1, y points up.
+      const px = Number(img.x) * aspect * 0.5;
+      const py = Number(img.y) * 0.5;
+      const cx = (at.x - 0.5) * aspect;
+      const cy = 0.5 - at.y;
+      const k = next / s;
+      return {
+        scale: next,
+        x: clampPan((cx - (cx - px) * k) / (aspect * 0.5)),
+        y: clampPan((cy - (cy - py) * k) / 0.5),
+      };
+    });
+  const panImage = (dx: number, dy: number) =>
+    viewImage((img) => ({ x: clampPan(Number(img.x) + dx * 2), y: clampPan(Number(img.y) - dy * 2) }));
+  const resetImageView = () => viewImage(() => ({ scale: 1, x: 0, y: 0 }));
+
+  const photoOnStage = !!image && state.order.includes("image") && state.sections.image.enabled;
+  const panZoom: PanZoom | null =
+    photoOnStage && !compare ? { onZoom: (f, at, aspect) => zoomImage(f, at, aspect), onPan: panImage } : null;
+
   // ---- layers
   const flipFlag = (key: SectionKey, flag: "enabled" | "locked") =>
     set((s) => ({
@@ -412,8 +458,8 @@ export default function Studio() {
   };
 
   // ---- keyboard
-  const actions = useRef({ randomize, deleteLayer, flipFlag });
-  actions.current = { randomize, deleteLayer, flipFlag };
+  const actions = useRef({ randomize, deleteLayer, flipFlag, zoomImage, resetImageView, photoOnStage });
+  actions.current = { randomize, deleteLayer, flipFlag, zoomImage, resetImageView, photoOnStage };
   const { undo, redo } = history;
   useEffect(() => {
     const typing = (t: EventTarget | null) =>
@@ -447,6 +493,9 @@ export default function Studio() {
         setExportOpen(false);
       } else if ((e.key === "Delete" || e.key === "Backspace") && sel) actions.current.deleteLayer(sel);
       else if (key === "h" && sel) actions.current.flipFlag(sel, "enabled");
+      else if ((e.key === "+" || e.key === "=") && actions.current.photoOnStage) actions.current.zoomImage(1.2);
+      else if ((e.key === "-" || e.key === "_") && actions.current.photoOnStage) actions.current.zoomImage(1 / 1.2);
+      else if (e.key === "0" && actions.current.photoOnStage) actions.current.resetImageView();
       else if ((e.key === "[" || e.key === "]") && order.length) {
         const i = sel ? order.indexOf(sel) : -1;
         const next = e.key === "]" ? Math.min(order.length - 1, i + 1) : Math.max(0, i - 1);
@@ -524,6 +573,8 @@ export default function Studio() {
       onDelete={deleteLayer}
       onPickImage={() => fileRef.current?.click()}
       onRemoveImage={removeImage}
+      onZoomImage={(f) => zoomImage(f)}
+      onResetImageView={resetImageView}
       onBrowse={() =>
         layout === "mobile"
           ? setSheet("effects")
@@ -565,8 +616,14 @@ export default function Studio() {
       sizeRef={sizeRef}
       onDropImage={loadImageFile}
       onResize={setPreviewSize}
+      panZoom={panZoom}
       style={style}
     >
+      {zoomHint > 0 && (
+        <span className="pointer-events-none absolute right-5 top-5 rounded-full bg-ink/75 px-3 py-1.5 font-outfit text-[12.5px] tabular-nums text-bone backdrop-blur">
+          {Math.round((Number(state.sections.image.scale) || 1) * 100)}%
+        </span>
+      )}
       {compare && (
         <span className="anim-pop pointer-events-none absolute left-1/2 top-5 -translate-x-1/2 rounded-full bg-ink/75 px-3.5 py-1.5 text-[12.5px] text-bone backdrop-blur">
           Original · release to return

@@ -1,10 +1,14 @@
 import { type Control, defineEffect, n, opt, slider } from "../define";
 
+/** Zoom and pan limits, shared with the canvas gestures in the studio. */
+export const IMAGE_ZOOM = { min: 0.2, max: 5 };
+export const IMAGE_PAN = 3;
+
 const controls: Control[] = [
   slider("blur", "Blur", 0, 1, 0.01),
-  slider("scale", "Scale", 0.5, 3, 0.01),
-  slider("x", "Position X", -1, 1, 0.01),
-  slider("y", "Position Y", -1, 1, 0.01),
+  slider("scale", "Zoom", IMAGE_ZOOM.min, IMAGE_ZOOM.max, 0.01),
+  slider("x", "Position X", -IMAGE_PAN, IMAGE_PAN, 0.01),
+  slider("y", "Position Y", -IMAGE_PAN, IMAGE_PAN, 0.01),
   slider("brightness", "Brightness", -0.5, 0.5, 0.01),
   slider("contrast", "Contrast", 0, 2, 0.01),
   slider("saturation", "Saturation", 0, 2, 0.01),

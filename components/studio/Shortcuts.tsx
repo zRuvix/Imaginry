@@ -17,6 +17,8 @@ const KEYS: [string, string][] = [
   ["Ctrl Z", "Undo"],
   ["Ctrl Shift Z", "Redo"],
   ["Ctrl V", "Paste a photo"],
+  ["+ −", "Zoom the photo in / out"],
+  ["0", "Fit the photo"],
   ["?", "This sheet"],
 ];
 

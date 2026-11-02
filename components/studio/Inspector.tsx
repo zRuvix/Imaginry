@@ -14,6 +14,7 @@ import {
   Trash,
   Upload,
 } from "@/components/icons";
+import { IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
 import { PALETTES } from "@/lib/studio/presets";
 import { BLEND_MODES, SCHEMA_BY_KEY, type SectionKey, type StudioState, type Value } from "@/lib/studio/schema";
 import { ColorInput, ColorList, IconButton, Scrub, Segmented, Select, Toggle } from "./controls";
@@ -31,6 +32,8 @@ type Props = {
   onDelete: (key: SectionKey) => void;
   onPickImage: () => void;
   onRemoveImage: () => void;
+  onZoomImage: (factor: number) => void;
+  onResetImageView: () => void;
   onBrowse: () => void;
 };
 
@@ -162,6 +165,40 @@ export default function Inspector(p: Props) {
                 </button>
               </div>
             )}
+            {p.imageUrl && (
+              <>
+                <div className="flex items-center gap-1.5">
+                  <button type="button" aria-label="Zoom out" title="Zoom out (−)" onClick={() => p.onZoomImage(1 / 1.2)} className="press h-10 w-9 shrink-0 rounded-[12px] bg-white/[0.05] text-[17px] text-bone/80 hover:bg-white/[0.09] hover:text-bone">
+                    −
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <Scrub
+                      label="Zoom"
+                      value={Number(section.scale) || 1}
+                      min={IMAGE_ZOOM.min}
+                      max={IMAGE_ZOOM.max}
+                      step={0.01}
+                      format={(v) => `${Math.round(v * 100)}%`}
+                      onChange={set("scale")}
+                    />
+                  </div>
+                  <button type="button" aria-label="Zoom in" title="Zoom in (+)" onClick={() => p.onZoomImage(1.2)} className="press h-10 w-9 shrink-0 rounded-[12px] bg-white/[0.05] text-[17px] text-bone/80 hover:bg-white/[0.09] hover:text-bone">
+                    +
+                  </button>
+                </div>
+                <div className="flex items-center justify-between gap-2 px-1">
+                  <p className="text-[12px] leading-snug text-bone/45">Scroll on the canvas to zoom, drag to move.</p>
+                  <button
+                    type="button"
+                    onClick={p.onResetImageView}
+                    title="Fit (0)"
+                    className="press shrink-0 rounded-full bg-white/[0.05] px-3 py-1 text-[12px] text-bone/75 hover:bg-white/[0.09] hover:text-bone"
+                  >
+                    Fit
+                  </button>
+                </div>
+              </>
+            )}
           </Group>
         )}
 
@@ -180,6 +217,8 @@ export default function Inspector(p: Props) {
 
         <Group title="Settings" delay={100}>
           {schema.controls.map((c) => {
+            // The photo's zoom lives in its own bar above.
+            if (selected === "image" && c.key === "scale" && p.imageUrl) return null;
             const v = section[c.key];
             switch (c.type) {
               case "slider":

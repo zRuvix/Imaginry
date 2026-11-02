@@ -26,6 +26,15 @@ export const PORTRAIT_ASPECTS: Aspect[] = ["5:6", "4:5", "3:4", "2:3", "9:16", "
 
 export type Aspect = keyof typeof ASPECTS;
 
+/**
+ * Photo zoom and pan on the canvas. Positions are fractions of the canvas
+ * (0..1 from the top left); `aspect` is the canvas width / height.
+ */
+export type PanZoom = {
+  onZoom: (factor: number, at: { x: number; y: number }, aspect: number) => void;
+  onPan: (dx: number, dy: number) => void;
+};
+
 const PAD = 8;
 const MAX_DPR = 1.5;
 
@@ -41,6 +50,8 @@ type Props = {
   sizeRef: RefObject<{ width: number; height: number }>;
   onDropImage: (file: File) => void;
   onResize?: (size: { width: number; height: number }) => void;
+  /** When set, scrolling zooms the photo and dragging moves it. */
+  panZoom?: PanZoom | null;
   /** Where the stage sits between the floating panels. */
   style?: CSSProperties;
   children?: ReactNode;
@@ -56,6 +67,7 @@ export default function Stage({
   sizeRef,
   onDropImage,
   onResize,
+  panZoom,
   style,
   children,
 }: Props) {
@@ -67,6 +79,27 @@ export default function Stage({
   const [box, setBox] = useState({ width: 0, height: 0 });
   const [error, setError] = useState<string | null>(null);
   const [dragging, setDragging] = useState(false);
+  const [panning, setPanning] = useState(false);
+  const panZoomRef = useRef(panZoom);
+  panZoomRef.current = panZoom;
+  const lastPointer = useRef<{ x: number; y: number } | null>(null);
+
+  // Wheel (and trackpad pinch, which arrives as ctrl+wheel) zooms toward the cursor.
+  // Registered by hand because React's wheel listener is passive and can't stop the page zooming.
+  useEffect(() => {
+    const canvas = canvasRef.current!;
+    const onWheel = (e: WheelEvent) => {
+      const pz = panZoomRef.current;
+      if (!pz) return;
+      e.preventDefault();
+      const r = canvas.getBoundingClientRect();
+      const lines = e.deltaMode === 1 ? 16 : 1;
+      const factor = Math.exp(-e.deltaY * lines * (e.ctrlKey ? 0.01 : 0.0015));
+      pz.onZoom(factor, { x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height }, r.width / r.height);
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    return () => canvas.removeEventListener("wheel", onWheel);
+  }, []);
 
   useEffect(() => {
     live.current = { state, playing, speed };
@@ -203,7 +236,30 @@ export default function Stage({
       <canvas
         ref={canvasRef}
         style={{ width: box.width, height: box.height }}
-        className="block rounded-[22px] bg-surface shadow-[0_40px_100px_-30px_rgba(0,0,0,0.9)]"
+        className={`block touch-none rounded-[22px] bg-surface shadow-[0_40px_100px_-30px_rgba(0,0,0,0.9)] ${
+          panZoom ? (panning ? "cursor-grabbing" : "cursor-grab") : ""
+        }`}
+        onPointerDown={(e) => {
+          if (!panZoom || e.button !== 0) return;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          lastPointer.current = { x: e.clientX, y: e.clientY };
+          setPanning(true);
+        }}
+        onPointerMove={(e) => {
+          const last = lastPointer.current;
+          if (!last || !panZoom) return;
+          const r = e.currentTarget.getBoundingClientRect();
+          panZoom.onPan((e.clientX - last.x) / r.width, (e.clientY - last.y) / r.height);
+          lastPointer.current = { x: e.clientX, y: e.clientY };
+        }}
+        onPointerUp={() => {
+          lastPointer.current = null;
+          setPanning(false);
+        }}
+        onPointerCancel={() => {
+          lastPointer.current = null;
+          setPanning(false);
+        }}
       />
       {children}
       {dragging && (
