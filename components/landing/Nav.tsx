@@ -62,27 +62,10 @@ export default function Nav() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <a
-            href="https://nicklaunches.com/products/imaginry/"
-            target="_blank"
-            rel="noopener"
-            className="hidden transition-opacity hover:opacity-90 sm:block"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="https://nicklaunches.com/badges/featured.png"
-              alt="Imaginry on Nick Launches"
-              width={174}
-              height={40}
-              className="block h-10 w-auto"
-            />
-          </a>
-          <LaunchButton
-            className="h-9 pl-3.5 pr-4 text-[14px] bg-[var(--bone)] text-[var(--ink)] hover:bg-white"
-            iconSize={14}
-          />
-        </div>
+        <LaunchButton
+          className="h-9 pl-3.5 pr-4 text-[14px] bg-[var(--bone)] text-[var(--ink)] hover:bg-white"
+          iconSize={14}
+        />
       </nav>
     </header>
   );
