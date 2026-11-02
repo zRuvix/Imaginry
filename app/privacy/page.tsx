@@ -7,7 +7,7 @@ import { pageMeta } from "@/lib/seo";
 export const metadata: Metadata = pageMeta({
   title: "Privacy Policy",
   description:
-    "How Imaginry handles your data: designs render on your device, photos never leave it, no accounts, no ad cookies, and only anonymous usage stats.",
+    "How Imaginry handles your data: designs render on your device, photos never leave it, optional Google sign-in, no ad cookies, and only anonymous usage stats.",
   path: "/privacy",
   image: "/og/home.png",
   imageAlt: "Imaginry — backgrounds that move",
@@ -49,6 +49,61 @@ const SECTIONS: LegalSection[] = [
     ),
   },
   {
+    id: "google",
+    title: "Signing in with Google",
+    body: (
+      <>
+        <p>
+          Signing in is optional. The studio works fully without an account. If you choose &ldquo;Continue with
+          Google&rdquo;, Google asks your permission to share basic profile information with Imaginry. We request only
+          the standard <code>openid</code>, <code>email</code> and <code>profile</code> scopes, which give us:
+        </p>
+        <ul>
+          <li>your Google account ID, so we can recognise you when you sign in again;</li>
+          <li>your name and profile picture, shown in the studio&rsquo;s account panel;</li>
+          <li>your email address, to identify your account and contact you about it if needed.</li>
+        </ul>
+        <p>
+          We don&rsquo;t get your Google password, and we don&rsquo;t access your Gmail, Drive, contacts, calendar or any
+          other Google data.
+        </p>
+        <p>
+          <strong>How we use it.</strong> Only to sign you in, keep you signed in, and show who is signed in. We
+          don&rsquo;t use Google user data for advertising, don&rsquo;t sell it, don&rsquo;t transfer it to third parties
+          (other than the hosting providers that store it for us), and don&rsquo;t use it to train AI or machine
+          learning models.
+        </p>
+        <p>
+          <strong>Storage.</strong> This profile, plus the sign-in tokens Google issues and a record of your sessions
+          (including IP address and browser user agent), is stored in our database. Sessions expire after 7 days of
+          inactivity.
+        </p>
+        <p>
+          <strong>Deletion.</strong> You can sign out at any time. To delete your account and all data we hold about it,{" "}
+          <a href={CONTACT_URL} target="_blank" rel="noopener">
+            message us
+          </a>{" "}
+          and we&rsquo;ll remove it within 30 days. You can also revoke Imaginry&rsquo;s access at any time from your{" "}
+          <a href="https://myaccount.google.com/connections" target="_blank" rel="noopener">
+            Google account settings
+          </a>
+          .
+        </p>
+        <p>
+          Imaginry&rsquo;s use and transfer of information received from Google APIs adheres to the{" "}
+          <a
+            href="https://developers.google.com/terms/api-services-user-data-policy"
+            target="_blank"
+            rel="noopener"
+          >
+            Google API Services User Data Policy
+          </a>
+          , including the Limited Use requirements.
+        </p>
+      </>
+    ),
+  },
+  {
     id: "collect",
     title: "What we collect",
     body: (
@@ -79,7 +134,8 @@ const SECTIONS: LegalSection[] = [
           </li>
         </ul>
         <p>
-          There are no accounts, so we never ask for your name, email or password to use the studio.
+          You never need an account to use the studio. We only receive your name and email if you choose to sign in
+          with Google (see above), and we never ask for a password.
         </p>
       </>
     ),
@@ -90,9 +146,10 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Imaginry sets no advertising or tracking cookies, which is why you won&rsquo;t see a cookie banner. The studio
-          uses your browser&rsquo;s local storage only to remember your saved designs, and that data stays on your
-          device.
+          Imaginry sets no advertising or tracking cookies, which is why you won&rsquo;t see a cookie banner. If you
+          sign in, we set strictly necessary cookies that keep you signed in; they are removed when you sign out. The
+          studio uses your browser&rsquo;s local storage only to remember your saved designs, and that data stays on
+          your device.
         </p>
         <p>Fonts are served from our own domain, so loading a page doesn&rsquo;t send requests to Google.</p>
       </>
@@ -105,14 +162,15 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>We use the data above only to:</p>
         <ul>
+          <li>sign you in and keep you signed in, if you choose to use Google sign-in;</li>
           <li>make short links resolve to the right design;</li>
           <li>keep the service secure and protect it from abuse;</li>
           <li>understand which features and pages are useful, in aggregate;</li>
           <li>deliver sponsorships we&rsquo;ve agreed with you.</li>
         </ul>
         <p>
-          Our legal bases are our legitimate interest in running a secure, useful site and, for sponsors, performing our
-          agreement with you. We don&rsquo;t sell or rent data, and we don&rsquo;t use it for advertising profiles.
+          Our legal bases are our legitimate interest in running a secure, useful site, your consent when you choose to
+          sign in with Google, and, for sponsors, performing our agreement with you. We don&rsquo;t sell or rent data, and we don&rsquo;t use it for advertising profiles.
         </p>
       </>
     ),
@@ -135,8 +193,8 @@ const SECTIONS: LegalSection[] = [
       <>
         <p>
           Depending on where you live (for example under the GDPR or CCPA), you can ask to access, correct or delete
-          personal data we hold about you, or object to how we use it. Because we don&rsquo;t keep accounts or
-          identifiers, we usually hold nothing we can link back to you, but we&rsquo;ll always look.
+          personal data we hold about you, or object to how we use it. If you never signed in, we usually hold nothing we
+          can link back to you, but we&rsquo;ll always look. If you did, we can export or delete your account data.
         </p>
         <p>
           To make a request, <a href={CONTACT_URL} target="_blank" rel="noopener">message us on X</a>. You can also
@@ -172,8 +230,9 @@ export default function Page() {
       title="Privacy Policy"
       summary={
         <p>
-          The short version: your designs render on your device, your photos never leave it, there are no accounts and no
-          tracking cookies. We only see anonymous page stats and the settings of designs you choose to share.
+          The short version: your designs render on your device, your photos never leave it, signing in is optional and there
+          are no tracking cookies. If you sign in with Google we keep only your name, email and profile picture to run
+          your account. Otherwise we only see anonymous page stats and the settings of designs you choose to share.
         </p>
       }
       sections={SECTIONS}

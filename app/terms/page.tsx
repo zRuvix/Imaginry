@@ -30,7 +30,8 @@ const SECTIONS: LegalSection[] = [
     title: "The service",
     body: (
       <p>
-        Imaginry is free and needs no account. It runs in your browser, so what you can do depends on your device and
+        Imaginry is free and needs no account. You can optionally sign in with Google; signing in is never required to
+        use the studio. It runs in your browser, so what you can do depends on your device and
         browser support for WebGL and video encoding. We may add, change or remove features, or pause the service, at any
         time.
       </p>
