@@ -9,6 +9,7 @@ import { Logo } from "@/components/Logo";
 
 const LINKS = [
   { href: "/gallery", label: "Gallery" },
+  { href: "/explore", label: "Explore" },
   { href: "#how", label: "How it works" },
   { href: "#export", label: "Export" },
   { href: "/sponsor", label: "Sponsor" },

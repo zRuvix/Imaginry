@@ -26,6 +26,7 @@ const COLUMNS = [
     title: "Explore",
     links: [
       { label: "Gallery", href: "/gallery" },
+      { label: "Explore", href: "/explore" },
       { label: "How it works", href: "/#how" },
       { label: "Export", href: "/#export" },
     ],

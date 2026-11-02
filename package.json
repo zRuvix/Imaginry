@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "db:auth": "node --env-file-if-exists=.env.local scripts/migrate-auth.ts"
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.ts"
   },
   "dependencies": {
     "better-auth": "1.7.12",

@@ -1,9 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { Roboto } from "next/font/google";
 import { useRef, useState } from "react";
-import { ChevronDown, LogOut, User } from "@/components/icons";
+import { createPortal } from "react-dom";
+import { ArrowUpRight, ChevronDown, LogOut, Pencil, User } from "@/components/icons";
+import ProfileEditor from "@/components/profile/ProfileEditor";
 import { authClient } from "@/lib/auth-client";
+import { useMyProfile } from "@/lib/useMyProfile";
 import { useClickOutside } from "./controls";
 
 // Google's sign-in branding asks for Roboto Medium on the button.
@@ -34,8 +38,10 @@ function Avatar({ src, name }: { src?: string | null; name: string }) {
 
 /** Collapsed account row under the Library; opens upward to sign in or out. */
 export default function AccountBar() {
-  const { data, isPending } = authClient.useSession();
+  const { session, profile, setProfile } = useMyProfile();
+  const { data, isPending } = session;
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [busy, setBusy] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,6 +85,19 @@ export default function AccountBar() {
 
   return (
     <div ref={ref} className="relative h-full">
+      {editing &&
+        profile &&
+        createPortal(
+          <ProfileEditor
+            profile={profile}
+            onClose={() => setEditing(false)}
+            onSaved={(p) => {
+              setProfile(p);
+              setEditing(false);
+            }}
+          />,
+          document.body,
+        )}
       {open && (
         <div
           role="dialog"
@@ -94,6 +113,26 @@ export default function AccountBar() {
                   <p className="truncate text-[12px] text-bone/50">{user.email}</p>
                 </div>
               </div>
+              {profile && (
+                <div className="mb-2 grid grid-cols-2 gap-2">
+                  <Link
+                    href={`/profile/${profile.username}`}
+                    className="press flex h-10 items-center justify-center gap-1.5 rounded-[14px] bg-raised text-[13px] text-bone/80 hover:text-bone"
+                  >
+                    Profile <ArrowUpRight size={13} />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditing(true);
+                      setOpen(false);
+                    }}
+                    className="press flex h-10 items-center justify-center gap-1.5 rounded-[14px] bg-raised text-[13px] text-bone/80 hover:text-bone"
+                  >
+                    <Pencil size={13} /> Edit
+                  </button>
+                </div>
+              )}
               <button
                 type="button"
                 onClick={signOut}
@@ -187,7 +226,7 @@ export default function AccountBar() {
           </span>
         )}
         <span className="min-w-0 flex-1 truncate text-[13px] text-bone/80">
-          {isPending ? "" : user ? user.name || user.email : "Sign in"}
+          {isPending ? "" : user ? (profile ? `@${profile.username}` : user.name || user.email) : "Sign in"}
         </span>
         <ChevronDown
           size={14}

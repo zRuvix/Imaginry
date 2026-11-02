@@ -47,9 +47,16 @@ export function useHistory<T>(initial: () => T) {
     );
   }, []);
 
+  /** Swaps the current value without an undo step (e.g. the starting design). */
+  const reset = useCallback((value: T) => {
+    last.current = { group: "", at: 0 };
+    setHistory({ past: [], present: value, future: [] });
+  }, []);
+
   return {
     state: history.present,
     set,
+    reset,
     undo,
     redo,
     canUndo: history.past.length > 0,

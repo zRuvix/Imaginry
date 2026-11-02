@@ -60,7 +60,11 @@ const SECTIONS: LegalSection[] = [
         </p>
         <ul>
           <li>your Google account ID, so we can recognise you when you sign in again;</li>
-          <li>your name and profile picture, shown in the studio&rsquo;s account panel;</li>
+          <li>
+            your name and profile picture. Your name is shown only to you, in the account panel. Your profile picture is
+            also shown on your public profile and next to designs you publish (see &ldquo;Profiles and published
+            designs&rdquo; below);
+          </li>
           <li>your email address, to identify your account and contact you about it if needed.</li>
         </ul>
         <p>
@@ -68,7 +72,9 @@ const SECTIONS: LegalSection[] = [
           other Google data.
         </p>
         <p>
-          <strong>How we use it.</strong> Only to sign you in, keep you signed in, and show who is signed in. We
+          <strong>How we use it.</strong> Only to sign you in, keep you signed in, show who is signed in, generate your
+          starting username from your email address, and show your profile picture on your profile and published
+          designs. We never show your email address to anyone. We
           don&rsquo;t use Google user data for advertising, don&rsquo;t sell it, don&rsquo;t transfer it to third parties
           (other than the hosting providers that store it for us), and don&rsquo;t use it to train AI or machine
           learning models.
@@ -101,6 +107,33 @@ const SECTIONS: LegalSection[] = [
             Google API Services User Data Policy
           </a>
           , including the Limited Use requirements.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "profiles",
+    title: "Profiles and published designs",
+    body: (
+      <>
+        <p>
+          When you first sign in we create a profile for you with a username based on your email address (for example
+          &ldquo;jane.doe&rdquo;). You can change it at any time. In the profile editor you can also add an optional first
+          and last name and links to your social profiles or website.
+        </p>
+        <p>
+          If you publish a design from the studio, we store its title and its effect and layer settings. Published designs
+          never include photos: the photo layer is removed before anything is sent, and we don&rsquo;t host user images.
+        </p>
+        <p>
+          <strong>Public or private.</strong> Profiles are public by default. A public profile at
+          imaginry.tech/profile/&lt;username&gt; shows your username, any names and links you added, your Google profile
+          picture and your published designs, and those designs appear in Explore. Switch your profile to private in the
+          profile editor and it, and your designs, are visible only to you. Your email address is never shown.
+        </p>
+        <p>
+          You can delete any published design from your profile page, and deleting your account removes your profile and
+          all your published designs.
         </p>
       </>
     ),
@@ -165,6 +198,7 @@ const SECTIONS: LegalSection[] = [
         <p>We use the data above only to:</p>
         <ul>
           <li>sign you in and keep you signed in, if you choose to use Google sign-in;</li>
+          <li>show your profile and the designs you publish, as you choose (public or private);</li>
           <li>make short links resolve to the right design;</li>
           <li>keep the service secure and protect it from abuse;</li>
           <li>understand which features and pages are useful, in aggregate;</li>
@@ -252,8 +286,10 @@ export default function Page() {
       summary={
         <p>
           The short version: your designs render on your device, your photos never leave it, signing in is optional and there
-          are no tracking cookies. If you sign in with Google we keep only your name, email and profile picture to run
-          your account. Otherwise we only see anonymous page stats and the settings of designs you choose to share.
+          are no tracking cookies. If you sign in with Google we keep your name, email and profile picture to run your
+          account, plus any profile details and designs you choose to publish. Profiles can be public or private, and
+          photos are never published. Otherwise we only see anonymous page stats and the settings of designs you choose to
+          share.
         </p>
       }
       sections={SECTIONS}

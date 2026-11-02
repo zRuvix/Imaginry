@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["", 1, "weekly"],
     ["/studio", 0.9, "weekly"],
     ["/gallery", 0.8, "weekly"],
+    ["/explore", 0.8, "weekly"],
     ["/sponsor", 0.5, "monthly"],
     ["/sponsor/terms", 0.2, "monthly"],
     ["/privacy", 0.2, "monthly"],

@@ -1,13 +1,13 @@
 import type { BetterAuthOptions } from "better-auth";
 import { Pool } from "pg";
 
-// Kept free of "server-only" so scripts/migrate-auth.ts can load it outside Next.
+// Kept free of "server-only" so scripts/migrate.ts can load it outside Next.
 
 // One pool per server process; kept on globalThis so dev hot reloads
 // don't open a new pool each time.
 const globalForPg = globalThis as unknown as { pg?: Pool };
 
-function pool() {
+export function pool() {
   globalForPg.pg ??= new Pool({ connectionString: process.env.DB_URL, max: 5 });
   return globalForPg.pg;
 }

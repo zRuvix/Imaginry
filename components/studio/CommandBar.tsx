@@ -8,6 +8,7 @@ import {
   Dices,
   Download,
   Ellipsis,
+  Globe,
   Keyboard,
   Pause,
   Play,
@@ -52,6 +53,7 @@ type Props = {
   onShortcuts: () => void;
   onShare: () => void;
   onSave: () => void;
+  onPublish: () => void;
   exportOpen: boolean;
   onExport: () => void;
 };
@@ -73,6 +75,7 @@ export default function CommandBar(p: Props) {
         <nav aria-label="Site" className="mr-1 hidden items-center xl:flex">
           {[
             ["/gallery", "Gallery"],
+            ["/explore", "Explore"],
             ["/sponsor", "Sponsor"],
           ].map(([href, label]) => (
             <Link
@@ -189,6 +192,9 @@ export default function CommandBar(p: Props) {
         </IconButton>
         <IconButton label="Save to library" onClick={p.onSave}>
           <Bookmark size={15} />
+        </IconButton>
+        <IconButton label="Publish to Explore" onClick={p.onPublish}>
+          <Globe size={15} />
         </IconButton>
         <button
           type="button"

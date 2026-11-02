@@ -12,8 +12,10 @@ import {
   ColorSwatch,
   Copy as RCopy,
   Drop as RDrop,
+  Edit2,
   Fullscreen as RFullscreen,
   Glass as RGlass,
+  Global,
   Grid as RGrid,
   Keyboard as RKeyboard,
   Search as RSearch,
@@ -100,6 +102,8 @@ export const Layers = filled(RLayers, "Layers");
 export const Lock = filled(RLock, "Lock");
 export const LockOpen = filled(Unlock, "LockOpen");
 export const LogOut = filled(RLogout, "LogOut");
+export const Pencil = filled(Edit2, "Pencil");
+export const Globe = filled(Global, "Globe");
 export const PanelLeft = filled(SidebarLeft, "PanelLeft");
 export const Pause = filled(RPause, "Pause");
 export const Play = filled(RPlay, "Play");

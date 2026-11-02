@@ -13,8 +13,9 @@ import {
   type Value,
 } from "@/lib/studio/schema";
 import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } from "@/lib/studio/storage";
-import { stateForLook } from "@/lib/studio/looks";
+import { GALLERY, stateForLook } from "@/lib/studio/looks";
 import { useHistory } from "@/lib/studio/useHistory";
+import { useMyProfile } from "@/lib/useMyProfile";
 import AccountBar from "./AccountBar";
 import CommandBar from "./CommandBar";
 import ExportPanel from "./ExportPanel";
@@ -22,6 +23,7 @@ import Inspector from "./Inspector";
 import LayerDock from "./LayerDock";
 import Library from "./Library";
 import MobileStudio, { type MobileSheet } from "./MobileStudio";
+import PublishDialog from "./PublishDialog";
 import Shortcuts from "./Shortcuts";
 import Stage, { ASPECTS, type Aspect } from "./Stage";
 
@@ -91,7 +93,7 @@ export default function Studio() {
   const layout = useLayout();
   const [sheet, setSheet] = useState<MobileSheet | null>(null);
   const history = useHistory<StudioState>(initialState);
-  const { state, set } = history;
+  const { state, set, reset } = history;
 
   const [aspect, setAspect] = useState<Aspect>("fill");
   const [playing, setPlaying] = useState(false);
@@ -105,6 +107,8 @@ export default function Studio() {
   const [zen, setZen] = useState(false);
   const [compare, setCompare] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const { user, profile } = useMyProfile();
   const [presetDragging, setPresetDragging] = useState(false);
 
   const timeRef = useRef(0);
@@ -129,11 +133,17 @@ export default function Studio() {
       set(shared);
       setSelected(shared.order[0] ?? null);
     };
+    // No design in the link: open on a random gallery look instead of the same one every time.
+    if (!decodeShare(window.location.hash)) {
+      const start = stateForLook(pick(GALLERY));
+      reset(start);
+      setSelected(start.order[0] ?? null);
+    }
     load();
     setSaved(loadSaved());
     window.addEventListener("hashchange", load);
     return () => window.removeEventListener("hashchange", load);
-  }, [set]);
+  }, [set, reset]);
 
   // Keep the selection on a layer that still exists.
   useEffect(() => {
@@ -389,6 +399,12 @@ export default function Studio() {
     );
   }, [notify]);
 
+  const handlePublish = () => {
+    if (!user) return notify("Sign in with Google (bottom left) to publish");
+    if (!profile) return notify("Loading your profile, try again in a moment");
+    setPublishOpen(true);
+  };
+
   const deleteSaved = (id: string) => {
     const next = saved.filter((d) => d.id !== id);
     storeSaved(next);
@@ -642,6 +658,7 @@ export default function Studio() {
           onShortcuts={() => setShortcutsOpen(true)}
           onShare={handleShare}
           onSave={handleSave}
+          onPublish={handlePublish}
           exportOpen={exportOpen}
           onExport={() => setExportOpen((v) => !v)}
         />
@@ -698,6 +715,15 @@ export default function Studio() {
       )}
 
       {shortcutsOpen && <Shortcuts onClose={() => setShortcutsOpen(false)} />}
+
+      {publishOpen && profile && (
+        <PublishDialog
+          state={state}
+          time={timeRef.current}
+          username={profile.username}
+          onClose={() => setPublishOpen(false)}
+        />
+      )}
 
       {fileInputEl}
 
