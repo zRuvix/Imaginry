@@ -31,6 +31,7 @@ import {
   InfoCircle,
   Layers as RLayers,
   Lock as RLock,
+  Logout as RLogout,
   MagicStar,
   Maximize4,
   Mobile,
@@ -38,6 +39,7 @@ import {
   MoreH,
   Pause as RPause,
   Play as RPlay,
+  ProfileCircle,
   Redo,
   Rocket as RRocket,
   RotateLeft,
@@ -97,6 +99,7 @@ export const Info = filled(InfoCircle, "Info");
 export const Layers = filled(RLayers, "Layers");
 export const Lock = filled(RLock, "Lock");
 export const LockOpen = filled(Unlock, "LockOpen");
+export const LogOut = filled(RLogout, "LogOut");
 export const PanelLeft = filled(SidebarLeft, "PanelLeft");
 export const Pause = filled(RPause, "Pause");
 export const Play = filled(RPlay, "Play");
@@ -111,6 +114,7 @@ export const Square = filled(AspectRatioSquare, "Square");
 export const Trash = filled(Trash2, "Trash");
 export const Undo2 = filled(Undo, "Undo2");
 export const Upload = filled(RUpload, "Upload");
+export const User = filled(ProfileCircle, "User");
 export const X = filled(CloseCircle, "X");
 export const Search = filled(RSearch, "Search");
 export const Keyboard = filled(RKeyboard, "Keyboard");

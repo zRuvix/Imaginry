@@ -15,6 +15,7 @@ import {
 import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } from "@/lib/studio/storage";
 import { stateForLook } from "@/lib/studio/looks";
 import { useHistory } from "@/lib/studio/useHistory";
+import AccountBar from "./AccountBar";
 import CommandBar from "./CommandBar";
 import ExportPanel from "./ExportPanel";
 import Inspector from "./Inspector";
@@ -648,12 +649,20 @@ export default function Studio() {
 
       <aside
         aria-label="Library"
-        className={`glass-panel absolute bottom-4 left-4 top-[84px] z-20 w-[288px] overflow-hidden rounded-[24px] ${panelMotion} ${
+        className={`glass-panel absolute bottom-[76px] left-4 top-[84px] z-20 w-[288px] overflow-hidden rounded-[24px] ${panelMotion} ${
           zen ? "pointer-events-none -translate-x-[110%] opacity-0" : ""
         }`}
       >
         {libraryEl}
       </aside>
+
+      <div
+        className={`absolute bottom-4 left-4 z-30 h-[52px] w-[288px] ${panelMotion} ${
+          zen ? "pointer-events-none -translate-x-[110%] opacity-0" : ""
+        }`}
+      >
+        <AccountBar />
+      </div>
 
       <aside
         aria-label={exportOpen ? "Export" : "Inspector"}
