@@ -45,9 +45,9 @@ void main() {
     return;
   }
   vec3 c = texture(uInput, uv).rgb;
-  float lines = 0.5 + 0.5 * sin(uv.y * uRes.y / max(unit() * 2.5, 1.0) * 3.14159);
+  float lines = 0.5 + 0.5 * sin(uv.y * uRes.y / max(unit() * 2.5, px()) * 3.14159);
   c *= mix(1.0, 0.55 + 0.45 * lines, uCrtLines);
-  float m = mod(gl_FragCoord.x, 3.0);
+  float m = mod(gl_FragCoord.x / px(), 3.0);
   vec3 mask = vec3(m < 1.0 ? 1.0 : 0.7, m >= 1.0 && m < 2.0 ? 1.0 : 0.7, m >= 2.0 ? 1.0 : 0.7);
   c *= mix(vec3(1.0), mask * 1.18, uCrtMask);
   c *= 1.0 - uCrtFlicker * 0.12 * hash(vec2(floor(uTime * 24.0), 1.0));

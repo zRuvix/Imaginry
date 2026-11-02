@@ -44,7 +44,7 @@ float bayer4(vec2 a) {
 
 void main() {
   vec3 col = inputFc(gl_FragCoord.xy);
-  float s = max(uDithScale * unit(), 1.0);
+  float s = max(uDithScale * unit(), px());
   float th = bayer4(gl_FragCoord.xy / s) + 0.03125 - 0.5;
   float lv = max(uDithLevels - 1.0, 1.0);
   if (uDithMono > 0.5) col = vec3(floor(luma(col) * lv + th + 0.5) / lv);

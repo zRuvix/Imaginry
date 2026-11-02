@@ -37,7 +37,7 @@ uniform vec3 uThLight;
 
 void main() {
   float l = luma(inputFc(gl_FragCoord.xy));
-  float jitter = (hash(gl_FragCoord.xy + fract(uTime) * 10.0) - 0.5) * uThNoise;
+  float jitter = (hash(floor(gl_FragCoord.xy / px()) + fract(uTime) * 10.0) - 0.5) * uThNoise;
   emit(mix(uThDark, uThLight, step(uThLevel, l + jitter)));
 }
 `,

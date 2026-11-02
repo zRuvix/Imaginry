@@ -28,7 +28,7 @@ uniform float uOilSat;
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float r = max(uOilRadius * unit(), 1.0);
+  float r = max(uOilRadius * unit(), px());
   vec3 m[4];
   vec3 s[4];
   for (int k = 0; k < 4; k++) {

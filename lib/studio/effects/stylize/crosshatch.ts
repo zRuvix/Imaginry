@@ -43,7 +43,7 @@ float hatch(vec2 fc, float a, float s) {
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float s = max(uChSize * unit(), 2.0);
+  float s = max(uChSize * unit(), 2.0 * px());
   float a = radians(uChAngle);
   float l = luma(inputFc(fc));
   float ink = 0.0;

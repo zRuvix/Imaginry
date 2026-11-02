@@ -16,6 +16,8 @@ export type VideoOptions = {
   /** Animation time the loop starts from, and how fast it advances. */
   startTime: number;
   speed: number;
+  /** Studio-preview pixel size in export pixels (see Renderer.render). */
+  pixel?: number;
   onProgress?: (fraction: number) => void;
   signal?: AbortSignal;
 };
@@ -98,14 +100,14 @@ export async function encodeLoop(o: VideoOptions): Promise<Blob> {
       const t = i / o.fps;
       const time = o.startTime + t * o.speed;
       ctx.globalAlpha = 1;
-      ctx.drawImage(await renderOffscreen(o.state, width, height, { time, image: o.image }), 0, 0);
+      ctx.drawImage(await renderOffscreen(o.state, width, height, { time, image: o.image, pixel: o.pixel }), 0, 0);
 
       // Fade the tail into the frames just before the start.
       const mix = (t - (o.seconds - fade)) / fade;
       if (mix > 0) {
         const earlier = o.startTime + (t - o.seconds) * o.speed;
         ctx.globalAlpha = mix * mix * (3 - 2 * mix);
-        ctx.drawImage(await renderOffscreen(o.state, width, height, { time: earlier, image: o.image }), 0, 0);
+        ctx.drawImage(await renderOffscreen(o.state, width, height, { time: earlier, image: o.image, pixel: o.pixel }), 0, 0);
       }
 
       const vf = new VideoFrame(frame, { timestamp: Math.round(i * frameUs), duration: Math.round(frameUs) });

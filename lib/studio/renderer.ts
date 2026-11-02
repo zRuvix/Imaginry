@@ -189,8 +189,11 @@ export class Renderer {
     this.targetSize = [width, height];
   }
 
-  /** `detail` scales pixel-based effects (thumbnails use > 1 to stay legible). */
-  render(state: StudioState, time: number, detail = 1) {
+  /**
+   * `detail` scales pixel-based effects (thumbnails use > 1 to stay legible).
+   * `pixel` is how many of this canvas's pixels one studio-preview pixel covers.
+   */
+  render(state: StudioState, time: number, detail = 1, pixel = 1) {
     const gl = this.gl;
     if (!this.isReady || gl.isContextLost()) return;
     const { width, height } = this.canvas;
@@ -198,6 +201,7 @@ export class Renderer {
       ...toUniforms(state, this.hasImage),
       uRes: [width, height],
       uDetail: detail,
+      uPixel: pixel,
       uImgSize: this.imageSize,
     };
     gl.viewport(0, 0, width, height);
@@ -248,7 +252,7 @@ export async function renderOffscreen(
   state: StudioState,
   width: number,
   height: number,
-  options: { time?: number; detail?: number; image?: TexImageSource | null } = {},
+  options: { time?: number; detail?: number; pixel?: number; image?: TexImageSource | null } = {},
 ) {
   if (!offscreen || offscreen.canvas.getContext("webgl2")?.isContextLost()) {
     offscreen = new Renderer(document.createElement("canvas"), true);
@@ -261,7 +265,7 @@ export async function renderOffscreen(
     canvas.height = height;
   }
   renderer.setImage(options.image ?? null);
-  renderer.render(state, options.time ?? 0, options.detail ?? 1);
+  renderer.render(state, options.time ?? 0, options.detail ?? 1, options.pixel ?? 1);
   // Hand back a private copy: callers await, and another render could reuse
   // the shared canvas before they read it.
   const copy = document.createElement("canvas");

@@ -47,7 +47,7 @@ uniform vec3 uHalfPaper;
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float cs = max(uHalfSize * unit(), 2.0);
+  float cs = max(uHalfSize * unit(), 2.0 * px());
   mat2 r = rot(radians(uHalfAngle));
   vec2 rf = r * fc;
   vec2 cell = floor(rf / cs);

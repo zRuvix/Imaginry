@@ -37,7 +37,7 @@ float character(int n, vec2 p) {
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float cs = max(uAsciiSize * unit(), 4.0);
+  float cs = max(uAsciiSize * unit(), 4.0 * px());
   vec2 cell = floor(fc / cs);
   vec3 c = inputFc((cell + 0.5) * cs);
   float g = luma(c);

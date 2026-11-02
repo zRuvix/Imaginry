@@ -38,6 +38,9 @@ export type PanZoom = {
 const PAD = 8;
 const MAX_DPR = 1.5;
 
+/** Device pixels per CSS pixel the studio canvas renders at. */
+export const stagePixelRatio = () => Math.min(window.devicePixelRatio || 1, MAX_DPR);
+
 const renderers = new WeakMap<HTMLCanvasElement, Renderer>();
 
 type Props = {
@@ -208,7 +211,7 @@ export default function Stage({
 
   useEffect(() => {
     const canvas = canvasRef.current!;
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const dpr = stagePixelRatio();
     canvas.width = Math.max(1, Math.round(box.width * dpr));
     canvas.height = Math.max(1, Math.round(box.height * dpr));
     sizeRef.current = { width: canvas.width, height: canvas.height };

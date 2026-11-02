@@ -34,7 +34,7 @@ uniform float uBrColors;
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float s = max(uBrSize * unit(), 4.0);
+  float s = max(uBrSize * unit(), 4.0 * px());
   vec2 cell = floor(fc / s);
   vec2 f = fract(fc / s) - 0.5;
   vec3 c = floor(inputFc((cell + 0.5) * s) * uBrColors + 0.5) / uBrColors;

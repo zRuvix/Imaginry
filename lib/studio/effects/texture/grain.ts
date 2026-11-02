@@ -27,7 +27,7 @@ uniform float uGrainAmount;
 uniform float uGrainSize;
 
 void main() {
-  float s = max(uGrainSize * max(unit(), 1.0), 1.0);
+  float s = max(uGrainSize * max(unit(), px()), px());
   float n = hash(floor(gl_FragCoord.xy / s) + fract(uTime * 7.13) * 91.7) - 0.5;
   emit(inputFc(gl_FragCoord.xy) + n * uGrainAmount);
 }

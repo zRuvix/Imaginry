@@ -40,7 +40,7 @@ uniform vec3 uEngPaper;
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float s = max(uEngSize * unit(), 2.0);
+  float s = max(uEngSize * unit(), 2.0 * px());
   vec2 q = rot(radians(uEngAngle)) * fc / s;
   q.y += sin(q.x * 0.35) * uEngWave;
   float l = luma(inputFc(fc));

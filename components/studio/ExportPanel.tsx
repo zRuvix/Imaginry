@@ -6,7 +6,7 @@ import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/l
 import { renderOffscreen } from "@/lib/studio/renderer";
 import type { StudioState } from "@/lib/studio/schema";
 import { encodeLoop, videoSupported, type VideoFormat } from "@/lib/studio/video";
-import { ASPECTS, LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, type Aspect } from "./Stage";
+import { ASPECTS, LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, stagePixelRatio, type Aspect } from "./Stage";
 
 type Size = { id: string; label: string; width: number; height: number };
 
@@ -166,12 +166,17 @@ export default function ExportPanel(p: Props) {
   const imageSize = imageSizes.find((s) => s.id === imageSizeId) ?? imageSizes[0];
   const videoSize = videoSizes.find((s) => s.id === videoSizeId) ?? videoSizes[0];
   const sizeLabel = (s: Size) => `${s.label} — ${s.width} × ${s.height}`;
+  // How many export pixels one pixel of the studio canvas covers, so grain,
+  // threshold noise and other pixel-sized details come out as they looked.
+  const pixelFor = (s: Size) =>
+    Math.min(s.width, s.height) / Math.max(1, Math.min(preview.width, preview.height) * stagePixelRatio());
 
   const downloadPng = async () => {
     try {
       const source = await renderOffscreen(p.state, imageSize.width, imageSize.height, {
         time: p.timeRef.current,
         image: p.image,
+        pixel: pixelFor(imageSize),
       });
       source.toBlob((blob) => {
         if (!blob) return p.notify("Export failed");
@@ -202,6 +207,7 @@ export default function ExportPanel(p: Props) {
         format,
         startTime: p.timeRef.current,
         speed: p.speed || 1,
+        pixel: pixelFor(videoSize),
         onProgress: setProgress,
         signal: controller.signal,
       });

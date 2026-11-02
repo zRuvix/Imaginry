@@ -37,7 +37,7 @@ uniform vec3 uEdgeColor;
 
 void main() {
   vec2 fc = gl_FragCoord.xy;
-  float t = max(uEdgeThick * unit(), 1.0);
+  float t = max(uEdgeThick * unit(), px());
   float tl = luma(inputFc(fc + vec2(-t, t)));
   float tc = luma(inputFc(fc + vec2(0.0, t)));
   float tr = luma(inputFc(fc + vec2(t, t)));

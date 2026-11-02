@@ -16,6 +16,9 @@ uniform vec2 uRes;
 uniform float uTime;
 uniform float uSeed;
 uniform float uDetail;
+// Size of one studio-preview pixel in this canvas's pixels: 1 on screen, larger
+// in a bigger export, so pixel-sized details keep the size they had in the studio.
+uniform float uPixel;
 
 uniform sampler2D uInput;
 
@@ -67,6 +70,7 @@ vec2 fragP() { return toP(gl_FragCoord.xy); }
 vec3 inputAt(vec2 p) { return texture(uInput, p / vec2(aspect(), 1.0) + 0.5).rgb; }
 vec3 inputFc(vec2 fc) { return texture(uInput, fc / uRes).rgb; }
 float unit() { return min(uRes.x, uRes.y) / 600.0 * uDetail; }
+float px() { return uPixel > 0.0 ? uPixel : 1.0; }
 // Photoshop-style blend of top over base, then faded by opacity.
 // Modes: normal, multiply, screen, overlay, soft light, difference, add.
 vec3 blendWith(vec3 base, vec3 top, float mode, float opacity) {

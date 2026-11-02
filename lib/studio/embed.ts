@@ -111,7 +111,7 @@ const RUNTIME = `function mountImaginry(canvas, look, opts) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, last ? null : targets[i % 2].fbo);
       gl.useProgram(layer.p);
       uniforms(layer.p, Object.assign({}, look.uniforms, {
-        uRes: [w, h], uDetail: 1, uImgSize: [1, 1], uTime: layer.frozen == null ? time : layer.frozen,
+        uRes: [w, h], uDetail: 1, uPixel: 1, uImgSize: [1, 1], uTime: layer.frozen == null ? time : layer.frozen,
         uLayerOpacity: layer.o, uLayerBlend: layer.b
       }));
       gl.activeTexture(gl.TEXTURE1);

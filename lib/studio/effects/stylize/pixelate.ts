@@ -21,7 +21,7 @@ export default defineEffect({
 uniform float uPixSize;
 
 void main() {
-  float s = max(uPixSize * unit(), 1.0);
+  float s = max(uPixSize * unit(), px());
   emit(inputFc((floor(gl_FragCoord.xy / s) + 0.5) * s));
 }
 `,

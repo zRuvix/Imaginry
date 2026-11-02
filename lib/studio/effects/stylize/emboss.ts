@@ -35,7 +35,7 @@ uniform float uEmColor;
 void main() {
   vec2 fc = gl_FragCoord.xy;
   float a = radians(uEmAngle);
-  vec2 d = vec2(cos(a), sin(a)) * max(unit() * 1.5, 1.0);
+  vec2 d = vec2(cos(a), sin(a)) * max(unit() * 1.5, px());
   float e = (luma(inputFc(fc + d)) - luma(inputFc(fc - d))) * uEmStrength * 3.0;
   vec3 base = uEmColor > 0.5 ? inputFc(fc) : vec3(0.5);
   emit(base + e);
