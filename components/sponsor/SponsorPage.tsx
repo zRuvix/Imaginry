@@ -12,7 +12,7 @@ import { GALLERY } from "@/lib/studio/looks";
 import { PLANS, type Billing } from "@/lib/sponsors";
 import { CREATOR_URL } from "@/lib/seo";
 import { Logo, LogoMark } from "@/components/Logo";
-import { Credit } from "@/components/Credit";
+import CurtainFooter from "@/components/landing/CurtainFooter";
 
 const FAQ: [string, string][] = [
   [
@@ -352,208 +352,210 @@ export default function SponsorPage() {
     <ReactLenis root options={{ lerp: 0.08 }}>
       <div className="min-h-screen bg-ink text-bone selection:bg-ember/40">
         <Nav />
+        <CurtainFooter className="pb-8">
 
-        {/* Hero */}
-        <section className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 pb-24 pt-32 md:px-6 lg:grid-cols-[1fr_1.1fr] lg:pt-40">
-          <div className="pointer-events-none absolute left-[10%] top-10 h-[50vh] w-[50vw] rounded-full bg-ember/[0.07] blur-[140px]" />
-          <div className="relative">
-            <Reveal>
-              <p className="font-condensed text-[15px] font-medium text-ember">Sponsor imaginry</p>
-              <h1 className="mt-4 font-display text-[clamp(36px,5vw,66px)] leading-[0.98] tracking-[-0.025em]">
-                Put your brand where people make things
-              </h1>
+          {/* Hero */}
+          <section className="relative mx-auto grid max-w-[1200px] items-center gap-12 px-4 pb-24 pt-32 md:px-6 lg:grid-cols-[1fr_1.1fr] lg:pt-40">
+            <div className="pointer-events-none absolute left-[10%] top-10 h-[50vh] w-[50vw] rounded-full bg-ember/[0.07] blur-[140px]" />
+            <div className="relative">
+              <Reveal>
+                <p className="font-condensed text-[15px] font-medium text-ember">Sponsor imaginry</p>
+                <h1 className="mt-4 font-display text-[clamp(36px,5vw,66px)] leading-[0.98] tracking-[-0.025em]">
+                  Put your brand where people make things
+                </h1>
+              </Reveal>
+              <Reveal delay={150} y={24}>
+                <p className="mt-6 max-w-[460px] text-[16.5px] leading-relaxed text-bone/60">
+                  Designers, developers and makers open the studio to build backgrounds for their work. A sponsor slot sits
+                  right in the toolbar they use, linking to you. Book it by the week or by the month.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-2.5">
+                  <Button href="#plans" primary>
+                    See plans <ArrowRight size={15} />
+                  </Button>
+                  <Button href="/studio">See the studio</Button>
+                </div>
+              </Reveal>
+            </div>
+            <Reveal delay={250} y={50} scale={0.94}>
+              <StudioMock image={looks[9]} />
             </Reveal>
-            <Reveal delay={150} y={24}>
-              <p className="mt-6 max-w-[460px] text-[16.5px] leading-relaxed text-bone/60">
-                Designers, developers and makers open the studio to build backgrounds for their work. A sponsor slot sits
-                right in the toolbar they use, linking to you. Book it by the week or by the month.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-2.5">
-                <Button href="#plans" primary>
-                  See plans <ArrowRight size={15} />
-                </Button>
-                <Button href="/studio">See the studio</Button>
+          </section>
+
+          {/* Placements */}
+          <section className="mx-auto max-w-[1200px] px-4 pb-28 md:px-6">
+            <Reveal className="mb-10">
+              <p className="font-condensed text-[15px] font-medium text-ember">Placements</p>
+              <h2 className="mt-3 font-display text-[clamp(28px,3.6vw,48px)] leading-[1] tracking-[-0.02em]">
+                Three places to be seen
+              </h2>
+            </Reveal>
+            <div className="grid gap-4 md:grid-cols-3">
+              {(
+                [
+                  ["Studio top bar", "A chip with your logo and name, in the bar everyone works under.", BarScene],
+                  ["Gallery, pinned", "A look in your palette, first in the gallery and the studio's Gallery tab.", GalleryScene],
+                  ["Landing orbit", "Your card riding the orbit on the homepage, the first thing visitors see.", OrbitScene],
+                ] as const
+              ).map(([title, body, Scene], i) => (
+                <Reveal key={title} delay={i * 120} className="group rounded-[24px] bg-white/[0.04] p-3">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] bg-surface">
+                    <Scene images={looks} />
+                    <span className="absolute bottom-3 right-3 z-20 rounded-full bg-black/55 px-2.5 py-1 font-condensed text-[13px] backdrop-blur">
+                      0{i + 1}
+                    </span>
+                  </div>
+                  <h3 className="px-2 pt-4 font-condensed text-[19px] font-semibold">{title}</h3>
+                  <p className="px-2 pb-2 pt-1.5 text-[14.5px] leading-relaxed text-bone/55">{body}</p>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+
+          {/* Plans */}
+          <section id="plans" className="mx-auto max-w-[1200px] scroll-mt-20 px-4 pb-28 md:px-6">
+            <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <p className="font-condensed text-[15px] font-medium text-ember">Plans</p>
+                <h2 className="mt-3 font-display text-[clamp(28px,3.6vw,48px)] leading-[1] tracking-[-0.02em]">
+                  Weekly or monthly
+                </h2>
+              </div>
+              <div className="w-[240px]">
+                <Segmented label="Billing" value={billing} options={["weekly", "monthly"] as const} onChange={setBilling} />
               </div>
             </Reveal>
-          </div>
-          <Reveal delay={250} y={50} scale={0.94}>
-            <StudioMock image={looks[9]} />
-          </Reveal>
-        </section>
 
-        {/* Placements */}
-        <section className="mx-auto max-w-[1200px] px-4 pb-28 md:px-6">
-          <Reveal className="mb-10">
-            <p className="font-condensed text-[15px] font-medium text-ember">Placements</p>
-            <h2 className="mt-3 font-display text-[clamp(28px,3.6vw,48px)] leading-[1] tracking-[-0.02em]">
-              Three places to be seen
-            </h2>
-          </Reveal>
-          <div className="grid gap-4 md:grid-cols-3">
-            {(
-              [
-                ["Studio top bar", "A chip with your logo and name, in the bar everyone works under.", BarScene],
-                ["Gallery, pinned", "A look in your palette, first in the gallery and the studio's Gallery tab.", GalleryScene],
-                ["Landing orbit", "Your card riding the orbit on the homepage, the first thing visitors see.", OrbitScene],
-              ] as const
-            ).map(([title, body, Scene], i) => (
-              <Reveal key={title} delay={i * 120} className="group rounded-[24px] bg-white/[0.04] p-3">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[18px] bg-surface">
-                  <Scene images={looks} />
-                  <span className="absolute bottom-3 right-3 z-20 rounded-full bg-black/55 px-2.5 py-1 font-condensed text-[13px] backdrop-blur">
-                    0{i + 1}
-                  </span>
-                </div>
-                <h3 className="px-2 pt-4 font-condensed text-[19px] font-semibold">{title}</h3>
-                <p className="px-2 pb-2 pt-1.5 text-[14.5px] leading-relaxed text-bone/55">{body}</p>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        {/* Plans */}
-        <section id="plans" className="mx-auto max-w-[1200px] scroll-mt-20 px-4 pb-28 md:px-6">
-          <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="font-condensed text-[15px] font-medium text-ember">Plans</p>
-              <h2 className="mt-3 font-display text-[clamp(28px,3.6vw,48px)] leading-[1] tracking-[-0.02em]">
-                Weekly or monthly
-              </h2>
-            </div>
-            <div className="w-[240px]">
-              <Segmented label="Billing" value={billing} options={["weekly", "monthly"] as const} onChange={setBilling} />
-            </div>
-          </Reveal>
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            {PLANS.map((plan, i) => {
-              const perWeekOnMonthly = plan.price.monthly / 4.33;
-              const saving = Math.round((1 - perWeekOnMonthly / plan.price.weekly) * 100);
-              return (
-                <Reveal
-                  key={plan.id}
-                  delay={i * 120}
-                  className={`relative flex flex-col rounded-[26px] p-6 md:p-7 ${
-                    plan.featured
-                      ? "bg-surface shadow-[0_0_0_1.5px_rgba(255,90,44,0.6),0_40px_90px_-40px_rgba(255,90,44,0.5)]"
-                      : "bg-white/[0.04]"
-                  }`}
-                >
-                  {plan.featured && (
-                    <span className="absolute -top-3 left-6 rounded-full bg-ember px-3 py-1 text-[12px] font-medium text-ink">
-                      Recommended
-                    </span>
-                  )}
-                  <h3 className="font-condensed text-[22px] font-semibold">{plan.name}</h3>
-                  <p className="mt-2 min-h-[44px] text-[14.5px] leading-relaxed text-bone/55">{plan.blurb}</p>
-                  <div className="mt-6 flex items-baseline gap-1.5">
-                    <span className="font-display text-[46px] leading-none tracking-[-0.03em]">
-                      $<AnimatedPrice value={plan.price[billing]} />
-                    </span>
-                    <span className="text-[14px] text-bone/50">/ {billing === "weekly" ? "week" : "month"}</span>
-                  </div>
-                  <p className="mt-2 h-5 text-[13px] text-ember transition-opacity duration-300" style={{ opacity: billing === "monthly" && saving > 0 ? 1 : 0 }}>
-                    About {saving}% less per week than weekly
-                  </p>
-                  <ul className="mt-6 space-y-2.5">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex gap-2.5 text-[14.5px] text-bone/80">
-                        <Check size={15} className="mt-0.5 shrink-0 text-ember" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <a
-                    href={CREATOR_URL}
-                    target="_blank"
-                    rel="noopener"
-                    className={`press mt-8 inline-flex h-11 items-center justify-center gap-2 rounded-full text-[14.5px] font-medium ${
-                      plan.featured ? "bg-ember text-ink hover:brightness-110" : "bg-bone text-ink hover:bg-white"
+            <div className="grid gap-4 lg:grid-cols-3">
+              {PLANS.map((plan, i) => {
+                const perWeekOnMonthly = plan.price.monthly / 4.33;
+                const saving = Math.round((1 - perWeekOnMonthly / plan.price.weekly) * 100);
+                return (
+                  <Reveal
+                    key={plan.id}
+                    delay={i * 120}
+                    className={`relative flex flex-col rounded-[26px] p-6 md:p-7 ${
+                      plan.featured
+                        ? "bg-surface shadow-[0_0_0_1.5px_rgba(255,90,44,0.6),0_40px_90px_-40px_rgba(255,90,44,0.5)]"
+                        : "bg-white/[0.04]"
                     }`}
                   >
-                    Book {plan.name} <ArrowRight size={14} />
-                  </a>
-                </Reveal>
-              );
-            })}
-          </div>
-          <p className="mt-6 text-center text-[13.5px] text-bone/45">
-            Prices in USD. Want something custom, like a longer run or a co-branded preset pack?{" "}
-            <a
-              href={CREATOR_URL}
-              target="_blank"
-              rel="noopener"
-              className="text-bone/80 underline-offset-4 hover:underline"
-            >
-              Get in touch
-            </a>
-            .
-          </p>
-          <p className="mt-2 text-center text-[13.5px] text-ember/80">
-            Founding rates while Imaginry is new — they go up as the audience grows.
-          </p>
-        </section>
-
-        {/* FAQ */}
-        <section className="mx-auto max-w-[820px] px-4 pb-28 md:px-6">
-          <Reveal className="mb-8 text-center">
-            <h2 className="font-display text-[clamp(26px,3vw,40px)] leading-[1] tracking-[-0.02em]">Questions</h2>
-          </Reveal>
-          <div className="space-y-2">
-            {FAQ.map(([q, a], i) => {
-              const isOpen = open === i;
-              return (
-                <Reveal key={q} delay={i * 70} y={20}>
-                  <div className={`rounded-[20px] transition-colors duration-300 ${isOpen ? "bg-white/[0.06]" : "bg-white/[0.03] hover:bg-white/[0.05]"}`}>
-                    <button
-                      type="button"
-                      aria-expanded={isOpen}
-                      onClick={() => setOpen(isOpen ? null : i)}
-                      className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-[15.5px] font-medium"
-                    >
-                      {q}
-                      <ChevronDown
-                        size={14}
-                        className={`shrink-0 text-bone/50 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                    <div
-                      className="grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                      style={{ gridTemplateRows: isOpen ? "1fr" : "0fr", opacity: isOpen ? 1 : 0 }}
-                    >
-                      <p className="overflow-hidden px-5 text-[14.5px] leading-relaxed text-bone/60">
-                        <span className="block pb-5">{a}</span>
-                      </p>
+                    {plan.featured && (
+                      <span className="absolute -top-3 left-6 rounded-full bg-ember px-3 py-1 text-[12px] font-medium text-ink">
+                        Recommended
+                      </span>
+                    )}
+                    <h3 className="font-condensed text-[22px] font-semibold">{plan.name}</h3>
+                    <p className="mt-2 min-h-[44px] text-[14.5px] leading-relaxed text-bone/55">{plan.blurb}</p>
+                    <div className="mt-6 flex items-baseline gap-1.5">
+                      <span className="font-display text-[46px] leading-none tracking-[-0.03em]">
+                        $<AnimatedPrice value={plan.price[billing]} />
+                      </span>
+                      <span className="text-[14px] text-bone/50">/ {billing === "weekly" ? "week" : "month"}</span>
                     </div>
-                  </div>
-                </Reveal>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Closing */}
-        <section className="px-4 pb-16 md:px-6">
-          <Reveal className="relative mx-auto max-w-[980px] overflow-hidden rounded-[36px] bg-surface px-6 py-16 text-center md:py-20">
-            <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[70%] -translate-x-1/2 rounded-full bg-ember/25 blur-[90px]" />
-            <h2 className="relative mx-auto max-w-[640px] font-display text-[clamp(28px,4vw,52px)] leading-[1] tracking-[-0.025em]">
-              Grab a slot before someone else does
-            </h2>
-            <p className="relative mx-auto mt-4 max-w-[420px] text-[15.5px] text-bone/60">
-              There are only four places in the top bar. Book one by the week or by the month.
-            </p>
-            <div className="relative mt-8 flex justify-center gap-2.5">
-              <Button href="#plans" primary>
-                Choose a plan <ArrowRight size={15} />
-              </Button>
-              <Button href={CREATOR_URL}>Message us on X</Button>
+                    <p className="mt-2 h-5 text-[13px] text-ember transition-opacity duration-300" style={{ opacity: billing === "monthly" && saving > 0 ? 1 : 0 }}>
+                      About {saving}% less per week than weekly
+                    </p>
+                    <ul className="mt-6 space-y-2.5">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex gap-2.5 text-[14.5px] text-bone/80">
+                          <Check size={15} className="mt-0.5 shrink-0 text-ember" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                    <a
+                      href={CREATOR_URL}
+                      target="_blank"
+                      rel="noopener"
+                      className={`press mt-8 inline-flex h-11 items-center justify-center gap-2 rounded-full text-[14.5px] font-medium ${
+                        plan.featured ? "bg-ember text-ink hover:brightness-110" : "bg-bone text-ink hover:bg-white"
+                      }`}
+                    >
+                      Book {plan.name} <ArrowRight size={14} />
+                    </a>
+                  </Reveal>
+                );
+              })}
             </div>
-          </Reveal>
-        </section>
-        <footer className="mx-auto flex max-w-[1200px] justify-between px-4 pb-8 font-condensed text-[13px] text-bone/40 md:px-6">
-          <Credit />
-          <span>Sponsorships</span>
-        </footer>
+            <p className="mt-6 text-center text-[13.5px] text-bone/45">
+              Prices in USD. Want something custom, like a longer run or a co-branded preset pack?{" "}
+              <a
+                href={CREATOR_URL}
+                target="_blank"
+                rel="noopener"
+                className="text-bone/80 underline-offset-4 hover:underline"
+              >
+                Get in touch
+              </a>
+              . Bookings follow our{" "}
+              <Link href="/sponsor/terms" className="text-bone/80 underline-offset-4 hover:underline">
+                sponsor terms
+              </Link>
+              .
+            </p>
+            <p className="mt-2 text-center text-[13.5px] text-ember/80">
+              Founding rates while Imaginry is new — they go up as the audience grows.
+            </p>
+          </section>
+
+          {/* FAQ */}
+          <section className="mx-auto max-w-[820px] px-4 pb-28 md:px-6">
+            <Reveal className="mb-8 text-center">
+              <h2 className="font-display text-[clamp(26px,3vw,40px)] leading-[1] tracking-[-0.02em]">Questions</h2>
+            </Reveal>
+            <div className="space-y-2">
+              {FAQ.map(([q, a], i) => {
+                const isOpen = open === i;
+                return (
+                  <Reveal key={q} delay={i * 70} y={20}>
+                    <div className={`rounded-[20px] transition-colors duration-300 ${isOpen ? "bg-white/[0.06]" : "bg-white/[0.03] hover:bg-white/[0.05]"}`}>
+                      <button
+                        type="button"
+                        aria-expanded={isOpen}
+                        onClick={() => setOpen(isOpen ? null : i)}
+                        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-[15.5px] font-medium"
+                      >
+                        {q}
+                        <ChevronDown
+                          size={14}
+                          className={`shrink-0 text-bone/50 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      <div
+                        className="grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                        style={{ gridTemplateRows: isOpen ? "1fr" : "0fr", opacity: isOpen ? 1 : 0 }}
+                      >
+                        <p className="overflow-hidden px-5 text-[14.5px] leading-relaxed text-bone/60">
+                          <span className="block pb-5">{a}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </Reveal>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Closing */}
+          <section className="px-4 pb-16 md:px-6">
+            <Reveal className="relative mx-auto max-w-[980px] overflow-hidden rounded-[36px] bg-surface px-6 py-16 text-center md:py-20">
+              <div className="pointer-events-none absolute -top-24 left-1/2 h-64 w-[70%] -translate-x-1/2 rounded-full bg-ember/25 blur-[90px]" />
+              <h2 className="relative mx-auto max-w-[640px] font-display text-[clamp(28px,4vw,52px)] leading-[1] tracking-[-0.025em]">
+                Grab a slot before someone else does
+              </h2>
+              <p className="relative mx-auto mt-4 max-w-[420px] text-[15.5px] text-bone/60">
+                There are only four places in the top bar. Book one by the week or by the month.
+              </p>
+              <div className="relative mt-8 flex justify-center gap-2.5">
+                <Button href="#plans" primary>
+                  Choose a plan <ArrowRight size={15} />
+                </Button>
+                <Button href={CREATOR_URL}>Message us on X</Button>
+              </div>
+            </Reveal>
+          </section>
+        </CurtainFooter>
       </div>
     </ReactLenis>
   );

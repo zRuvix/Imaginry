@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { CURATED, type CuratedLook } from "@/lib/studio/looks";
 import ExportStack from "./ExportStack";
-import Footer from "./Footer";
+import CurtainFooter from "./CurtainFooter";
 import LaunchButton from "./LaunchButton";
 import LayersStory, { randomStory } from "./LayersStory";
 import LiveLook from "./LiveLook";
@@ -282,28 +282,8 @@ export default function Landing() {
   // The layer plates fill the screen, so they get a much larger render.
   const story = useLookImages(fresh?.story ?? EMPTY, STORY_PX);
 
-  const page = useRef<HTMLDivElement>(null);
   const hero = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLDivElement>(null);
-  const footerWrap = useRef<HTMLDivElement>(null);
-  const [footerH, setFooterH] = useState(0);
-  // The curtain reveal only works when the footer fits on screen.
-  const [curtain, setCurtain] = useState(true);
-
-  useEffect(() => {
-    const el = footerWrap.current!;
-    const measure = () => {
-      setFooterH(el.offsetHeight);
-      setCurtain(el.offsetHeight < window.innerHeight * 0.95);
-    };
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    window.addEventListener("resize", measure);
-    return () => {
-      ro.disconnect();
-      window.removeEventListener("resize", measure);
-    };
-  }, []);
 
   // As the sheet slides over the hero, the hero sinks back and dims.
   useScrollFx(sheet, (rect, vh) => {
@@ -321,11 +301,7 @@ export default function Landing() {
     <ReactLenis root options={{ lerp: 0.075, wheelMultiplier: 0.9 }}>
       <div style={THEME} className="bg-[var(--ink)] text-[var(--bone)] selection:bg-[var(--ember)]/40">
         <Nav />
-        <div
-          ref={page}
-          className="relative z-10 rounded-b-[36px] bg-[var(--ink)] shadow-[0_50px_100px_rgba(0,0,0,0.6)]"
-          style={{ marginBottom: curtain ? footerH : 0 }}
-        >
+        <CurtainFooter>
           <div className="sticky top-0 z-0 h-[100svh]">
             <div ref={hero} className="h-full origin-top will-change-transform">
               <Hero looks={looks} urls={gallery} />
@@ -340,10 +316,7 @@ export default function Landing() {
             <ExportStack stills={[gallery[1], gallery[0], gallery[5], gallery[8], gallery[6]]} />
             <Closing />
           </div>
-        </div>
-        <div ref={footerWrap} className={curtain ? "fixed inset-x-0 bottom-0 z-0" : "relative"}>
-          <Footer revealFrom={() => page.current} />
-        </div>
+        </CurtainFooter>
       </div>
     </ReactLenis>
   );

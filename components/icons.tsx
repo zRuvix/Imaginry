@@ -4,6 +4,7 @@ import { forwardRef } from "react";
 import {
   AddCircle,
   AngleDown,
+  ArrowLeft as RArrowLeft,
   ArrowRight as RArrowRight,
   ArrowUpRight as RArrowUpRight,
   AspectRatioSquare,
@@ -76,6 +77,7 @@ function filled(Icon: IconComponent, name: string, extraClass = "") {
   return Filled;
 }
 
+export const ArrowLeft = filled(RArrowLeft, "ArrowLeft");
 export const ArrowRight = filled(RArrowRight, "ArrowRight");
 export const ArrowUpRight = filled(RArrowUpRight, "ArrowUpRight");
 export const Blend = filled(RBlend, "Blend");

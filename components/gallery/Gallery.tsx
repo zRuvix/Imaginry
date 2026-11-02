@@ -12,6 +12,7 @@ import { SPONSORS } from "@/lib/sponsors";
 import { encodeShare } from "@/lib/studio/storage";
 import { Logo } from "@/components/Logo";
 import { Credit } from "@/components/Credit";
+import CurtainFooter from "@/components/landing/CurtainFooter";
 
 type Filter = "All" | GalleryTag;
 
@@ -163,148 +164,147 @@ export default function Gallery() {
   return (
     <ReactLenis root options={{ lerp: 0.08 }}>
       <div className="min-h-screen bg-ink text-bone selection:bg-ember/40">
-        <div
-          aria-hidden
-          className="pointer-events-none fixed left-[30%] top-[-20%] h-[70vh] w-[60vw] rounded-full bg-ember/[0.07] blur-[140px]"
-        />
-        <div className="relative mx-auto flex max-w-[1600px] gap-6 px-4 md:px-6">
-          {/* Sidebar */}
-          <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col py-6 lg:flex">
-            <div className="glass-panel flex h-full flex-col rounded-[26px] p-5">
-              <Link href="/" aria-label="Imaginry home" className="press group self-start text-bone hover:text-white">
-                <Logo size={28} textClass="text-[18px]" />
-              </Link>
-              <nav aria-label="Site" className="-ml-2.5 mt-3 flex gap-0.5 text-[13px]">
-                {[
-                  ["/gallery", "Gallery"],
-                  ["/studio", "Studio"],
-                  ["/sponsor", "Sponsor"],
-                ].map(([href, label]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    aria-current={href === "/gallery" ? "page" : undefined}
-                    className={`press rounded-full px-2.5 py-1 ${
-                      href === "/gallery" ? "bg-white/[0.08] text-bone" : "text-bone/55 hover:text-bone"
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </nav>
-              <h1 className="mt-7 font-display text-[30px] leading-none tracking-[-0.02em]">Gallery</h1>
-              <p className="mt-2 text-[13.5px] leading-relaxed text-bone/55">
-                {GALLERY.length} premade looks. Open any of them in the studio and make it yours.
-              </p>
-
-              <label className="mt-5 flex h-10 items-center gap-2.5 rounded-[12px] bg-white/[0.05] px-3 transition-colors focus-within:bg-white/[0.09]">
-                <Search size={14} className="text-bone/45" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search looks or effects"
-                  aria-label="Search the gallery"
-                  className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-bone/35"
-                />
-                {query && (
-                  <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="press text-bone/50">
-                    <X size={13} />
-                  </button>
-                )}
-              </label>
-
-              <nav aria-label="Moods" className="mt-5 space-y-0.5">
-                {filters.map((f) => {
-                  const on = filter === f;
-                  return (
-                    <button
-                      key={f}
-                      type="button"
-                      onClick={() => setFilter(f)}
-                      aria-pressed={on}
-                      className={`press flex w-full items-center justify-between rounded-[12px] px-3 py-2 text-left text-[14px] transition-colors ${
-                        on ? "bg-white/[0.09] text-bone" : "text-bone/60 hover:bg-white/[0.04] hover:text-bone"
+        <CurtainFooter className="pb-16">
+          <div
+            aria-hidden
+            className="pointer-events-none fixed left-[30%] top-[-20%] h-[70vh] w-[60vw] rounded-full bg-ember/[0.07] blur-[140px]"
+          />
+          <div className="relative mx-auto flex max-w-[1600px] gap-6 px-4 md:px-6">
+            {/* Sidebar */}
+            <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col py-6 lg:flex">
+              <div className="glass-panel flex h-full flex-col rounded-[26px] p-5">
+                <Link href="/" aria-label="Imaginry home" className="press group self-start text-bone hover:text-white">
+                  <Logo size={28} textClass="text-[18px]" />
+                </Link>
+                <nav aria-label="Site" className="-ml-2.5 mt-3 flex gap-0.5 text-[13px]">
+                  {[
+                    ["/gallery", "Gallery"],
+                    ["/studio", "Studio"],
+                    ["/sponsor", "Sponsor"],
+                  ].map(([href, label]) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      aria-current={href === "/gallery" ? "page" : undefined}
+                      className={`press rounded-full px-2.5 py-1 ${
+                        href === "/gallery" ? "bg-white/[0.08] text-bone" : "text-bone/55 hover:text-bone"
                       }`}
                     >
-                      <span className="flex items-center gap-2.5">
-                        <span
-                          className={`size-1.5 rounded-full transition-all duration-500 ${on ? "scale-100 bg-ember" : "scale-0 bg-ember"}`}
-                        />
-                        {f}
-                      </span>
-                      <span className="font-outfit text-[12px] text-bone/40">{counts[f]}</span>
-                    </button>
-                  );
-                })}
-              </nav>
-
-              <div className="mt-auto space-y-2 pt-6">
-                <SponsorBlock />
-                <LaunchButton
-                  label="Open a blank studio"
-                  className="h-11 w-full text-[14px] bg-bone text-ink hover:bg-white"
-                  iconSize={14}
-                />
-                <Credit className="block pt-2 text-center font-condensed text-[12.5px] text-bone/40" />
-              </div>
-            </div>
-          </aside>
-
-          {/* Main */}
-          <main className="min-w-0 flex-1 py-6">
-            <header className="mb-6 flex flex-wrap items-end justify-between gap-4 pt-2 lg:pt-6">
-              <div>
-                <Link href="/" aria-label="Imaginry home" className="group text-bone lg:hidden">
-                  <Logo size={24} textClass="text-[16px]" />
-                </Link>
-                <h2 className="mt-4 font-display text-[clamp(28px,3.4vw,46px)] leading-[1] tracking-[-0.02em] lg:mt-0">
-                  {filter === "All" ? "Every look" : `${filter} looks`}
-                </h2>
-                <p className="mt-2 text-[14px] text-bone/50">
-                  {shown.length} {shown.length === 1 ? "design" : "designs"} · rendered live in your browser
+                      {label}
+                    </Link>
+                  ))}
+                </nav>
+                <h1 className="mt-7 font-display text-[30px] leading-none tracking-[-0.02em]">Gallery</h1>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-bone/55">
+                  {GALLERY.length} premade looks. Open any of them in the studio and make it yours.
                 </p>
+
+                <label className="mt-5 flex h-10 items-center gap-2.5 rounded-[12px] bg-white/[0.05] px-3 transition-colors focus-within:bg-white/[0.09]">
+                  <Search size={14} className="text-bone/45" />
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search looks or effects"
+                    aria-label="Search the gallery"
+                    className="min-w-0 flex-1 bg-transparent text-[13px] outline-none placeholder:text-bone/35"
+                  />
+                  {query && (
+                    <button type="button" aria-label="Clear search" onClick={() => setQuery("")} className="press text-bone/50">
+                      <X size={13} />
+                    </button>
+                  )}
+                </label>
+
+                <nav aria-label="Moods" className="mt-5 space-y-0.5">
+                  {filters.map((f) => {
+                    const on = filter === f;
+                    return (
+                      <button
+                        key={f}
+                        type="button"
+                        onClick={() => setFilter(f)}
+                        aria-pressed={on}
+                        className={`press flex w-full items-center justify-between rounded-[12px] px-3 py-2 text-left text-[14px] transition-colors ${
+                          on ? "bg-white/[0.09] text-bone" : "text-bone/60 hover:bg-white/[0.04] hover:text-bone"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2.5">
+                          <span
+                            className={`size-1.5 rounded-full transition-all duration-500 ${on ? "scale-100 bg-ember" : "scale-0 bg-ember"}`}
+                          />
+                          {f}
+                        </span>
+                        <span className="font-outfit text-[12px] text-bone/40">{counts[f]}</span>
+                      </button>
+                    );
+                  })}
+                </nav>
+
+                <div className="mt-auto space-y-2 pt-6">
+                  <SponsorBlock />
+                  <LaunchButton
+                    label="Open a blank studio"
+                    className="h-11 w-full text-[14px] bg-bone text-ink hover:bg-white"
+                    iconSize={14}
+                  />
+                  <Credit className="block pt-2 text-center font-condensed text-[12.5px] text-bone/40" />
+                </div>
               </div>
-              <Link href="/sponsor" className="press text-[13.5px] text-bone/60 hover:text-bone lg:hidden">
-                Sponsor
-              </Link>
-              <span className="lg:hidden">
-                <LaunchButton
-                  className="h-10 pl-3.5 pr-4 text-[13.5px] bg-bone text-ink hover:bg-white"
-                  iconSize={13}
-                />
-              </span>
-            </header>
+            </aside>
 
-            {/* Mobile filters */}
-            <div className="no-scrollbar -mx-4 mb-5 flex gap-1.5 overflow-x-auto px-4 lg:hidden">
-              {filters.map((f) => (
-                <button
-                  key={f}
-                  type="button"
-                  onClick={() => setFilter(f)}
-                  className={`press h-9 shrink-0 rounded-full px-3.5 text-[13px] ${
-                    filter === f ? "bg-bone text-ink" : "bg-white/[0.06] text-bone/70"
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
+            {/* Main */}
+            <main className="min-w-0 flex-1 py-6">
+              <header className="mb-6 flex flex-wrap items-end justify-between gap-4 pt-2 lg:pt-6">
+                <div>
+                  <Link href="/" aria-label="Imaginry home" className="group text-bone lg:hidden">
+                    <Logo size={24} textClass="text-[16px]" />
+                  </Link>
+                  <h2 className="mt-4 font-display text-[clamp(28px,3.4vw,46px)] leading-[1] tracking-[-0.02em] lg:mt-0">
+                    {filter === "All" ? "Every look" : `${filter} looks`}
+                  </h2>
+                  <p className="mt-2 text-[14px] text-bone/50">
+                    {shown.length} {shown.length === 1 ? "design" : "designs"} · rendered live in your browser
+                  </p>
+                </div>
+                <Link href="/sponsor" className="press text-[13.5px] text-bone/60 hover:text-bone lg:hidden">
+                  Sponsor
+                </Link>
+                <span className="lg:hidden">
+                  <LaunchButton
+                    className="h-10 pl-3.5 pr-4 text-[13.5px] bg-bone text-ink hover:bg-white"
+                    iconSize={13}
+                  />
+                </span>
+              </header>
 
-            {shown.length === 0 ? (
-              <p className="anim-rise py-24 text-center text-[15px] text-bone/50">No looks match that. Try another mood.</p>
-            ) : (
-              <div key={`${filter}-${query}`} className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
-                {shown.map(({ look, url }, i) => (
-                  <Card key={look.name} look={look} url={url} index={i} onCopy={copy} />
+              {/* Mobile filters */}
+              <div className="no-scrollbar -mx-4 mb-5 flex gap-1.5 overflow-x-auto px-4 lg:hidden">
+                {filters.map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setFilter(f)}
+                    className={`press h-9 shrink-0 rounded-full px-3.5 text-[13px] ${
+                      filter === f ? "bg-bone text-ink" : "bg-white/[0.06] text-bone/70"
+                    }`}
+                  >
+                    {f}
+                  </button>
                 ))}
               </div>
-            )}
-            <footer className="mt-12 pb-4 text-center font-condensed text-[13px] text-bone/40 lg:hidden">
-              <Credit />
-            </footer>
-          </main>
-        </div>
+
+              {shown.length === 0 ? (
+                <p className="anim-rise py-24 text-center text-[15px] text-bone/50">No looks match that. Try another mood.</p>
+              ) : (
+                <div key={`${filter}-${query}`} className="columns-1 gap-4 sm:columns-2 xl:columns-3 2xl:columns-4">
+                  {shown.map(({ look, url }, i) => (
+                    <Card key={look.name} look={look} url={url} index={i} onCopy={copy} />
+                  ))}
+                </div>
+              )}
+            </main>
+          </div>
+        </CurtainFooter>
 
         {toast && (
           <div

@@ -527,6 +527,11 @@ export default function Studio() {
       }}
       onReorder={(order) => set((s) => ({ ...s, order }))}
       onToggleVisible={(k) => flipFlag(k, "enabled")}
+      onToggleLock={(k) => flipFlag(k, "locked")}
+      onToggleAnimated={toggleAnimated}
+      onShuffle={shuffleLayer}
+      onReset={resetLayer}
+      onDelete={deleteLayer}
       onAdd={addLayerFromMenu}
       onDropPreset={dropPreset}
       presetDragging={presetDragging}

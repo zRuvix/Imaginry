@@ -7,6 +7,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["/studio", 0.9, "weekly"],
     ["/gallery", 0.8, "weekly"],
     ["/sponsor", 0.5, "monthly"],
+    ["/sponsor/terms", 0.2, "monthly"],
+    ["/privacy", 0.2, "monthly"],
+    ["/terms", 0.2, "monthly"],
   ];
   return pages.map(([path, priority, changeFrequency]) => ({
     url: `${SITE_URL}${path}`,

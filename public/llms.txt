@@ -10,6 +10,8 @@ Imaginry is made by Ruvix (https://x.com/zRuvix1). Everything renders live on th
 - [Studio](https://imaginry.tech/studio): The editor. Add effect layers, adjust parameters, preview live and export.
 - [Gallery](https://imaginry.tech/gallery): Example backgrounds and presets to start from.
 - [Sponsor](https://imaginry.tech/sponsor): Support the project as a founding sponsor.
+- [Privacy](https://imaginry.tech/privacy): Designs render on-device; no accounts or tracking cookies.
+- [Terms](https://imaginry.tech/terms): Exports are free to use, including commercially.
 
 ## Key facts
 

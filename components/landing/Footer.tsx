@@ -8,6 +8,7 @@ import LiveLook from "./LiveLook";
 import { clamp01 } from "./motion";
 import { Logo } from "@/components/Logo";
 import { Credit } from "@/components/Credit";
+import { LEGAL_PAGES } from "@/lib/legal";
 
 const AMBIENT: CuratedLook = {
   name: "Ambient",
@@ -37,6 +38,7 @@ const COLUMNS = [
       { label: "Sponsor", href: "/sponsor" },
     ],
   },
+  { title: "Legal", links: LEGAL_PAGES },
 ];
 
 /**
@@ -79,8 +81,8 @@ export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement |
       </div>
 
       <div className="relative mx-auto max-w-[1200px] px-4 pt-24 md:px-6 md:pt-32">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_1fr_1fr]">
-          <div>
+        <div className="grid gap-12 grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div className="col-span-2 md:col-span-1">
             <p className="group text-[var(--bone)]">
               <Logo size={30} textClass="text-[20px]" />
             </p>

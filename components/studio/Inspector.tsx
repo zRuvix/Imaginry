@@ -36,7 +36,9 @@ type Props = {
 
 function Group({ title, children, delay = 0 }: { title: string; children: ReactNode; delay?: number }) {
   return (
-    <section className="anim-rise space-y-1.5" style={{ animationDelay: `${delay}ms` }}>
+    // The rise animation gives each group its own stacking context, so a group
+    // with an open dropdown has to sit above the groups after it.
+    <section className="anim-rise relative space-y-1.5 has-[[aria-expanded=true]]:z-20" style={{ animationDelay: `${delay}ms` }}>
       <h3 className="px-1 pb-0.5 text-[12.5px] font-medium text-bone/45">{title}</h3>
       {children}
     </section>
