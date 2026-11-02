@@ -177,6 +177,60 @@ function StudioPreview({ previewUrl }: { previewUrl: string | null }) {
   );
 }
 
+const ABOUT = [
+  {
+    title: "A design tool, not an AI",
+    body: "Every texture is drawn by hand-written shader effects (gradients, glass, grain, light) running on your GPU. There are no AI models, no image generation from prompts, and nothing that creates or edits pictures of people.",
+  },
+  {
+    title: "Your photos stay with you",
+    body: "A photo you drop into the studio is opened in your browser and never uploaded. We don’t host user images. Share links carry only effect and layer settings, never an image.",
+  },
+  {
+    title: "Optional Google sign-in",
+    body: "Signing in with Google only identifies your account (name, email, profile picture). We use no other Google APIs, and Google data is never used for AI or to make images.",
+  },
+];
+
+/** Plain statement of what Imaginry is and isn't, for people and reviewers alike. */
+function About() {
+  return (
+    <section id="about" className="relative mx-auto max-w-[1100px] px-4 pb-[14vh] md:px-6">
+      <Reveal className="mb-10 text-center">
+        <p className="font-condensed text-[15px] font-medium text-[var(--ember)]">About Imaginry</p>
+        <h2 className="mx-auto mt-3 max-w-[760px] font-display text-[clamp(28px,3.6vw,46px)] leading-[1.05] tracking-[-0.02em] text-[var(--bone)]">
+          A free browser studio for abstract backgrounds and textures
+        </h2>
+        <p className="mx-auto mt-5 max-w-[620px] text-[16px] leading-relaxed text-[var(--bone)]/65">
+          Layer effects, tweak them live, then export a PNG, a looping video or embed code for websites, slides and
+          social posts.
+        </p>
+      </Reveal>
+      <div className="grid gap-3 md:grid-cols-3">
+        {ABOUT.map((item, i) => (
+          <Reveal key={item.title} delay={i * 120} y={24}>
+            <div className="h-full rounded-[24px] bg-[var(--surface)] p-6">
+              <h3 className="font-condensed text-[18px] font-semibold text-[var(--bone)]">{item.title}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-[var(--bone)]/65">{item.body}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+      <p className="mt-6 text-center text-[14px] text-[var(--dim)]">
+        Sexual, explicit or non-consensual imagery is not allowed. See our{" "}
+        <Link href="/terms#acceptable-use" className="underline underline-offset-4 hover:text-[var(--bone)]">
+          terms
+        </Link>{" "}
+        and{" "}
+        <Link href="/privacy" className="underline underline-offset-4 hover:text-[var(--bone)]">
+          privacy policy
+        </Link>
+        .
+      </p>
+    </section>
+  );
+}
+
 /** Gradient and film grain, drifting slowly behind the closing line. */
 /** Deep, moody palettes so the bone headline always reads on top. */
 const CLOSING_PALETTES = [
@@ -314,6 +368,7 @@ export default function Landing() {
             <LayersStory looks={fresh?.story} urls={story} />
             <StudioPreview previewUrl={gallery[10]} />
             <ExportStack stills={[gallery[1], gallery[0], gallery[5], gallery[8], gallery[6]]} />
+            <About />
             <Closing />
           </div>
         </CurtainFooter>

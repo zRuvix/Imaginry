@@ -63,7 +63,9 @@ const SECTIONS: LegalSection[] = [
     title: "Share links",
     body: (
       <p>
-        Short links you create store a design&rsquo;s settings so anyone with the link can open it. Treat them as public.
+        Short links you create store a design&rsquo;s effect and layer settings so anyone with the link can open it. They
+        never include images: photos you add stay on your device and we don&rsquo;t host user uploads. Treat links as
+        public.
         We may delete links, or limit how many you can create, to protect the service.
       </p>
     ),
@@ -76,6 +78,11 @@ const SECTIONS: LegalSection[] = [
         <p>Please don&rsquo;t:</p>
         <ul>
           <li>use the service to break the law or infringe anyone&rsquo;s rights;</li>
+          <li>
+            create, edit or share sexually explicit material, or any intimate or sexual imagery of a real person without
+            their consent (including AI-generated or manipulated images), or any material that sexualises minors;
+          </li>
+          <li>use the service to harass, demean or impersonate anyone;</li>
           <li>flood, overload or attack the site, its API or its link service, or try to get around rate limits;</li>
           <li>scrape or mass-download the site or its gallery with automated tools;</li>
           <li>copy the site&rsquo;s code, shaders or design to run a copy of Imaginry;</li>
