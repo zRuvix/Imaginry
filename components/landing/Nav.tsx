@@ -64,17 +64,17 @@ export default function Nav() {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="https://www.producthunt.com/products/imaginry?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-imaginry"
+            href="https://nicklaunches.com/products/imaginry/"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             className="hidden transition-opacity hover:opacity-90 sm:block"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              alt="Imaginry - generative backgrounds, live in your browser | Product Hunt"
-              width={185}
+              src="https://nicklaunches.com/badges/featured.png"
+              alt="Imaginry on Nick Launches"
+              width={174}
               height={40}
-              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300713&theme=light&t=1793603645726"
               className="block h-10 w-auto"
             />
           </a>
