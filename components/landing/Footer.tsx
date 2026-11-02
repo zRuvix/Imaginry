@@ -54,6 +54,18 @@ const BADGES = [
     alt: "Featured on neeed.directory",
     width: 139,
   },
+  {
+    href: "https://bestsky.tools?utm_source=badge",
+    src: "https://assets.bestsky.tools/badges/featured-light.svg",
+    alt: "Featured on BestskyTools",
+    width: 150,
+  },
+  {
+    href: "https://www.foundrlist.com/product/imaginry?utm_source=badge&utm_medium=embed",
+    src: "https://www.foundrlist.com/api/badge/imaginry",
+    alt: "Featured on FoundrList",
+    width: 125,
+  },
 ];
 // Each half of the track repeats the badges enough to outlast a wide screen.
 const HALF = Array.from({ length: 4 }, () => BADGES).flat();
