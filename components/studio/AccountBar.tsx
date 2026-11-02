@@ -1,11 +1,15 @@
 "use client";
 
+import { Roboto } from "next/font/google";
 import { useRef, useState } from "react";
 import { ChevronDown, LogOut, User } from "@/components/icons";
 import { authClient } from "@/lib/auth-client";
 import { useClickOutside } from "./controls";
 
-function GoogleMark({ size = 16 }: { size?: number }) {
+// Google's sign-in branding asks for Roboto Medium on the button.
+const roboto = Roboto({ weight: "500", subsets: ["latin"] });
+
+function GoogleMark({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden>
       <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
@@ -33,8 +37,14 @@ export default function AccountBar() {
   const { data, isPending } = authClient.useSession();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, open, () => setOpen(false));
+  useClickOutside(ref, open, () => {
+    setOpen(false);
+    setConfirmDelete(false);
+    setError(null);
+  });
   const user = data?.user;
 
   const signIn = async () => {
@@ -42,6 +52,23 @@ export default function AccountBar() {
     // Redirects to Google; comes back to the studio once the callback finishes.
     const { error } = await authClient.signIn.social({ provider: "google", callbackURL: "/studio" });
     if (error) setBusy(false);
+  };
+  const deleteAccount = async () => {
+    setBusy(true);
+    setError(null);
+    const { error } = await authClient.deleteUser();
+    setBusy(false);
+    if (error) {
+      // Deleting needs a recent sign-in; older sessions have to sign in again first.
+      setError(
+        error.code === "SESSION_EXPIRED"
+          ? "For safety, sign out and sign in again, then delete."
+          : "Couldn’t delete your account. Try again.",
+      );
+      return;
+    }
+    setConfirmDelete(false);
+    setOpen(false);
   };
   const signOut = async () => {
     setBusy(true);
@@ -76,6 +103,42 @@ export default function AccountBar() {
                 <LogOut size={14} />
                 Sign out
               </button>
+              {confirmDelete ? (
+                <div className="mt-3 rounded-[14px] bg-ember/10 p-3">
+                  <p className="text-[12.5px] leading-relaxed text-bone/75">
+                    This permanently deletes your account and everything we store about it.
+                  </p>
+                  <div className="mt-2.5 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={deleteAccount}
+                      disabled={busy}
+                      className="press h-9 flex-1 rounded-[12px] bg-ember text-[12.5px] font-medium text-ink disabled:opacity-50"
+                    >
+                      {busy ? "Deleting…" : "Delete forever"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmDelete(false);
+                        setError(null);
+                      }}
+                      className="press h-9 flex-1 rounded-[12px] bg-raised text-[12.5px] text-bone/75 hover:text-bone"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                  {error && <p className="mt-2 text-[12px] text-ember">{error}</p>}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="mt-2 w-full py-1 text-center text-[12px] text-bone/40 transition-colors hover:text-ember"
+                >
+                  Delete account
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -86,11 +149,22 @@ export default function AccountBar() {
                 type="button"
                 onClick={signIn}
                 disabled={busy}
-                className="press flex h-10 w-full items-center justify-center gap-2.5 rounded-[14px] bg-bone text-[13px] font-medium text-ink hover:bg-white disabled:opacity-60"
+                className={`${roboto.className} press flex h-10 w-full items-center justify-center gap-2.5 rounded-full border border-[#8E918F] bg-[#131314] px-3 text-[14px] leading-5 text-[#E3E3E3] hover:bg-[#1f1f20] disabled:opacity-60`}
               >
                 <GoogleMark />
                 {busy ? "Opening Google…" : "Continue with Google"}
               </button>
+              <p className="px-1 pt-2.5 text-[11.5px] leading-relaxed text-bone/40">
+                By continuing you agree to our{" "}
+                <a href="/terms" className="underline underline-offset-2 hover:text-bone/70">
+                  terms
+                </a>{" "}
+                and{" "}
+                <a href="/privacy#google" className="underline underline-offset-2 hover:text-bone/70">
+                  privacy policy
+                </a>
+                .
+              </p>
             </>
           )}
         </div>

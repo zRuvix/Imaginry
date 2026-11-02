@@ -23,6 +23,10 @@ export const authOptions = {
       prompt: "select_account",
     },
   },
+  user: {
+    // Lets people remove their account from the studio's account panel.
+    deleteUser: { enabled: true },
+  },
   session: {
     // Keep the session in a signed cookie for 5 minutes so most checks skip the DB.
     cookieCache: { enabled: true, maxAge: 5 * 60 },

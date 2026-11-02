@@ -79,7 +79,9 @@ const SECTIONS: LegalSection[] = [
           inactivity.
         </p>
         <p>
-          <strong>Deletion.</strong> You can sign out at any time. To delete your account and all data we hold about it,{" "}
+          <strong>Deletion.</strong> You can sign out at any time. To delete your account, open the account panel at the
+          bottom left of the studio and choose <em>Delete account</em>: your profile, sign-in tokens and sessions are
+          removed from our database straight away. If you can&rsquo;t sign in,{" "}
           <a href={CONTACT_URL} target="_blank" rel="noopener">
             message us
           </a>{" "}
@@ -184,6 +186,25 @@ const SECTIONS: LegalSection[] = [
         from us: clicks on a sponsor go straight to their site, marked as sponsored, and from there their own privacy
         policy applies. We will disclose data if the law requires it.
       </p>
+    ),
+  },
+  {
+    id: "transfers",
+    title: "Where data is stored",
+    body: (
+      <>
+        <p>
+          Account data and short links are stored on servers we operate or rent from hosting providers, which may be in
+          a different country from yours. Google processes sign-in data under its own privacy policy and may also
+          transfer it internationally.
+        </p>
+        <p>
+          When personal data from the EU, UK or Switzerland is transferred to a country without an adequacy decision, we
+          rely on appropriate safeguards such as the European Commission&rsquo;s Standard Contractual Clauses. Data is
+          sent over encrypted connections, access is limited to {OPERATOR}, and we keep it only as long as described in
+          this policy: account data until you delete your account, sessions until they expire.
+        </p>
+      </>
     ),
   },
   {
