@@ -418,3 +418,19 @@ input[type="number"] {
   .sponsor-pointer { animation: none; opacity: 0; }
   .sponsor-card { animation: none; opacity: 1; transform: none; }
 }
+
+/* Footer: "featured on" badges drifting sideways; the track holds two equal halves */
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
+}

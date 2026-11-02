@@ -21,6 +21,76 @@ const AMBIENT: CuratedLook = {
 
 const WORD = "imaginry";
 
+/** Launch sites that featured Imaginry, shown 40px tall in the footer marquee. */
+const BADGES = [
+  {
+    href: "https://www.producthunt.com/products/imaginry?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-imaginry",
+    src: "https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1300713&theme=dark",
+    alt: "Imaginry on Product Hunt",
+    width: 185,
+  },
+  {
+    href: "https://nicklaunches.com/products/imaginry/",
+    src: "https://nicklaunches.com/badges/featured.png",
+    alt: "Imaginry on Nick Launches",
+    width: 174,
+  },
+  { href: "https://twelve.tools", src: "https://twelve.tools/badge2-dark.svg", alt: "Featured on Twelve Tools", width: 148 },
+  {
+    href: "https://daniellaunches.com",
+    src: "https://daniellaunches.com/badge-dark.svg",
+    alt: "Featured on DanielLaunches",
+    width: 183,
+  },
+  {
+    href: "https://verifieddr.com/website/imaginry-tech",
+    src: "https://verifieddr.com/badge/imaginry-tech.svg?metric=truedr",
+    alt: "Verified DR - Verified Domain Rating for imaginry.tech",
+    width: 137,
+  },
+  {
+    href: "https://neeed.directory",
+    src: "https://neeed.directory/badges/neeed-badge-light.svg",
+    alt: "Featured on neeed.directory",
+    width: 139,
+  },
+];
+// Each half of the track repeats the badges enough to outlast a wide screen.
+const HALF = Array.from({ length: 4 }, () => BADGES).flat();
+
+/** Badges drift right to left in a loop; hovering pauses them. */
+function BadgeMarquee() {
+  return (
+    <div
+      className="marquee relative overflow-hidden"
+      style={{
+        maskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
+        WebkitMaskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
+      }}
+    >
+      <ul className="marquee-track flex items-center">
+        {[0, 1].map((copy) =>
+          HALF.map((b, i) => (
+            // The second half only exists for the seamless loop, so it's hidden from screen readers and tabbing.
+            <li key={`${copy}-${i}`} className="shrink-0 px-3" aria-hidden={copy === 1 || i >= BADGES.length || undefined}>
+              <a
+                href={b.href}
+                target="_blank"
+                rel="noopener"
+                tabIndex={copy === 1 || i >= BADGES.length ? -1 : undefined}
+                className="block opacity-80 transition-opacity hover:opacity-100"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={b.src} alt={b.alt} width={b.width} height={40} loading="lazy" className="block h-10 w-auto" />
+              </a>
+            </li>
+          )),
+        )}
+      </ul>
+    </div>
+  );
+}
+
 const COLUMNS = [
   {
     title: "Explore",
@@ -111,7 +181,12 @@ export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement |
         </div>
       </div>
 
-      <div className="relative mx-auto mt-16 max-w-[1400px] overflow-x-clip px-2 pb-[2vw] md:mt-24" aria-label={WORD}>
+      <div className="relative mx-auto mt-16 max-w-[1200px] md:mt-20">
+        <p className="mb-4 px-4 text-center font-condensed text-[14px] text-[var(--bone)]/50 md:px-6">Featured on</p>
+        <BadgeMarquee />
+      </div>
+
+      <div className="relative mx-auto mt-12 max-w-[1400px] overflow-x-clip px-2 pb-[2vw] md:mt-16" aria-label={WORD}>
         <p className="flex justify-center font-display text-[clamp(64px,19vw,300px)] leading-[0.8] tracking-[-0.04em] text-[var(--bone)]/90">
           {WORD.split("").map((ch, i) => (
             <span key={i} className="inline-block overflow-hidden pb-[0.2em] -mb-[0.14em]">
