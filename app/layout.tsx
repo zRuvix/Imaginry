@@ -69,8 +69,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${familjen.variable} ${specialGothic.variable} ${cabinCondensed.variable} ${outfit.variable} h-full antialiased`}
     >
       <head>
-        {/* Rybbit analytics */}
-        <script src="https://stats.zruvix.com/api/script.js?siteId=d699af3edc35" defer />
+        {/* Umami analytics */}
+        <script
+          defer
+          src="https://umi.bhaskarsaikia.dev/script.js"
+          data-website-id="39f68bbc-bfe7-4ceb-bec9-74defe2dffb4"
+        />
       </head>
       <body className="h-full" suppressHydrationWarning><NoImageDrag />
         {children}

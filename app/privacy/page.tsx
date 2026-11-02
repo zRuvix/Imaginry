@@ -65,7 +65,7 @@ const SECTIONS: LegalSection[] = [
             That counter expires after 60 seconds.
           </li>
           <li>
-            <strong>Usage statistics.</strong> We use Rybbit, a privacy-focused analytics tool we host ourselves, to see
+            <strong>Usage statistics.</strong> We use Umami, a privacy-focused analytics tool, to see
             which pages are visited. It records page views, referrer, browser, device type and approximate country. It
             does not use cookies, does not build a profile of you and isn&rsquo;t shared with ad networks.
           </li>
