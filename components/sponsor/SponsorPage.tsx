@@ -395,7 +395,7 @@ export default function SponsorPage() {
                 [
                   ["Studio top bar", "A chip with your logo and name, in the bar everyone works under.", BarScene],
                   ["Gallery, pinned", "A look in your palette, first in the gallery and the studio's Gallery tab.", GalleryScene],
-                  ["Landing orbit", "Your card riding the orbit on the homepage, the first thing visitors see.", OrbitScene],
+                  ["Landing hero", "Your card floating in the homepage hero, the first thing visitors see.", OrbitScene],
                 ] as const
               ).map(([title, body, Scene], i) => (
                 <Reveal key={title} delay={i * 120} className="group rounded-[24px] bg-white/[0.04] p-3">

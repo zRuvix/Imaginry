@@ -58,7 +58,7 @@ export const PLANS: Plan[] = [
     price: { weekly: 15, monthly: 49 },
     features: [
       "Everything in Gallery feature",
-      "Your card in the landing page orbit",
+      "Your card in the landing page hero",
       "Exclusive: no other brand in the top bar",
     ],
   },

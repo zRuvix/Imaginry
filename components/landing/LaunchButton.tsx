@@ -33,12 +33,18 @@ export default function LaunchButton({
   label = "Open studio",
   className = LANDING,
   iconSize = 16,
+  variant = "pill",
 }: {
   href?: string;
   label?: string;
   /** Size and colors; the shape and motion come with the button. */
   className?: string;
   iconSize?: number;
+  /**
+   * "pill": rocket beside the label. "orb": the rocket rides in a dark
+   * porthole on the right; hovering floods the button with ember from it.
+   */
+  variant?: "pill" | "orb";
 }) {
   const router = useRouter();
   const button = useRef<HTMLAnchorElement>(null);
@@ -67,34 +73,71 @@ export default function LaunchButton({
     };
   }, []);
 
+  const onClick = (e: React.MouseEvent) => {
+    // New-tab clicks go straight through.
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    const reduced = prefersReducedMotion();
+    setLaunch((n) => n + 1);
+    setLiftoff(true);
+    // Engines rumble the whole button just before liftoff.
+    if (!reduced) {
+      button.current?.animate(
+        [
+          { transform: "translate(0, 0)" },
+          { transform: "translate(-1.2px, 0.6px)" },
+          { transform: "translate(1.2px, -0.4px)" },
+          { transform: "translate(-0.8px, 0.4px)" },
+          { transform: "translate(0.8px, 0)" },
+          { transform: "translate(0, 0)" },
+        ],
+        { duration: 280, easing: "linear" },
+      );
+    }
+    setTimeout(() => router.push(href), reduced ? 0 : NAVIGATE_MS);
+  };
+
+  if (variant === "orb") {
+    return (
+      <Link
+        ref={button}
+        href={href}
+        data-liftoff={liftoff ? "1" : "0"}
+        onClick={onClick}
+        className={`launch-btn launch-orb group relative isolate inline-flex items-center overflow-hidden rounded-full pr-1.5 font-medium ${className}`}
+      >
+        {/* Ember floods out of the porthole on hover */}
+        <span aria-hidden className="launch-orb-flood absolute right-1.5 top-1/2 -z-10 aspect-square h-[calc(100%-12px)] -translate-y-1/2 rounded-full bg-[var(--ember)]" />
+        <span className="sr-only">{label}</span>
+        <span aria-hidden className="relative grid overflow-hidden">
+          <span className="launch-label col-start-1 row-start-1 inline-flex">
+            {label.split("").map((ch, i) => (
+              <span key={i} className="launch-letter inline-block whitespace-pre" style={{ animationDelay: `${i * 26}ms` }}>
+                {ch}
+              </span>
+            ))}
+          </span>
+          <span className="launch-label-next col-start-1 row-start-1">Liftoff!</span>
+        </span>
+        <span aria-hidden className="launch-porthole relative ml-auto grid aspect-square h-[calc(100%-12px)] place-items-center overflow-hidden rounded-full bg-[var(--ink)] text-[var(--bone)]">
+          {/* Hover: one rocket leaves out the top right as the next slides in from below */}
+          <span className="launch-orb-out grid place-items-center">
+            <Rocket size={iconSize} />
+          </span>
+          <span className="launch-orb-in absolute inset-0 grid place-items-center">
+            <Rocket size={iconSize} />
+          </span>
+        </span>
+      </Link>
+    );
+  }
+
   return (
     <Link
       ref={button}
       href={href}
       data-liftoff={liftoff ? "1" : "0"}
-      onClick={(e) => {
-        // New-tab clicks go straight through.
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-        e.preventDefault();
-        const reduced = prefersReducedMotion();
-        setLaunch((n) => n + 1);
-        setLiftoff(true);
-        // Engines rumble the whole button just before liftoff.
-        if (!reduced) {
-          button.current?.animate(
-            [
-              { transform: "translate(0, 0)" },
-              { transform: "translate(-1.2px, 0.6px)" },
-              { transform: "translate(1.2px, -0.4px)" },
-              { transform: "translate(-0.8px, 0.4px)" },
-              { transform: "translate(0.8px, 0)" },
-              { transform: "translate(0, 0)" },
-            ],
-            { duration: 280, easing: "linear" },
-          );
-        }
-        setTimeout(() => router.push(href), reduced ? 0 : NAVIGATE_MS);
-      }}
+      onClick={onClick}
       className={`launch-btn group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-medium transition-colors duration-500 ${className}`}
     >
       <span className="relative grid size-[18px] place-items-center">

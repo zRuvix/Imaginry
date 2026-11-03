@@ -2,24 +2,22 @@
 
 import { useLenis } from "lenis/react";
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowUpRight } from "@/components/icons";
 import type { CuratedLook } from "@/lib/studio/looks";
-import LiveLook from "./LiveLook";
+import { freshLooks } from "./fresh";
 import { clamp01 } from "./motion";
+import Pebbles from "./Pebbles";
+import { useLookImages } from "./useLookImages";
 import { Logo } from "@/components/Logo";
 import { Credit } from "@/components/Credit";
 import { LEGAL_PAGES } from "@/lib/legal";
 
-const AMBIENT: CuratedLook = {
-  name: "Ambient",
-  recipe: "",
-  presets: ["g-teal", "b-haze", "gr-fine"],
-  tweaks: { gradient: { colors: ["#1b3a1f", "#6fa35a", "#2c4a1e", "#d0803c"], warp: 1.2, speed: 0.6 } },
-  seed: 4.4,
-  ratio: 16 / 9,
-};
-
 const WORD = "imaginry";
+
+/** How many pebbles drop into the pit. */
+const PEBBLES = 12;
+const NONE: CuratedLook[] = [];
 
 /** Launch sites that featured Imaginry, shown 40px tall in the footer marquee. */
 const BADGES = [
@@ -76,8 +74,8 @@ function BadgeMarquee() {
     <div
       className="marquee relative overflow-hidden"
       style={{
-        maskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
-        WebkitMaskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
+        maskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
+        WebkitMaskImage: "linear-gradient(to right, transparent, black 8%, black 92%, transparent)",
       }}
     >
       <ul className="marquee-track flex items-center">
@@ -90,7 +88,7 @@ function BadgeMarquee() {
                 target="_blank"
                 rel="noopener"
                 tabIndex={copy === 1 || i >= BADGES.length ? -1 : undefined}
-                className="block opacity-80 transition-opacity hover:opacity-100"
+                className="block opacity-70 transition-opacity hover:opacity-100"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={b.src} alt={b.alt} width={b.width} height={40} loading="lazy" className="block h-10 w-auto" />
@@ -125,99 +123,114 @@ const COLUMNS = [
 ];
 
 /**
- * A fixed footer underneath the page. The content above lifts away like a
- * curtain to reveal it; a slow shader drifts behind and the wordmark rises
- * letter by letter as it opens.
+ * A fixed footer underneath the page. As the page lifts away like a curtain,
+ * the outlined wordmark fills from the bottom and a handful of round renders
+ * rain into the pit below it, ready to be picked up and thrown.
  */
 export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement | null }) {
+  const fill = useRef<HTMLSpanElement>(null);
   const el = useRef<HTMLElement>(null);
-  const letters = useRef<(HTMLSpanElement | null)[]>([]);
   const [open, setOpen] = useState(false);
+  // Small square renders of different designs every visit, only made once
+  // the footer first opens.
+  const [pebbleLooks, setPebbleLooks] = useState(NONE);
+  useEffect(() => {
+    if (open) setPebbleLooks(freshLooks(PEBBLES).map((l) => ({ ...l, name: `Pebble ${l.name}`, ratio: 1 })));
+  }, [open]);
+  const pebbles = useLookImages(pebbleLooks, 220);
 
-  useLenis(() => {
+  const lenis = useLenis(() => {
     const above = revealFrom();
     const footer = el.current;
     if (!above || !footer) return;
     const vh = window.innerHeight;
     // 0 while the page covers the footer, 1 once it's fully uncovered.
     const p = clamp01((vh - above.getBoundingClientRect().bottom) / footer.offsetHeight);
-    if (p > 0 !== open) setOpen(p > 0);
-    letters.current.forEach((l, i) => {
-      if (!l) return;
-      const t = clamp01(p * 1.6 - i * 0.07);
-      l.style.transform = `translate3d(0, ${(1 - t) * 105}%, 0)`;
-      l.style.opacity = String(t);
-    });
+    // Opens once and stays open, so the pile isn't rebuilt on every pass.
+    if (p > 0.3 && !open) setOpen(true);
+    if (fill.current) fill.current.style.clipPath = `inset(${(1 - clamp01((p - 0.35) / 0.6)) * 100}% 0 0 0)`;
   });
 
   return (
     <footer ref={el} className="relative overflow-hidden bg-[var(--ink)]">
-      <div aria-hidden className="absolute inset-0">
-        <LiveLook
-          look={AMBIENT}
-          running={open}
-          speed={0.5}
-          resolution={0.35}
-          className="h-full w-full scale-110 opacity-90 blur-2xl"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[var(--ink)] via-[var(--ink)]/25 to-[var(--ink)]/55" />
+      <div aria-hidden className="pointer-events-none absolute -top-[30%] left-1/2 h-[60%] w-[80%] -translate-x-1/2 rounded-[50%] bg-[var(--ember)] opacity-[0.07] blur-[120px]" />
+
+      <div className="relative mx-auto grid max-w-[1400px] grid-cols-2 gap-x-6 gap-y-10 px-4 pt-20 md:grid-cols-12 md:px-8 md:pt-24">
+        <div className="col-span-2 md:col-span-5">
+          <p className="group text-[var(--bone)]">
+            <Logo size={28} textClass="text-[19px]" />
+          </p>
+          <p className="mt-5 max-w-[360px] font-display text-[clamp(20px,1.8vw,26px)] leading-[1.15] tracking-[-0.02em] text-[var(--bone)]">
+            Generative textures and looping backgrounds, made in your browser.
+          </p>
+        </div>
+        {COLUMNS.map((col) => (
+          <div key={col.title} className="md:col-span-2 last:md:col-span-3">
+            <p className="font-condensed text-[14px] text-[var(--bone)]/45">{col.title}</p>
+            <ul className="mt-4 space-y-2">
+              {col.links.map((l) => (
+                <li key={l.label}>
+                  <Link
+                    href={l.href}
+                    className="group inline-flex items-center gap-1.5 text-[15px] text-[var(--bone)]/80 transition-colors hover:text-[var(--bone)]"
+                  >
+                    <span className="relative">
+                      {l.label}
+                      <span className="absolute -bottom-0.5 left-0 h-px w-full origin-right scale-x-0 bg-current transition-transform duration-500 group-hover:origin-left group-hover:scale-x-100" />
+                    </span>
+                    <ArrowUpRight
+                      size={11}
+                      className="-translate-x-1 opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:opacity-100"
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
 
-      <div className="relative mx-auto max-w-[1200px] px-4 pt-24 md:px-6 md:pt-32">
-        <div className="grid gap-12 grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
-          <div className="col-span-2 md:col-span-1">
-            <p className="group text-[var(--bone)]">
-              <Logo size={30} textClass="text-[20px]" />
-            </p>
-            <p className="mt-3 max-w-[340px] text-[15px] leading-relaxed text-[var(--bone)]/70">
-              Generative textures and looping backgrounds, made in your browser.
-            </p>
-          </div>
-          {COLUMNS.map((col) => (
-            <div key={col.title}>
-              <p className="font-condensed text-[14px] text-[var(--bone)]/50">{col.title}</p>
-              <ul className="mt-4 space-y-2.5">
-                {col.links.map((l) => (
-                  <li key={l.label}>
-                    <Link
-                      href={l.href}
-                      className="text-[15px] text-[var(--bone)]/85 transition-colors hover:text-white"
-                    >
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+      <div className="relative mt-14 flex items-center gap-6 md:mt-16">
+        <p className="shrink-0 pl-4 font-condensed text-[14px] text-[var(--bone)]/45 md:pl-8">Featured on</p>
+        <div className="min-w-0 flex-1">
+          <BadgeMarquee />
         </div>
       </div>
 
-      <div className="relative mx-auto mt-16 max-w-[1200px] md:mt-20">
-        <p className="mb-4 px-4 text-center font-condensed text-[14px] text-[var(--bone)]/50 md:px-6">Featured on</p>
-        <BadgeMarquee />
-      </div>
-
-      <div className="relative mx-auto mt-12 max-w-[1400px] overflow-x-clip px-2 pb-[2vw] md:mt-16" aria-label={WORD}>
-        <p className="flex justify-center font-display text-[clamp(64px,19vw,300px)] leading-[0.8] tracking-[-0.04em] text-[var(--bone)]/90">
-          {WORD.split("").map((ch, i) => (
-            <span key={i} className="inline-block overflow-hidden pb-[0.2em] -mb-[0.14em]">
-              <span
-                ref={(s) => {
-                  letters.current[i] = s;
-                }}
-                className="inline-block will-change-transform"
-                style={{ transform: "translate3d(0, 105%, 0)", opacity: 0 }}
-              >
-                {ch}
-              </span>
-            </span>
-          ))}
+      {/* The pit: wordmark at the back, pebbles on top */}
+      <div className="relative mx-auto mt-8 h-[clamp(220px,36vh,420px)] max-w-[1400px] md:mt-10">
+        <p
+          aria-label={WORD}
+          className="pointer-events-none absolute inset-x-0 top-0 select-none text-center font-display text-[clamp(60px,17.5vw,280px)] leading-[0.85] tracking-[-0.05em]"
+        >
+          <span aria-hidden className="text-transparent [-webkit-text-stroke:1px_rgba(237,231,220,0.28)]">
+            {WORD}
+          </span>
+          <span
+            ref={fill}
+            aria-hidden
+            className="absolute inset-0 text-[var(--bone)]"
+            style={{ clipPath: "inset(100% 0 0 0)" }}
+          >
+            {WORD}
+          </span>
+        </p>
+        <Pebbles urls={pebbles} drop={open} />
+        <p className="pointer-events-none absolute bottom-3 right-4 font-condensed text-[13px] text-[var(--bone)]/35 md:right-8">
+          Go on, throw one
         </p>
       </div>
-      <div className="relative mx-auto flex max-w-[1200px] justify-between px-4 pb-6 pt-4 font-condensed text-[13px] text-[var(--bone)]/45 md:px-6">
+
+      <div className="relative mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-3 border-t border-white/10 px-4 py-5 font-condensed text-[13px] text-[var(--bone)]/45 md:px-8">
         <Credit />
-        <span>Rendered live, on your device</span>
+        <span className="hidden md:inline">Rendered live, on your device</span>
+        <button
+          type="button"
+          onClick={() => (lenis ? lenis.scrollTo(0, { duration: 2.6 }) : window.scrollTo({ top: 0, behavior: "smooth" }))}
+          className="transition-colors hover:text-[var(--bone)]"
+        >
+          Back to top ↑
+        </button>
       </div>
     </footer>
   );
