@@ -1,0 +1,1193 @@
+consistency  http://localhost:3000/
+
+1440x900  18 screens, 2 held sections  125 FAIL  40 WARN
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(41) > a.block.opacity-70 > img.block.h-10  "featured.svg?post_id=1300713&theme=dark"
+       the picture featured.svg?post_id=1300713&theme=dark never loaded: its frame shows empty (and 2 more like it: "featured.svg?post_id=130", "featured.svg?post_id=130")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(42) > a.block.opacity-70 > img.block.h-10  "featured.png"
+       the picture featured.png never loaded: its frame shows empty (and 2 more like it: "featured.png", "featured.png")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(43) > a.block.opacity-70 > img.block.h-10  "badge2-dark.svg"
+       the picture badge2-dark.svg never loaded: its frame shows empty (and 2 more like it: "badge2-dark.svg", "badge2-dark.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(44) > a.block.opacity-70 > img.block.h-10  "badge-dark.svg"
+       the picture badge-dark.svg never loaded: its frame shows empty (and 2 more like it: "badge-dark.svg", "badge-dark.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(45) > a.block.opacity-70 > img.block.h-10  "imaginry-tech.svg?metric=truedr"
+       the picture imaginry-tech.svg?metric=truedr never loaded: its frame shows empty (and 2 more like it: "imaginry-tech.svg?metric", "imaginry-tech.svg?metric")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(46) > a.block.opacity-70 > img.block.h-10  "neeed-badge-light.svg"
+       the picture neeed-badge-light.svg never loaded: its frame shows empty (and 2 more like it: "neeed-badge-light.svg", "neeed-badge-light.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(47) > a.block.opacity-70 > img.block.h-10  "featured-light.svg"
+       the picture featured-light.svg never loaded: its frame shows empty (and 2 more like it: "featured-light.svg", "featured-light.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(48) > a.block.opacity-70 > img.block.h-10  "imaginry"
+       the picture imaginry never loaded: its frame shows empty (and 2 more like it: "imaginry", "imaginry")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL cut-text        h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Rendered on this"
+       cut 13px at the top by the overflow of div:nth-of-type(1) > h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (and 1 more like it: "page, just now")  [1440-42-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL cut-text        h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "The whole studio,"
+       cut 13px at the top by the overflow of div > h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (and 3 more like it: "right in the page", "Take it", "anywhere")  [1440-46-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL scroll-linked   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(1)  "Imaginry"
+       fades with the scroll and changes back when the scroll goes back (opacity); 40 more parts of this section change with the scroll too (span:nth-of-type(2), span:nth-of-type(3), span:nth-of-type(4), span:nth-of-type(5), ...)  [1440-23-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "Wishing WellTwirl & glass Riso PrintThre"
+       moves with the scroll and changes back when the scroll goes back (moves); 1 more part of this section change with the scroll too (div.flex.w-max:nth-of-type(2))  [1440-43-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom  "imaginry.tech/studio Loading live studio"
+       moves with the scroll and changes back when the scroll goes back (moves), with 1 part inside it, eased after the scroll stops  [1440-50-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > div.mx-auto.mt-12  "Open a blank canvas, or remix any design"
+       moves with the scroll and changes back when the scroll goes back (moves, opacity); 3 more parts of this section change with the scroll too (span.block:nth-of-type(1), span.block.text-right, span.block.bg-clip-text)
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(1) > span.absolute.inset-0  "imaginry"
+       moves with the scroll and changes back when the scroll goes back (clip)  [1440-70-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   section#top > div.sticky.top-0  "Stack light, glass and grain into backgr"
+       held on screen for 1.9 screens of scroll (position: sticky), and 15 parts inside change as the page scrolls through it (clip, moves, opacity): div.absolute.inset-0:nth-of-type(1), div.absolute:nth-of-type(1), div.absolute:nth-of-type(2), div.absolute:nth-of-type(3), ...
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   section#how > div.sticky.top-0  "(02) How it works Built in layers Every "
+       held on screen for 2.8 screens of scroll (position: sticky), and 20 parts inside change as the page scrolls through it (moves, clip, opacity, colour, words): div.relative.max-h-full, li.flex.items-baseline:nth-of-type(1), li.flex.items-baseline:nth-of-type(2), li.flex.items-baseline:nth-of-type(3), ...
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(1)  "AI models involved 0"
+       4 parts of this section animate in when scrolled into view (fades in from 0.0, rises 30px): div.flex.flex-col:nth-of-type(1), div.flex.flex-col:nth-of-type(2), div.flex.flex-col:nth-of-type(3), div.flex.flex-col:nth-of-type(4)  [1440-27-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Rendered on this"
+       2 parts of this section animate in when scrolled into view (rises 76px): span.block, span.block  [1440-44-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Take it"
+       6 parts of this section animate in when scrolled into view (fades in from 0.0, rises 60px): span.block, span.block, article.group.relative:nth-of-type(1), article.group.relative:nth-of-type(2), article.group.relative:nth-of-type(3), ...  [1440-54-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "A free browser studio for"
+       12 parts of this section animate in when scrolled into view (fades in from 0.0, slides 30px sideways): span.block, span.block, span.block, span.font-display.leading-none, h3.font-display, ...  [1440-66-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(2)  "photos uploaded, ever 0"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-28-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(3)  "stills at any ratio 4K"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-29-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(4)  "to make and export $0"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-30-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(1)  "1:1 4:5 16:9 9:16 21:9 01 · Stills Up to"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-55-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(2)  "0s fades into the start 6s 02 · Loops Vi"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-56-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(3)  "Framer React HTML import ImaginryLook fr"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-67-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(4)  "Export as MP4 PNG MP4 WebM AV1 React Fra"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [1440-68-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(1)  "01 A design tool, not an AI Every textur"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [1440-71-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(2)  "02 Your photos stay with you A photo you"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [1440-72-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(3)  "03 Optional Google sign-in Signing in wi"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [1440-73-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL loop-pause      div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(1) > canvas.h-full.w-full
+       still moving 6 s after it came on screen (3.4% of it changed in 2.6 s), with no pause button
+       fix: add a pause button to the visual, or stop the loop on its finished picture within 5 s
+  FAIL loop-pause      div.relative.flex-1 > div.absolute.inset-0 > div.relative.overflow-hidden > img.absolute.inset-0:nth-of-type(2)  "img: 445f31f2-9fa5-4ba4-9cf4-3a0fbf8055c"
+       still moving 8 s after it came on screen (608x384px of the screen changes), with no pause button
+       fix: add a pause button to the visual, or stop the loop on its finished picture within 5 s
+  FAIL loop-pause      article.group.relative:nth-of-type(4) > div.relative.flex-1 > div.absolute.inset-0 > div.relative.mt-1  "WebM AV1"
+       still moving 8 s after it came on screen (448x100px of the screen changes), with no pause button
+       fix: add a pause button to the visual, or stop the loop on its finished picture within 5 s
+  FAIL loop-pause      div.grid.gap-3 > article.group.relative:nth-of-type(2) > div.relative.flex-1 > canvas.absolute.inset-0
+       still moving 6 s after it came on screen (55.4% of it changed in 2.6 s), with no pause button
+       fix: add a pause button to the visual, or stop the loop on its finished picture within 5 s
+  FAIL loop-pause      section#top > div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(2)
+       still moving 8 s after it came on screen (416x320px of the screen changes), with no pause button
+       fix: add a pause button to the visual, or stop the loop on its finished picture within 5 s
+  FAIL loop-pause      section#top > div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3)  "Stack light, glass and grain into backgr"
+       still moving 8 s after it came on screen (416x320px of the screen changes), with no pause button
+       fix: add a pause button to the visual, or stop the loop on its finished picture within 5 s
+  FAIL no-visual       div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2)  "(01) What it is Imaginry is a free studi"
+       no picture, effect or mock in this section; a feature section needs a visual  [1440-31-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  FAIL no-visual       section#about  "A free browser studio for abstract backg"
+       no picture, effect or mock in this section; a feature section needs a visual  [1440-74-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  FAIL card-layout     div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "Wishing WellTwirl & glass"
+       14 of 14 cards drawn one way (one panel, ground, placement and fragment): copies of one card  [1440-45-card-layout.jpg]
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL card-layout     div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2)  "PlanetoidPolar & bloom"
+       14 of 14 cards drawn one way (one panel, ground, placement and fragment): copies of one card  [1440-47-card-layout.jpg]
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL cta             section#top
+       the hero has no button (the nav's does not count)  [1440-09-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  FAIL cta             div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your next background is one drag away"
+       the last section before the footer ends with no button
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  FAIL copy-headline   section#top > div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3) > h1.order-1.font-display  "Textures that didn’t exist a minute ago."
+       "Textures that didn’t exist a minute ago." does not name what is sold (abstract background maker, abstract, background, maker, from flags); only the line under it does  [1440-10-copy-headline.jpg]
+       fix: put the category noun in the h1 (and who it is for, or where), in 2 to 8 words
+  FAIL copy-fact       section#top > div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3) > h1.order-1.font-display  "Textures that didn’t exist a minute ago."
+       the first screen holds no number, price, date or place name  [1440-11-copy-fact.jpg]
+       fix: put one hard fact on the first screen: a number, a price, a date or the place
+  FAIL copy-headings   section#how > div.sticky.top-0 > div:nth-of-type(1) > h2.mt-4.font-display  "Built in layers"
+       "Built in layers" names no product, part, place or section (6 headings like it; at most one brand line per page) (and 5 more like it: "Rendered on this page, j", "The whole studio, right ", "Take it anywhere", "A design tool, not an AI", ...)  [1440-33-copy-headings.jpg]
+       fix: name the thing in every heading: the product, a part, the place or a section noun
+  FAIL heading-scale   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       an h2 at 100.8px, as large as the h1 (80.6px) or larger
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL heading-scale   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       h2 headings in 3 sizes, 54.7px ("A free browser studio fo") to 100.8px (x1.84)
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL heading-scale   div.relative.flex-1 > div.absolute.inset-0 > div.relative.mt-1 > span.absolute.left-0  "MP4"
+       the figure "MP4" is set at 106.6px, larger than the h1 (80.6px)  [1440-57-heading-scale.jpg]
+       fix: set figures below the h1: a stat reads as data, not as the headline
+  FAIL stagger         div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       the 3 lines of this heading start at 32, 702, 32px: a headline broken across columns, read in a zigzag
+       fix: start every row of the list on one left edge
+  FAIL off-grid        section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       left edge at 386px, 6px off a common edge of its section at 392px (4 elements)  [1440-75-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  FAIL tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(1)
+       rotated 36.6° (and 5 more like it: div.absolute.left-0:nth-of-type(2), div.absolute.left-0:nth-of-type(3), div.absolute.left-0:nth-of-type(5), div.absolute.left-0:nth-of-type(8), ...)  [1440-12-tilt.jpg]
+       fix: set it straight
+  FAIL tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(4)
+       rotated -53.5° (and 5 more like it: div.absolute.left-0:nth-of-type(6), div.absolute.left-0:nth-of-type(7), div.absolute.left-0:nth-of-type(9), div.absolute.left-0:nth-of-type(10), ...)  [1440-13-tilt.jpg]
+       fix: set it straight
+  FAIL contrast        div.relative.flex-1 > div.absolute.inset-x-4 > div.flex.justify-between > span:nth-of-type(1)  "0s"
+       body text over a effect reads at 3.8:1 at its worst tenth (needs 4.5:1) (and 1 more like it: "fades into the start")  [1440-58-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  FAIL text-contrast   div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > p.font-condensed  "Free · No AI · Nothing uploaded"
+       a caption, label or muted line in #726e6a on #0d0c0b reads 3.88:1 (needs 4.5:1); 9 like it, like "Explore", "Make", "Legal"  [1440-14-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.fixed.inset-x-0 > footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(2)  "Go on, throw one"
+       a caption, label or muted line in #5c5954 on #0d0c0b reads 2.79:1 (needs 4.5:1)  [1440-15-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(17)  "into"
+       a caption, label or muted line in #2a2826 on #0d0c0b reads 1.34:1 (needs 3:1); 19 like it, like "one-off", "images", "and"  [1440-24-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#how > div.sticky.top-0 > div:nth-of-type(1) > p.mt-5.leading-relaxed  "Every design is a stack of effects. Each"
+       body text in #939188 on #0d0c0b reads 6.16:1 (needs 7:1); 9 like it, like "4 layers, one image. R", "Every card below was d", "Not a video, not a moc"  [1440-34-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(2) > span.font-display  "Ring glass"
+       a caption, label or muted line in #45433f on #0d0c0b reads 1.98:1 (needs 3:1); 3 like it, like "Optics", "Heavy grain"  [1440-35-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.grid.gap-3 > article.group.relative:nth-of-type(1) > div.relative.p-6 > p.leading-relaxed  "Square for social, tall for stories, ult"
+       body text in #97948b on #171512 reads 6.02:1 (needs 7:1); 4 like it, like "MP4, WebM or AV1, rend", "Framer, React or plain", "Stills, three video co"  [1440-59-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#about > ol > li.group.relative:nth-of-type(1) > span.font-display.leading-none  "01"
+       a caption, label or muted line in #393835 on #0d0c0b reads 1.66:1 (needs 3:1); 3 like it, like "02", "03"  [1440-76-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       body text in #8f887d on #0d0c0b reads 5.57:1 (needs 7:1)  [1440-77-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL section-gaps    div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) / section#how
+       353px between these sections, +95% against the median 181px  [1440-32-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+  WARN spill           section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom > div.overflow-hidden.bg-black  "imaginry.tech/studio Loading live studio"
+       runs 248px past the top edge of the panel it sits on (section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom > div.absolute) (caught mid-way through a scroll-linked animation)  [1440-51-spill.jpg]
+       fix: keep the box inside the panel it starts on: shrink it, or grow the panel to hold it
+  WARN overlap-text    section#top > div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(2)
+       lies over the text "Drawn live, right now, by your GPU" (div.pointer-events-none.absolute:nth-of-type(4) > p.font-condensed) (caught mid-way through a scroll-linked animation)  [1440-22-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN overlap-text    section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(4)  "Neon ContourEdges & bloom"
+       lies over the text "Rust ColumnsWavy glass" (span.absolute.inset-x-3 > span.truncate.font-condensed) (caught mid-way through a scroll-linked animation) (and 1 more like it: "CorruptedGlitch & CRT")  [1440-48-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN cut-text        h1.order-1.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Textures that"
+       cut 15px at the top by the overflow of div.pointer-events-none.absolute:nth-of-type(3) > h1.order-1.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (caught mid-way through a scroll-linked animation) (and 2 more like it: "didn’t exist", "a minute ago.")  [1440-16-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Built in"
+       cut 13px at the top by the overflow of div:nth-of-type(1) > h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (caught mid-way through a scroll-linked animation) (and 1 more like it: "layers")  [1440-36-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block:nth-of-type(1)  "Your next"
+       cut 125px by the left edge of the screen (caught mid-way through a scroll-linked animation)  [1440-78-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       sits across the edge of a panel behind it (caught mid-way through a scroll-linked animation)
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text  "is one drag away"
+       runs past the edge of its box div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text (caught mid-way through a scroll-linked animation)
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN no-visual       section#export  "Take it anywhere"
+       pictures, effects and mocks cover 19% of this section; a feature section needs a visual (about 25% or more)  [1440-60-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  WARN cta             section#how  "Built in layers"
+       a section over 1.5 screens long with no link or button in it  [1440-37-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN cta             section#export  "Take it anywhere"
+       a section over 1.5 screens long with no link or button in it  [1440-61-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN copy-headings   div.grid.gap-3 > article.group.relative:nth-of-type(2) > div.relative.p-6 > h3.font-display  "Video that never jumps"
+       the card title "Video that never jumps" names no product, part, place or section (3 card titles like it) (and 2 more like it: "Paste it into your site", "Seven ways out")  [1440-62-copy-headings.jpg]
+       fix: name the thing in every heading: the product, a part, the place or a section noun
+  WARN copy-actions    (the page)
+       the main action "Open studio" does not read word for word the same in the nav or hero and the closing section
+       fix: few actions, one wording: at most 2 in the hero, the main action word for word in nav, hero and close
+  WARN heading-scale   div.relative.flex-1 > div.absolute.inset-0 > div.relative.mt-1 > span.absolute.left-0  "MP4"
+       figures in 3 sizes, 58, 72, 107px ("01" at 57.6px, "MP4" at 106.6px)  [1440-63-heading-scale.jpg]
+       fix: set the page's figures (stats, measures, prices) in one or two sizes
+  WARN stagger         div.sticky.top-0 > div:nth-of-type(1) > div.relative.mt-10 > ol.space-y-1  "01 Gradient The color underneath 02 Ring"
+       4 rows start at 2 different left offsets (+8, +0, +0, +0px) (caught mid-way through a scroll-linked animation)  [1440-38-stagger.jpg]
+       fix: start every row of the list on one left edge
+  WARN stagger         div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       3 rows start at 2 different left offsets (+0, +670, +0px)
+       fix: start every row of the list on one left edge
+  WARN off-grid        div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > div.pointer-events-auto.mt-7 > a.launch-btn.launch-orb  "Open studio O p e n s t u d i o Liftoff!"
+       left edge at 32px, 20px off the page margin at 52px (18 elements, none of them near it); 5 more in this section off the grid too (p.font-display at 32px, p.font-condensed at 32px, span.block at 32px, span.block at 32px, ...) (caught mid-way through a scroll-linked animation)  [1440-17-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(2) > span.font-condensed:nth-of-type(1)  "02"
+       left edge at 76px, 24px off the page margin at 52px (18 elements); 2 more in this section off the grid too (span.font-condensed:nth-of-type(1) at 76px, span.font-condensed:nth-of-type(1) at 76px) (caught mid-way through a scroll-linked animation)  [1440-39-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom > div.overflow-hidden.bg-black  "imaginry.tech/studio Loading live studio"
+       left edge at 58px, 6px off the page margin at 52px (18 elements, like span.block) (caught mid-way through a scroll-linked animation)  [1440-52-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        section#about > ol > li.group.relative:nth-of-type(1) > h3.font-display  "A design tool, not an AI"
+       left edge at 394px, 2px off a common edge of its section at 392px (4 elements); 2 more in this section off the grid too (h3.font-display at 394px, h3.font-display at 394px)  [1440-79-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text  "is one drag away"
+       left edge at 32px, 20px off the page margin at 52px (18 elements); 1 more in this section off the grid too (p.leading-relaxed at 32px) (caught mid-way through a scroll-linked animation)
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        section#about > div.grid.gap-6 > div > h2.font-display  "A free browser studio for abstract backg"
+       the section's heading starts at 392px, 340px off the page margin (52px), and no other section starts there  [1440-69-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       the section's heading starts at -227px, 279px off the page margin (52px), and no other section starts there
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN col-edge        div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display  "Imaginry is a free studio for abstract b"
+       the second column starts at 4 places: 394px (section.relative.mx-auto:nth-of-type(2), section#about), 622px (section#how), 1028px (section.relative.mx-auto:nth-of-type(5)), 1048px (section.relative.overflow-x-clip:nth-of-type(4))  [1440-25-col-edge.jpg]
+       fix: start the second column of every split on the same one or two grid columns
+  WARN tilt            section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span.inline-block.overflow-hidden:nth-of-type(16)
+       rotated -15.4° (caught mid-way through a scroll-linked animation) (and 1 more like it: "Gradient 1/4")  [1440-26-tilt.jpg]
+       fix: set it straight
+  WARN tilt            div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom  "imaginry.tech/studio Loading live studio"
+       turned in 3D (caught mid-way through a scroll-linked animation)  [1440-53-tilt.jpg]
+       fix: set it straight
+  WARN contrast        div.flex.min-h-0 > div.relative.max-h-full > div.absolute.left-4 > span:nth-of-type(2)  "1/4"
+       body text over a picture reads at 3.2:1 at its worst tenth (needs 4.5:1) (caught mid-way through a scroll-linked animation)  [1440-40-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  WARN contrast        div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(5) > span.absolute.inset-x-3 > span.truncate.font-condensed  "Rust ColumnsWavy glass"
+       body text over a picture reads at 1.5:1 at its worst tenth (needs 4.5:1), on a busy ground (caught mid-way through a scroll-linked animation) (and 3 more like it: "Wavy glass", "Bulge & glass", "LED wall & bloom")  [1440-49-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  WARN photo-set       div.flex.min-h-0 > div.relative.max-h-full > div.absolute.inset-0:nth-of-type(1) > img.h-full.w-full  "68e32e6f-dba1-4bf1-b153-66db66d6b092"
+       19 photographs in more than one look: lightness from 0.06 to 0.45; saturation from 0.19 to 0.77; warm and cool photographs mixed (b* -16 to +11); the odd one out is 68e32e6f-dba1-4bf1-b153-66db66d6b092  [1440-41-photo-set.jpg]
+       fix: grade the photographs to one look (light, colour, warmth), or replace the odd one out
+  WARN nav-family      div.overflow-x-clip > div.fixed.inset-x-0
+       the nav's links and actions use 2 type families (Familjen Grotesk, Cabin Condensed)  [1440-18-nav-family.jpg]
+       fix: keep one nav on every screen: the same bar, fill, links and type
+  WARN nav-family      div.overflow-x-clip > div.fixed.inset-x-0
+       the nav's links come in 3 sizes (15, 16, 13px)  [1440-19-nav-family.jpg]
+       fix: keep one nav on every screen: the same bar, fill, links and type
+  WARN nav-labels      nav.relative.mx-auto > div.flex.items-center > div.hidden.items-center > a.transition-colors:nth-of-type(3)  "How it works"
+       "How it works" opens a section headed "Built in layers"  [1440-20-nav-labels.jpg]
+       fix: name each nav link after the heading of the section it opens
+  WARN nav-labels      nav.relative.mx-auto > div.flex.items-center > div.hidden.items-center > a.transition-colors:nth-of-type(4)  "Export"
+       "Export" opens a section headed "Take it anywhere"  [1440-21-nav-labels.jpg]
+       fix: name each nav link after the heading of the section it opens
+  WARN copy-length     section#about  "A free browser studio for abstract backg"
+       1 section over 90 words a screen outside the UI mocks ("A free browser studio fo" 149); 44 words a screen across the page (639 words in 14.5 screens): a tech page says it in about 80 or fewer  [1440-80-copy-length.jpg]
+       fix: cut every section to its heading, one line and the product UI: the UI says the rest; no second paragraph, no list of feature sentences
+  WARN photo-repeat    div.relative.flex-1 > div.absolute.inset-0 > div.relative.overflow-hidden > img.absolute.inset-0  "0edf14bc-b9a2-49db-9b98-f24f89fd244f"
+       the photograph 0edf14bc-b9a2-49db-9b98-f24f89fd244f is shown 2 times on the page: a picture the visitor has already seen  [1440-64-photo-repeat.jpg]
+       fix: show each photograph once: a different picture of what this section names, or none
+  WARN hover-move      section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(4)  "Field NotesCross-hatch"
+       on hover the card zooms its picture to 1.064x: a linked card lifts 2px and a photo zooms 1.02-1.03 inside its frame, nothing tilts (house rule) (caught mid-way through a scroll-linked animation)
+       fix: every linked card and linked photo answers the pointer: give the card class="card" (or the tile its media class) so motion.css lifts it 2px and zooms its photo; hover a linked card up 2px (translateY(-2px)) and zoom its photo to 1.02-1.03 inside its frame; no rotate, no 3D tilt, no growing card
+  WARN hover-move      section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(5)  "Rust ColumnsWavy glass"
+       on hover the card zooms its picture to 1.064x: a linked card lifts 2px and a photo zooms 1.02-1.03 inside its frame, nothing tilts (house rule) (caught mid-way through a scroll-linked animation)
+       fix: every linked card and linked photo answers the pointer: give the card class="card" (or the tile its media class) so motion.css lifts it 2px and zooms its photo; hover a linked card up 2px (translateY(-2px)) and zoom its photo to 1.02-1.03 inside its frame; no rotate, no 3D tilt, no growing card
+  WARN hover-move      section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(6)  "Lagoon LensBulge & glass"
+       on hover the card zooms its picture to 1.064x: a linked card lifts 2px and a photo zooms 1.02-1.03 inside its frame, nothing tilts (house rule) (caught mid-way through a scroll-linked animation)
+       fix: every linked card and linked photo answers the pointer: give the card class="card" (or the tile its media class) so motion.css lifts it 2px and zooms its photo; hover a linked card up 2px (translateY(-2px)) and zoom its photo to 1.02-1.03 inside its frame; no rotate, no 3D tilt, no growing card
+  WARN hover-move      section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(2)  "Riso PrintThreshold & paper"
+       a linked card or photo shows no change on hover (272x340): it does not lift, its photograph does not zoom, nothing darkens or draws (the page carries no data-motion: link assets/motion/motion.css after cards.css and put data-motion on <html>); 5 of the page's linked cards and photos do the same: "Riso PrintThreshold & paper", "After HoursBokeh & flare", "PhotocopyThreshold & grain", "Spectrum GridPillow glass" (caught mid-way through a scroll-linked animation)
+       fix: every linked card and linked photo answers the pointer: give the card class="card" (or the tile its media class) so motion.css lifts it 2px and zooms its photo; hover a linked card up 2px (translateY(-2px)) and zoom its photo to 1.02-1.03 inside its frame; no rotate, no 3D tilt, no growing card
+  WARN visual-caption  div.relative.flex-1 > div.absolute.inset-0 > div.absolute.bottom-4 > span.relative.rounded-full:nth-of-type(1)  "1:1"
+       a muted 14px line of 1 row sits 10px under the picture 7da23d0f-ac1a-4afd-ae9d-d5b2bb981538: it reads as a caption: "1:1"; no caption or description under any image, render or visual (house rule)  [1440-65-visual-caption.jpg]
+       fix: take the line away: no caption or description under, over or on any image, render or visual; a licence credit goes in one footer line
+  FAIL gl-fallback     section#top > div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(1)  "Textures that didn’t exist a minute ago."
+       with its shader rejected (as a strict GPU rejects a reserved word) the WebGL picture shows only the ground its stylesheet gives it (the same pixels with the canvas taken away): it needs a still fallback picture, not a bare gradient  [1440-gl-01-gl-fallback.jpg]
+       fix: give the WebGL piece a still fallback (a picture or a CSS ground) that shows when its shader fails to compile or link
+  FAIL gl-fallback     section#export > div.grid.gap-3 > article.group.relative:nth-of-type(2) > div.relative.flex-1  "Take it anywhere"
+       with its shader rejected (as a strict GPU rejects a reserved word) the WebGL picture shows only its ground (100% one colour, #161511): it needs a still fallback picture  [1440-gl-02-gl-fallback.jpg]
+       fix: give the WebGL piece a still fallback (a picture or a CSS ground) that shows when its shader fails to compile or link
+  FAIL reduced-motion  section#top > div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(2)
+       with reduced motion asked for, it still moves 1.5 s after it came on screen (672x608px of the screen changed): a loop must hold its finished picture  [1440-rm-01-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL hidden-content  div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > div.pointer-events-auto.mt-7 > a.group.inline-flex:nth-of-type(2)  "How it works↓"
+       with reduced motion asked for, 5 lines stay hidden on this screen (opacity 0): "↓", "Textures that", "didn’t exist": reduced motion must show the finished page  [1440-rm-02-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL reduced-motion  div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(1)  "AI models involved 0"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1000 ms)  [1440-rm-03-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL hidden-content  div > div > a.block.overflow-hidden > img.h-full.w-full  "the photograph 4366649d-56bf-4dc6-8875-2"
+       with reduced motion asked for, 2 lines stay hidden on this screen (pushed out of its overflow-hidden mask by a transform): "the photograph 4fab8": reduced motion must show the finished page  [1440-rm-04-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(2) > span.font-condensed.transition-opacity  "Bends what's below"
+       with reduced motion asked for, 3 lines stay hidden on this screen (opacity 0): "Soft glow and vignet", "A light tooth": reduced motion must show the finished page  [1440-rm-05-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL reduced-motion  div:nth-of-type(1) > div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(1)  "01 Gradient The color underneath"
+       with reduced motion asked for, it still animates in as it comes on screen (translate, 700 ms)  [1440-rm-06-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  div:nth-of-type(1) > div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(2)  "02 Fluted glass Bends what's below"
+       with reduced motion asked for, it still animates in as it comes on screen (color, 700 ms)  [1440-rm-07-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL hidden-content  div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(1) > span.font-condensed.transition-opacity  "The color underneath"
+       with reduced motion asked for, 2 lines stay hidden on this screen (opacity 0): "4 layers, one image.": reduced motion must show the finished page  [1440-rm-08-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL reduced-motion  div:nth-of-type(1) > div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(3)  "03 Dream Soft glow and vignette"
+       with reduced motion asked for, it still animates in as it comes on screen (color, 700 ms)  [1440-rm-09-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  div:nth-of-type(1) > div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(4)  "04 Fine grain A light tooth"
+       with reduced motion asked for, it still animates in as it comes on screen (color, 700 ms)  [1440-rm-10-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL hidden-content  div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(4) > img.h-full.w-full  "the photograph 0e93c7e1-f6ea-4d5f-918e-e"
+       with reduced motion asked for, it stays hidden on this screen (pushed out of its overflow-hidden mask by a transform): reduced motion must show the finished page  [1440-rm-11-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL reduced-motion  section#export > div.grid.gap-3 > article.group.relative:nth-of-type(1)  "1:1 4:5 16:9 9:16 21:9 01 · Stills Up to"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1200 ms)  [1440-rm-12-reduced-motion.jpg]
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  section#export > div.grid.gap-3 > article.group.relative:nth-of-type(2)  "0s fades into the start 6s 02 · Loops Vi"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1200 ms)
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  section#export > div.grid.gap-3 > article.group.relative:nth-of-type(3)  "Framer React HTML 03 · Code Paste it int"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1200 ms)
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  section#export > div.grid.gap-3 > article.group.relative:nth-of-type(4)  "Export as PNG PNG MP4 WebM AV1 React Fra"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1200 ms)
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  div.grid.gap-3 > article.group.relative:nth-of-type(2) > div.relative.flex-1 > canvas.absolute.inset-0
+       with reduced motion asked for, it still moves 1.5 s after it came on screen (576x448px of the screen changed): a loop must hold its finished picture
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  div.grid.gap-3 > article.group.relative:nth-of-type(1) > div.relative.flex-1 > div.absolute.inset-0  "1:1 4:5 16:9 9:16 21:9"
+       with reduced motion asked for, it still moves 1.5 s after it came on screen (352x384px of the screen changed): a loop must hold its finished picture
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  div.grid.gap-3 > article.group.relative:nth-of-type(4) > div.relative.flex-1 > div.absolute.inset-0  "Export as AV1 React PNG MP4 WebM AV1 Rea"
+       with reduced motion asked for, it still moves 1.5 s after it came on screen (448x160px of the screen changed): a loop must hold its finished picture
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  article.group.relative:nth-of-type(3) > div.relative.flex-1 > div.absolute.inset-0 > pre.overflow-hidden.whitespace-pre  "import ImaginryLook from "./ImaginryLook"
+       with reduced motion asked for, it still moves 1.5 s after it came on screen (64x32px of the screen changed): a loop must hold its finished picture
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  section#about > ol > li.group.relative:nth-of-type(1) > span.font-display.leading-none  "01"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1000 ms)
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  section#about > ol > li.group.relative:nth-of-type(2) > span.font-display.leading-none  "02"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1000 ms)
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL reduced-motion  section#about > ol > li.group.relative:nth-of-type(3) > span.font-display.leading-none  "03"
+       with reduced motion asked for, it still animates in as it comes on screen (an animation, 1000 ms)
+       fix: under prefers-reduced-motion: reduce, show every reveal in its finished state and hold every loop on its finished picture
+  FAIL hidden-content  div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > div.pointer-events-auto.mt-7 > a.group.inline-flex:nth-of-type(2)  "How it works↓"
+       with no IntersectionObserver callback (a script that never gets that far) 5 lines stay hidden on screen 2, 4 s after load (opacity 0): "↓", "Textures that", "didn’t exist": the page shows it only when a script reveals it  [1440-io-01-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  div > div > a.block.overflow-hidden > img.h-full.w-full  "the photograph cde65600-1ecf-4fe1-b764-c"
+       with no IntersectionObserver callback (a script that never gets that far) 10 lines stay hidden on screen 4, 4 s after load (pushed out of its overflow-hidden mask by a transform): "the photograph abd29", "AI models involved", "0": the page shows it only when a script reveals it  [1440-io-02-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(2) > span.block  "layers"
+       with no IntersectionObserver callback (a script that never gets that far) 4 lines stay hidden on screen 5, 4 s after load (pushed out of its overflow-hidden mask by a transform): "Ripples what's below", "Splits the color", "A light tooth": the page shows it only when a script reveals it  [1440-io-03-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(1) > span.font-condensed.transition-opacity  "The color underneath"
+       with no IntersectionObserver callback (a script that never gets that far) 2 lines stay hidden on screen 6, 4 s after load (opacity 0.01): "4 layers, one image.": the page shows it only when a script reveals it  [1440-io-04-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(2) > span.block  "page, just now"
+       with no IntersectionObserver callback (a script that never gets that far) it stays hidden on screen 9, 4 s after load (pushed out of its overflow-hidden mask by a transform): the page shows it only when a script reveals it  [1440-io-05-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(2) > span.absolute.inset-x-3 > span.truncate.font-condensed  "Solar PrintSolarize & halftone"
+       with no IntersectionObserver callback (a script that never gets that far) 2 lines stay hidden on screen 10, 4 s after load (pushed out of its overflow-hidden mask by a transform): "right in the page": the page shows it only when a script reveals it  [1440-io-06-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(2) > span.block  "anywhere"
+       with no IntersectionObserver callback (a script that never gets that far) it stays hidden on screen 11, 4 s after load (pushed out of its overflow-hidden mask by a transform): the page shows it only when a script reveals it  [1440-io-07-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  div.relative.flex-1 > div.absolute.inset-0 > div.relative.overflow-hidden > img.absolute.inset-0  "the photograph 10b0652c-277e-4d2d-a6ed-9"
+       with no IntersectionObserver callback (a script that never gets that far) 20 lines stay hidden on screen 12, 4 s after load (opacity 0): "1:1", "4:5", "16:9": the page shows it only when a script reveals it  [1440-io-08-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  div.grid.gap-3 > article.group.relative:nth-of-type(3) > div.relative.p-6 > p.font-condensed  "03 · Code"
+       with no IntersectionObserver callback (a script that never gets that far) 17 lines stay hidden on screen 13, 4 s after load (opacity 0): "Paste it into your s", "Framer, React or pla", "PNG": the page shows it only when a script reveals it  [1440-io-09-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hidden-content  section#about > ol > li.group.relative:nth-of-type(2) > span.font-display.leading-none  "02"
+       with no IntersectionObserver callback (a script that never gets that far) 6 lines stay hidden on screen 14, 4 s after load (opacity 0): "Your photos stay wit", "A photo you drop int", "03": the page shows it only when a script reveals it  [1440-io-10-hidden-content.jpg]
+       fix: show the content at rest: the hidden state only under a class the script adds on its live path, never in the plain CSS (prefers-reduced-motion and a script that never runs show the finished page)
+  FAIL hero-screen     div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       the hero ends at 12801px on a 900px screen, 11901px below the fold: it ends at the fold, 1px either way (SR-1)  [1440-rhythm-01-hero-screen.jpg]
+       fix: make the hero exactly one screen (height: 100svh, its content fitted inside), never taller or shorter
+  FAIL section-air     div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2  "AI models involved0photos uploaded, ever"
+       a top border across 93% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [1440-rhythm-05-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL section-air     section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       a top border across 93% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [1440-rhythm-06-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL one-heading     section#how > div.sticky.top-0 > div:nth-of-type(1) > h2.mt-4.font-display  "Built inlayers"
+       the hero holds an h2 (6): its heading is the h1, and an h2 opens the next section (SR-5)  [1440-rhythm-07-one-heading.jpg]
+       fix: give each section one h2, first in its .wrap, and the hero only its h1
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       the content of section 1 runs 0px from the left and 0px from the right (read from its outermost blocks: no .wrap): the margin is 64-120px at 1440px (one container, equal margins, 2px either way) (SR-6)  [1440-rhythm-08-container-edges.jpg]
+       fix: use one container on every section and the nav (.wrap): one margin left and right, 64-120px on a desktop, 16-24px on a phone
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       a <div> at the top of the page, outside header.nav, main, footer.closing and nav.actionbar (SR-6)  [1440-rhythm-09-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       the section needs exactly one in-flow child .wrap (it has 1 in-flow child, 0 .wrap) (SR-6)  [1440-rhythm-10-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.overflow-x-clip > header.fixed.inset-x-0  "imaginryGalleryExploreHow it worksExport"
+       a child of section 1 beside its .wrap is no valid background layer: not img, picture, video or canvas; position fixed, not absolute; z-index 50, not 0 (and 2 more like it: "imaginryGenerative textu", "imaginryGalleryExploreHo") (SR-6)  [1440-rhythm-11-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       1 text block starts on a left line at x 962, 962px from the container's left: text starts on the container's left, or on one split line (x 610, 732, 854) (SR-6)  [1440-rhythm-12-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges div.relative.origin-bottom > div.overflow-hidden.bg-black > div.flex.h-10 > span.mx-auto.rounded-full  "imaginry.tech/studio"
+       1 text block starts on a left line at x 688, 688px from the container's left: text starts on the container's left, or on one split line (x 610, 732, 854) (SR-6)  [1440-rhythm-13-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges section#about > div.grid.gap-6 > div > h2.font-display  "A free browser studio forabstract backgr"
+       5 text blocks start on a left line at x 392, 392px from the container's left: text starts on the container's left, or on one split line (x 610, 732, 854) (also "A free browser studio for", "abstract backgrounds", "and textures") (and 13 more like it: "A free browser studio fo", x 386, x -227) (SR-6)  [1440-rhythm-14-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       "background" is set to the right across 1149px, over half the 1440px container: text that wide is set left (SR-6)  [1440-rhythm-15-container-edges.jpg]
+       fix: set the text left (text-align: start)
+  FAIL row-lines       div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "CorruptedGlitch & CRTGallery OilOil pain"
+       a row of 14 items: its first item starts at -209px, the container's left line at 0px; its last item ends at 5004px, the container's right line at 1440px (2px either way) (SR-7)  [1440-rhythm-16-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2)  "PhotocopyThreshold & grainRust ColumnsWa"
+       a row of 14 items: its first item starts at -1799px, the container's left line at 0px; its last item ends at 3198px, the container's right line at 1440px (2px either way) (SR-7)  [1440-rhythm-17-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       section#export > div.grid.gap-3  "1:14:516:99:1621:901 · StillsUp to 4K, a"
+       a row of 2 items: its first item starts at 52px, the container's left line at 0px; its last item ends at 1388px, the container's right line at 1440px (2px either way) (and 4 more like it: "AI models involved0photo", "01A design tool, not an ", "02Your photos stay with ") (SR-7)  [1440-rhythm-18-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your nextbackgroundis one drag awayOpen "
+       a clipped carousel: 3 items cut at rest (SR-7)  [1440-rhythm-19-row-lines.jpg]
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL row-lines       footer.relative.overflow-hidden > div.relative.mt-14 > div.min-w-0.flex-1 > div.marquee.relative
+       a clipped carousel: its window runs 118-1440px, not on the container at 0-1440px; 2 items cut at rest (SR-7)  [1440-rhythm-20-row-lines.jpg]
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(5)  "Oil SlickIridescent & waves"
+       a row item is cut by a frame round it: 44 x 340px of its 340 x 340px shows (SR-7)  [1440-rhythm-21-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(10)  "Brass PlateEmboss & split tone"
+       a row item is cut by a frame round it: 180 x 340px of its 453 x 340px shows (SR-7)  [1440-rhythm-22-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(1)  "CorruptedGlitch & CRT"
+       a row item is cut by a frame round it: 335 x 340px of its 544 x 340px shows (and 1 more like it: "Ice LensLens glass") (SR-7)  [1440-rhythm-23-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL split-pair      section#export > div.mb-10.grid  "(05)ExportTake itanywhereEvery format, n"
+       the two columns of the split start 151px apart at the top: a split's columns are top-aligned, 8px either way (SR-8)  [1440-rhythm-24-split-pair.jpg]
+       fix: top-align both columns of the split (align-items: start)
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.mb-10.grid  "(04)Try it hereThe whole studio,right in"
+       the two columns of the split start 126px apart at the top: a split's columns are top-aligned, 8px either way (SR-8)  [1440-rhythm-25-split-pair.jpg]
+       fix: top-align both columns of the split (align-items: start)
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8  "(01)What it isImaginry is a free studio "
+       the two columns of the split start 24px apart at the top: a split's columns are top-aligned, 8px either way (and 2 more like it: "(06)About ImaginryA free", "(02)How it worksBuilt in") (SR-8)  [1440-rhythm-26-split-pair.jpg]
+       fix: top-align both columns of the split (align-items: start)
+  FAIL split-pair      section#export > div.mb-10.grid  "(05)ExportTake itanywhereEvery format, n"
+       the split's columns are off the page's one pair of lines: its right column starts at x 1073, the first split's at 394; its right column starts at x 1073, on none of the split lines 610 (k=5), 732 (k=6), 854 (k=7) (SR-8)  [1440-rhythm-27-split-pair.jpg]
+       fix: start every split's right column on one shared line (wrap.left + k x (width + 24) / 12, k 5, 6 or 7; 6 on a place page) and end the left one 24px before it
+  FAIL split-pair      section#about > div.grid.gap-6  "(06)About ImaginryA free browser studio "
+       the split's columns are off the page's one pair of lines: its right column starts at x 392, on none of the split lines 610 (k=5), 732 (k=6), 854 (k=7) (SR-8)  [1440-rhythm-28-split-pair.jpg]
+       fix: start every split's right column on one shared line (wrap.left + k x (width + 24) / 12, k 5, 6 or 7; 6 on a place page) and end the left one 24px before it
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8  "(01)What it isImaginry is a free studio "
+       the split's columns are off the page's one pair of lines: its right column starts at x 394, on none of the split lines 610 (k=5), 732 (k=6), 854 (k=7) (and 2 more like it: "(04)Try it hereThe whole", "(02)How it worksBuilt in") (SR-8)  [1440-rhythm-29-split-pair.jpg]
+       fix: start every split's right column on one shared line (wrap.left + k x (width + 24) / 12, k 5, 6 or 7; 6 on a place page) and end the left one 24px before it
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8  "(01)What it isImaginry is a free studio "
+       the split does not run edge to edge on the container: its left column starts at 52px, the container's left at 0px; its right column ends at 1388px, the container's right at 1440px (SR-8)  [1440-rhythm-30-split-pair.jpg]
+       fix: run the split from the container's left line to its right line
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.mb-10.grid  "(04)Try it hereThe whole studio,right in"
+       the split does not run edge to edge on the container: its left column starts at 52px, the container's left at 0px; its right column ends at 1388px, the container's right at 1440px (and 3 more like it: "(05)ExportTake itanywher", "(06)About ImaginryA free", "(02)How it worksBuilt in") (SR-8)  [1440-rhythm-31-split-pair.jpg]
+       fix: run the split from the container's left line to its right line
+  (probe error) visual-empty: 11 visuals past the first 40 not shot at 1440px: div.grid.gap-3 > article.group.relative:nth-of-type(2) > div.relative.flex-1 > canvas.absolute.inset-0, div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(1) > img.pointer-events-none.h-full, div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(2) > img.pointer-events-none.h-full, div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(3) > img.pointer-events-none.h-full, ...
+  (probe error) section-tile: no top-level sections (no main > *, no body > section)
+
+768x1024  16 screens, 2 held sections  84 FAIL  30 WARN
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(37) > a.block.opacity-70 > img.block.h-10  "imaginry-tech.svg?metric=truedr"
+       the picture imaginry-tech.svg?metric=truedr never loaded: its frame shows empty (and 3 more like it: "imaginry-tech.svg?metric", "imaginry-tech.svg?metric", "imaginry-tech.svg?metric")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(38) > a.block.opacity-70 > img.block.h-10  "neeed-badge-light.svg"
+       the picture neeed-badge-light.svg never loaded: its frame shows empty (and 3 more like it: "neeed-badge-light.svg", "neeed-badge-light.svg", "neeed-badge-light.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(39) > a.block.opacity-70 > img.block.h-10  "featured-light.svg"
+       the picture featured-light.svg never loaded: its frame shows empty (and 3 more like it: "featured-light.svg", "featured-light.svg", "featured-light.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(40) > a.block.opacity-70 > img.block.h-10  "imaginry"
+       the picture imaginry never loaded: its frame shows empty (and 3 more like it: "imaginry", "imaginry", "imaginry")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(41) > a.block.opacity-70 > img.block.h-10  "featured.svg?post_id=1300713&theme=dark"
+       the picture featured.svg?post_id=1300713&theme=dark never loaded: its frame shows empty (and 2 more like it: "featured.svg?post_id=130", "featured.svg?post_id=130")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(42) > a.block.opacity-70 > img.block.h-10  "featured.png"
+       the picture featured.png never loaded: its frame shows empty (and 2 more like it: "featured.png", "featured.png")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(43) > a.block.opacity-70 > img.block.h-10  "badge2-dark.svg"
+       the picture badge2-dark.svg never loaded: its frame shows empty (and 2 more like it: "badge2-dark.svg", "badge2-dark.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(44) > a.block.opacity-70 > img.block.h-10  "badge-dark.svg"
+       the picture badge-dark.svg never loaded: its frame shows empty (and 2 more like it: "badge-dark.svg", "badge-dark.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL overlap-text    section#export > div.grid.gap-3 > article.group.relative:nth-of-type(4)  "Export as MP4 PNG MP4 WebM AV1 React Fra"
+       lies over the text "import ImaginryLook from "./ImaginryLook" (div.absolute.inset-0 > pre.overflow-hidden.whitespace-pre)  [768-58-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  FAIL cut-text        h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Rendered on this"
+       cut 7px at the top by the overflow of div:nth-of-type(1) > h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (and 1 more like it: "page, just now")  [768-36-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL cut-text        h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "The whole studio,"
+       cut 7px at the top by the overflow of div > h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (and 3 more like it: "right in the page", "Take it", "anywhere")  [768-38-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL cut-text        article.group.relative:nth-of-type(3) > div.relative.flex-1 > div.absolute.inset-0 > pre.overflow-hidden.whitespace-pre  "import ImaginryLook from "./ImaginryLook"
+       cut 79px at the right by the overflow of article.group.relative:nth-of-type(3) > div.relative.flex-1 > div.absolute.inset-0 > pre.overflow-hidden.whitespace-pre  [768-59-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  FAIL scroll-linked   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(1)  "Imaginry"
+       fades with the scroll and changes back when the scroll goes back (opacity); 32 more parts of this section change with the scroll too (span:nth-of-type(4), span:nth-of-type(5), span:nth-of-type(6), span:nth-of-type(7), ...)  [768-20-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "StadiumLED wall & bloom After HoursBokeh"
+       moves with the scroll and changes back when the scroll goes back (moves); 1 more part of this section change with the scroll too (div.flex.w-max:nth-of-type(2))  [768-39-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom  "imaginry.tech/studio Loading live studio"
+       moves with the scroll and changes back when the scroll goes back (moves), with 1 part inside it  [768-47-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > div.mx-auto.mt-12  "Open a blank canvas, or remix any design"
+       moves with the scroll and changes back when the scroll goes back (moves, opacity); 3 more parts of this section change with the scroll too (span.block:nth-of-type(1), span.block.text-right, span.block.bg-clip-text)  [768-75-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(1) > span.absolute.inset-0  "imaginry"
+       moves with the scroll and changes back when the scroll goes back (clip)  [768-64-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   section#top > div.sticky.top-0  "Stack light, glass and grain into backgr"
+       held on screen for 1.9 screens of scroll (position: sticky), and 15 parts inside change as the page scrolls through it (clip, moves, opacity): div.absolute.inset-0:nth-of-type(1), div.absolute:nth-of-type(1), div.absolute:nth-of-type(3), div.absolute:nth-of-type(5), ...
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   section#how > div.sticky.top-0  "(02) How it works Built in layers Every "
+       held on screen for 2.8 screens of scroll (position: sticky), and 20 parts inside change as the page scrolls through it (moves, clip, opacity, colour, words): div.relative.max-h-full, li.flex.items-baseline:nth-of-type(1), li.flex.items-baseline:nth-of-type(2), li.flex.items-baseline:nth-of-type(3), ...
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(1)  "AI models involved 0"
+       4 parts of this section animate in when scrolled into view (fades in from 0.0, rises 30px): div.flex.flex-col:nth-of-type(1), div.flex.flex-col:nth-of-type(2), div.flex.flex-col:nth-of-type(3), div.flex.flex-col:nth-of-type(4)  [768-23-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Rendered on this"
+       2 parts of this section animate in when scrolled into view (rises 81px): span.block, span.block  [768-37-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Take it"
+       6 parts of this section animate in when scrolled into view (fades in from 0.0, rises 60px): span.block, span.block, article.group.relative:nth-of-type(1), article.group.relative:nth-of-type(2), article.group.relative:nth-of-type(3), ...  [768-48-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "A free browser studio for"
+       12 parts of this section animate in when scrolled into view (fades in from 0.0, slides 30px sideways): span.block, span.block, span.block, span.font-display.leading-none, h3.font-display, ...  [768-60-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(2)  "photos uploaded, ever 0"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [768-24-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(3)  "stills at any ratio 4K"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [768-25-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(4)  "to make and export $0"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [768-26-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(1)  "1:1 4:5 16:9 9:16 21:9 01 · Stills Up to"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [768-50-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(2)  "0s fades into the start 6s 02 · Loops Vi"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [768-51-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(3)  "Framer React HTML import ImaginryLook fr"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [768-61-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(4)  "Export as AV1 PNG MP4 WebM AV1 React Fra"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [768-62-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(1)  "01 A design tool, not an AI Every textur"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [768-65-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(2)  "02 Your photos stay with you A photo you"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [768-66-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(3)  "03 Optional Google sign-in Signing in wi"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [768-67-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL no-visual       div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2)  "(01) What it is Imaginry is a free studi"
+       no picture, effect or mock in this section; a feature section needs a visual  [768-21-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  FAIL no-visual       section#about  "A free browser studio for abstract backg"
+       no picture, effect or mock in this section; a feature section needs a visual  [768-68-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  FAIL text-only       div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your next background is one drag away"
+       the closing section is only text: no picture, icon, mock or effect in it  [768-76-text-only.jpg]
+       fix: give the section a visual: a photograph that fits, the real icons, or a UI fragment on a ground
+  FAIL card-layout     div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "StadiumLED wall & bloom"
+       12 of 12 cards drawn one way (one panel, ground, placement and fragment): copies of one card  [768-40-card-layout.jpg]
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL card-layout     div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2)  "Lilac StaticDither"
+       14 of 14 cards drawn one way (one panel, ground, placement and fragment): copies of one card  [768-41-card-layout.jpg]
+       fix: a card layout at most twice on a page: build the other sections another way
+  FAIL cta             section#top
+       the hero has no button (the nav's does not count)  [768-09-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  FAIL cta             div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your next background is one drag away"
+       the last section before the footer ends with no button  [768-77-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  FAIL heading-scale   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       an h2 at 53.8px, as large as the h1 (43px) or larger  [768-78-heading-scale.jpg]
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL heading-scale   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       h2 headings in 3 sizes, 30px ("A free browser studio fo") to 53.8px (x1.79)  [768-79-heading-scale.jpg]
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  FAIL stagger         div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       the 3 lines of this heading start at 32, 363, 32px: a headline broken across columns, read in a zigzag  [768-80-stagger.jpg]
+       fix: start every row of the list on one left edge
+  FAIL off-grid        section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       left edge at 208px, 6px off a common edge of its section at 214px (4 elements)  [768-69-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  FAIL tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(1)
+       rotated 6.8° (and 6 more like it: div.absolute.left-0:nth-of-type(2), div.absolute.left-0:nth-of-type(4), div.absolute.left-0:nth-of-type(8), div.absolute.left-0:nth-of-type(9), ...)  [768-10-tilt.jpg]
+       fix: set it straight
+  FAIL tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(3)
+       rotated -61.9° (and 3 more like it: div.absolute.left-0:nth-of-type(5), div.absolute.left-0:nth-of-type(7), div.absolute.left-0:nth-of-type(12))  [768-11-tilt.jpg]
+       fix: set it straight
+  FAIL contrast        div.relative.flex-1 > div.absolute.inset-x-4 > div.flex.justify-between > span:nth-of-type(2)  "fades into the start"
+       body text over a effect reads at 2.6:1 at its worst tenth (needs 4.5:1)  [768-52-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  FAIL text-contrast   div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > p.font-condensed  "Free · No AI · Nothing uploaded"
+       a caption, label or muted line in #726e6a on #0d0c0b reads 3.88:1 (needs 4.5:1); 9 like it, like "Explore", "Make", "Legal"  [768-12-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.fixed.inset-x-0 > footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(2)  "Go on, throw one"
+       a caption, label or muted line in #5c5954 on #0d0c0b reads 2.79:1 (needs 4.5:1)  [768-13-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(25)  "by"
+       a caption, label or muted line in #2a2826 on #0d0c0b reads 1.34:1 (needs 3:1); 18 like it, like "shaders", "in", "your"  [768-22-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#how > div.sticky.top-0 > div:nth-of-type(1) > p.mt-5.leading-relaxed  "Every design is a stack of effects. Each"
+       body text in #939188 on #0d0c0b reads 6.16:1 (needs 7:1); 9 like it, like "4 layers, one image. R", "Every card below was d", "Not a video, not a moc"  [768-27-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(2) > span.font-display  "Ring glass"
+       a caption, label or muted line in #45433f on #0d0c0b reads 1.98:1 (needs 4.5:1); 3 like it, like "Prism", "Fine grain"  [768-32-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.grid.gap-3 > article.group.relative:nth-of-type(1) > div.relative.p-6 > p.leading-relaxed  "Square for social, tall for stories, ult"
+       body text in #97948b on #171512 reads 6.02:1 (needs 7:1); 4 like it, like "MP4, WebM or AV1, rend", "Framer, React or plain", "Stills, three video co"  [768-53-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#about > ol > li.group.relative:nth-of-type(1) > span.font-display.leading-none  "01"
+       a caption, label or muted line in #393835 on #0d0c0b reads 1.66:1 (needs 3:1); 3 like it, like "02", "03"  [768-70-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       body text in #8f887d on #0d0c0b reads 5.57:1 (needs 7:1)  [768-71-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL section-gaps    div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) / section#how
+       482px between these sections, +135% against the median 206px  [768-28-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+  WARN spill           section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom > div.overflow-hidden.bg-black  "imaginry.tech/studio Loading live studio"
+       runs 139px past the top edge of the panel it sits on (section.relative.mx-auto:nth-of-type(5) > div.hidden > div.relative.origin-bottom > div.absolute) (caught mid-way through a scroll-linked animation)  [768-49-spill.jpg]
+       fix: keep the box inside the panel it starts on: shrink it, or grow the panel to hold it
+  WARN overlap-text    div.absolute:nth-of-type(1) > div > div > a.block.overflow-hidden
+       lies over the text "Stack light, glass and grain into backgr" (div.order-2 > p.font-display) (caught mid-way through a scroll-linked animation)  [768-14-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN overlap-text    section#top > div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(2)
+       lies over the text "Drawn live, right now, by your GPU" (div.pointer-events-none.absolute:nth-of-type(4) > p.font-condensed) (caught mid-way through a scroll-linked animation)  [768-19-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN overlap-text    section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(3)  "Sunday MatineeFilm dust & light leak"
+       lies over the text "Shatter & split tone" (span.truncate.font-condensed > span.ml-2) (caught mid-way through a scroll-linked animation)  [768-42-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN overlap-text    section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(4)  "Oil SlickIridescent & waves"
+       lies over the text "Warp SpeedZoom blur & sparkle" (span.absolute.inset-x-3 > span.truncate.font-condensed) (caught mid-way through a scroll-linked animation) (and 2 more like it: "Violet SignalASCII", "Cobalt BloomBlobs & aber")  [768-43-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN cut-text        h1.order-1.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Textures that"
+       cut 8px at the top by the overflow of div.pointer-events-none.absolute:nth-of-type(3) > h1.order-1.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (caught mid-way through a scroll-linked animation) (and 2 more like it: "didn’t exist", "a minute ago.")  [768-15-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Built in"
+       cut 7px at the top by the overflow of div:nth-of-type(1) > h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (caught mid-way through a scroll-linked animation) (and 1 more like it: "layers")  [768-29-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block:nth-of-type(1)  "Your next"
+       cut 61px at the left by the overflow of div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) (caught mid-way through a scroll-linked animation)  [768-72-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       sits across the edge of a panel behind it (caught mid-way through a scroll-linked animation)
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text  "is one drag away"
+       runs past the edge of its box div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text (caught mid-way through a scroll-linked animation)
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN no-visual       section#export  "Take it anywhere"
+       pictures, effects and mocks cover 23% of this section; a feature section needs a visual (about 25% or more)  [768-54-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  WARN cta             section#how  "Built in layers"
+       a section over 1.5 screens long with no link or button in it  [768-33-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN heading-scale   div.relative.flex-1 > div.absolute.inset-0 > div.relative.mt-1 > span.absolute.left-0  "WebM"
+       1 line of plain text set larger than the section headings (56.8px against h2 38.4px)  [768-55-heading-scale.jpg]
+       fix: size headings by level: the h1 largest, one size per level, each level below the one above
+  WARN stagger         div.sticky.top-0 > div:nth-of-type(1) > div.relative.mt-10 > ol.space-y-1  "01 Gradient The color underneath 02 Ring"
+       4 rows start at 2 different left offsets (+8, +0, +0, +0px) (caught mid-way through a scroll-linked animation)  [768-34-stagger.jpg]
+       fix: start every row of the list on one left edge
+  WARN stagger         div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       3 rows start at 2 different left offsets (+0, +331, +0px)
+       fix: start every row of the list on one left edge
+  WARN off-grid        div.relative.mt-10 > ol.space-y-1 > li.flex.items-baseline:nth-of-type(2) > span.font-condensed:nth-of-type(1)  "02"
+       left edge at 56px, 24px off the page margin at 32px (18 elements, like dt.order-2.mt-3); 2 more in this section off the grid too (span.font-condensed:nth-of-type(1) at 56px, span.font-condensed:nth-of-type(1) at 56px) (caught mid-way through a scroll-linked animation)  [768-30-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        section#about > ol > li.group.relative:nth-of-type(1) > h3.font-display  "A design tool, not an AI"
+       left edge at 216px, 2px off a common edge of its section at 214px (4 elements); 2 more in this section off the grid too (h3.font-display at 216px, h3.font-display at 216px)  [768-73-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        section#about > div.grid.gap-6 > div > h2.font-display  "A free browser studio for abstract backg"
+       the section's heading starts at 214px, 182px off the page margin (32px), and no other section starts there  [768-63-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       the section's heading starts at -106px, 138px off the page margin (32px), and no other section starts there
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(6)
+       rotated -90.3°  [768-16-tilt.jpg]
+       fix: set it straight
+  WARN tilt            section#how > div.sticky.top-0 > div.flex.min-h-0 > div.relative.max-h-full  "Gradient 1/4"
+       rotated -3.2° (caught mid-way through a scroll-linked animation)  [768-35-tilt.jpg]
+       fix: set it straight
+  WARN contrast        div.flex.min-h-0 > div.relative.max-h-full > div.absolute.left-4 > span:nth-of-type(2)  "1/4"
+       body text over a picture reads at 3.0:1 at its worst tenth (needs 4.5:1) (caught mid-way through a scroll-linked animation) (and 2 more like it: "Zoom blur & sparkle", "Threshold & paper")  [768-31-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  WARN contrast        a.group.relative:nth-of-type(3) > span.absolute.inset-x-3 > span.truncate.font-condensed > span.ml-2  "Shatter & split tone"
+       body text over a picture reads at 1.2:1 at its worst tenth (needs 4.5:1), on a busy ground (caught mid-way through a scroll-linked animation) (and 2 more like it: "Moss HazeFrosted glass &", "Frosted glass & grain")  [768-44-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  WARN busy-ground     div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(4) > span.absolute.inset-x-3 > span.truncate.font-condensed  "Warp SpeedZoom blur & sparkle"
+       text over a detailed part of a picture (its ground changes by 1.5 L* from one pixel to the next under the words) (caught mid-way through a scroll-linked animation) (and 1 more like it: "Riso PrintThreshold & pa")  [768-45-busy-ground.jpg]
+       fix: move the text to a calm part of the picture, or put it on a panel
+  WARN section-gaps    section#about / div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)
+       257px between these sections, +25% against the median 206px  [768-74-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+  WARN photo-set       div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(6) > img.h-full.w-full  "c3f3772a-9547-4ba9-bd59-d770ed8aa4a6"
+       12 photographs in more than one look: lightness from 0.11 to 0.56; saturation from 0.23 to 0.81; warm and cool photographs mixed (b* -54 to +21); the odd one out is c3f3772a-9547-4ba9-bd59-d770ed8aa4a6  [768-46-photo-set.jpg]
+       fix: grade the photographs to one look (light, colour, warmth), or replace the odd one out
+  WARN nav-family      div.overflow-x-clip > div.fixed.inset-x-0
+       the nav's links and actions use 2 type families (Familjen Grotesk, Cabin Condensed)  [768-17-nav-family.jpg]
+       fix: keep one nav on every screen: the same bar, fill, links and type
+  WARN nav-family      div.overflow-x-clip > div.fixed.inset-x-0
+       the nav's links come in 3 sizes (15, 16, 13px)  [768-18-nav-family.jpg]
+       fix: keep one nav on every screen: the same bar, fill, links and type
+  WARN visual-caption  div.relative.flex-1 > div.absolute.inset-0 > div.absolute.bottom-4 > span.relative.rounded-full:nth-of-type(1)  "1:1"
+       a muted 14px line of 1 row sits 11px under the picture f9ad4be0-497b-437b-ae4a-f1d42321e154: it reads as a caption: "1:1"; no caption or description under any image, render or visual (house rule)  [768-56-visual-caption.jpg]
+       fix: take the line away: no caption or description under, over or on any image, render or visual; a licence credit goes in one footer line
+  WARN visual-caption  div.relative.flex-1 > div.absolute.inset-x-4 > div.flex.justify-between > span:nth-of-type(2)  "fades into the start"
+       a small 14px line is laid over the lower half of the canvas: "fades into the start"; no caption or description under any image, render or visual (house rule)  [768-57-visual-caption.jpg]
+       fix: take the line away: no caption or description under, over or on any image, render or visual; a licence credit goes in one footer line
+  FAIL hero-screen     div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       the hero ends at 12769px on a 1024px screen, 11745px below the fold: it ends at the fold, 1px either way (SR-1)  [768-rhythm-01-hero-screen.jpg]
+       fix: make the hero exactly one screen (height: 100svh, its content fitted inside), never taller or shorter
+  FAIL section-air     div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2  "AI models involved0photos uploaded, ever"
+       a top border across 92% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [768-rhythm-05-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL section-air     section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       a top border across 92% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [768-rhythm-06-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL one-heading     section#how > div.sticky.top-0 > div:nth-of-type(1) > h2.mt-4.font-display  "Built inlayers"
+       the hero holds an h2 (6): its heading is the h1, and an h2 opens the next section (SR-5)  [768-rhythm-07-one-heading.jpg]
+       fix: give each section one h2, first in its .wrap, and the hero only its h1
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       the content of section 1 runs 0px from the left and 0px from the right (read from its outermost blocks: no .wrap): the margin is 64-120px at 768px (one container, equal margins, 2px either way) (SR-6)  [768-rhythm-08-container-edges.jpg]
+       fix: use one container on every section and the nav (.wrap): one margin left and right, 64-120px on a desktop, 16-24px on a phone
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       a <div> at the top of the page, outside header.nav, main, footer.closing and nav.actionbar (SR-6)  [768-rhythm-09-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       the section needs exactly one in-flow child .wrap (it has 1 in-flow child, 0 .wrap) (SR-6)  [768-rhythm-10-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.overflow-x-clip > header.fixed.inset-x-0  "imaginryGalleryExploreHow it worksExport"
+       a child of section 1 beside its .wrap is no valid background layer: not img, picture, video or canvas; position fixed, not absolute; z-index 50, not 0 (and 2 more like it: "imaginryGenerative textu", "imaginryGalleryExploreHo") (SR-6)  [768-rhythm-11-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       1 text block starts on a left line at x 501, 501px from the container's left: text starts on the container's left, or on one split line (x 330, 396, 462) (SR-6)  [768-rhythm-12-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges div.relative.origin-bottom > div.overflow-hidden.bg-black > div.flex.h-10 > span.mx-auto.rounded-full  "imaginry.tech/studio"
+       1 text block starts on a left line at x 349, 349px from the container's left: text starts on the container's left, or on one split line (x 330, 396, 462) (SR-6)  [768-rhythm-13-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges section#about > div.grid.gap-6 > div > h2.font-display  "A free browser studio forabstract backgr"
+       5 text blocks start on a left line at x 214, 214px from the container's left: text starts on the container's left, or on one split line (x 330, 396, 462) (also "A free browser studio for", "abstract backgrounds", "and textures") (and 12 more like it: "A free browser studio fo", x 208, x -106) (SR-6)  [768-rhythm-14-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       "background" is set to the right across 598px, over half the 768px container: text that wide is set left (SR-6)  [768-rhythm-15-container-edges.jpg]
+       fix: set the text left (text-align: start)
+  FAIL row-lines       div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "Brass PlateEmboss & split toneEmber Reed"
+       a row of 14 items: its first item starts at -121px, the container's left line at 0px; its last item ends at 2904px, the container's right line at 768px (2px either way) (SR-7)  [768-rhythm-16-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2)  "Sunday MatineeFilm dust & light leakRiso"
+       a row of 14 items: its first item starts at -1140px, the container's left line at 0px; its last item ends at 2026px, the container's right line at 768px (2px either way) (SR-7)  [768-rhythm-17-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2  "AI models involved0photos uploaded, ever"
+       a row of 4 items: its first item starts at 32px, the container's left line at 0px; its last item ends at 736px, the container's right line at 768px (2px either way) (and 4 more like it: "1:14:516:99:1621:901 · S", "01A design tool, not an ", "02Your photos stay with ") (SR-7)  [768-rhythm-18-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your nextbackgroundis one drag awayOpen "
+       a clipped carousel: 3 items cut at rest (SR-7)  [768-rhythm-19-row-lines.jpg]
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL row-lines       footer.relative.overflow-hidden > div.relative.mt-14 > div.min-w-0.flex-1 > div.marquee.relative
+       a clipped carousel: its window runs 118-768px, not on the container at 0-768px; 2 items cut at rest (SR-7)  [768-rhythm-20-row-lines.jpg]
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(5)  "StadiumLED wall & bloom"
+       a row item is cut by a frame round it: 9 x 184px of its 295 x 184px shows (SR-7)  [768-rhythm-21-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(5)  "PlanetoidPolar & bloom"
+       a row item is cut by a frame round it: 41 x 184px of its 184 x 184px shows (SR-7)  [768-rhythm-22-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(1)  "Brass PlateEmboss & split tone"
+       a row item is cut by a frame round it: 125 x 184px of its 246 x 184px shows (SR-7)  [768-rhythm-23-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL split-pair      section#export > div.mb-10.grid  "(05)ExportTake itanywhereEvery format, n"
+       the two columns of the split start 62px apart at the top: a split's columns are top-aligned, 8px either way (SR-8)  [768-rhythm-24-split-pair.jpg]
+       fix: top-align both columns of the split (align-items: start)
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.mb-10.grid  "(04)Try it hereThe whole studio,right in"
+       the two columns of the split start 37px apart at the top: a split's columns are top-aligned, 8px either way (SR-8)  [768-rhythm-25-split-pair.jpg]
+       fix: top-align both columns of the split (align-items: start)
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.mx-auto.mb-12  "(03)Fresh off the GPURendered on thispag"
+       the two columns of the split start 30px apart at the top: a split's columns are top-aligned, 8px either way (and 3 more like it: "(01)What it isImaginry i", "(06)About ImaginryA free", "(02)How it worksBuilt in") (SR-8)  [768-rhythm-26-split-pair.jpg]
+       fix: top-align both columns of the split (align-items: start)
+  FAIL split-pair      section#about > div.grid.gap-6  "(06)About ImaginryA free browser studio "
+       the split's columns are off the page's one pair of lines: its right column starts at x 214, on none of the split lines 330 (k=5), 396 (k=6), 462 (k=7) (SR-8)  [768-rhythm-27-split-pair.jpg]
+       fix: start every split's right column on one shared line (wrap.left + k x (width + 24) / 12, k 5, 6 or 7; 6 on a place page) and end the left one 24px before it
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8  "(01)What it isImaginry is a free studio "
+       the split's columns are off the page's one pair of lines: its right column starts at x 216, on none of the split lines 330 (k=5), 396 (k=6), 462 (k=7) (SR-8)  [768-rhythm-28-split-pair.jpg]
+       fix: start every split's right column on one shared line (wrap.left + k x (width + 24) / 12, k 5, 6 or 7; 6 on a place page) and end the left one 24px before it
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > div.mb-10.grid  "(04)Try it hereThe whole studio,right in"
+       the split's columns are off the page's one pair of lines: its right column starts at x 517, the first split's at 216; its right column starts at x 517, on none of the split lines 330 (k=5), 396 (k=6), 462 (k=7) (and 3 more like it: "(05)ExportTake itanywher", "(03)Fresh off the GPURen", "(02)How it worksBuilt in") (SR-8)  [768-rhythm-29-split-pair.jpg]
+       fix: start every split's right column on one shared line (wrap.left + k x (width + 24) / 12, k 5, 6 or 7; 6 on a place page) and end the left one 24px before it
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8  "(01)What it isImaginry is a free studio "
+       the split does not run edge to edge on the container: its left column starts at 32px, the container's left at 0px; its right column ends at 736px, the container's right at 768px (SR-8)  [768-rhythm-30-split-pair.jpg]
+       fix: run the split from the container's left line to its right line
+  FAIL split-pair      div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.mx-auto.mb-12  "(03)Fresh off the GPURendered on thispag"
+       the split does not run edge to edge on the container: its left column starts at 32px, the container's left at 0px; its right column ends at 736px, the container's right at 768px (and 4 more like it: "(04)Try it hereThe whole", "(05)ExportTake itanywher", "(06)About ImaginryA free") (SR-8)  [768-rhythm-31-split-pair.jpg]
+       fix: run the split from the container's left line to its right line
+
+390x844  19 screens, 2 held sections  76 FAIL  24 WARN
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(35) > a.block.opacity-70 > img.block.h-10  "badge2-dark.svg"
+       the picture badge2-dark.svg never loaded: its frame shows empty (and 3 more like it: "badge2-dark.svg", "badge2-dark.svg", "badge2-dark.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(36) > a.block.opacity-70 > img.block.h-10  "badge-dark.svg"
+       the picture badge-dark.svg never loaded: its frame shows empty (and 3 more like it: "badge-dark.svg", "badge-dark.svg", "badge-dark.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(37) > a.block.opacity-70 > img.block.h-10  "imaginry-tech.svg?metric=truedr"
+       the picture imaginry-tech.svg?metric=truedr never loaded: its frame shows empty (and 3 more like it: "imaginry-tech.svg?metric", "imaginry-tech.svg?metric", "imaginry-tech.svg?metric")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(38) > a.block.opacity-70 > img.block.h-10  "neeed-badge-light.svg"
+       the picture neeed-badge-light.svg never loaded: its frame shows empty (and 3 more like it: "neeed-badge-light.svg", "neeed-badge-light.svg", "neeed-badge-light.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(39) > a.block.opacity-70 > img.block.h-10  "featured-light.svg"
+       the picture featured-light.svg never loaded: its frame shows empty (and 3 more like it: "featured-light.svg", "featured-light.svg", "featured-light.svg")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(40) > a.block.opacity-70 > img.block.h-10  "imaginry"
+       the picture imaginry never loaded: its frame shows empty (and 3 more like it: "imaginry", "imaginry", "imaginry")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(41) > a.block.opacity-70 > img.block.h-10  "featured.svg?post_id=1300713&theme=dark"
+       the picture featured.svg?post_id=1300713&theme=dark never loaded: its frame shows empty (and 2 more like it: "featured.svg?post_id=130", "featured.svg?post_id=130")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(42) > a.block.opacity-70 > img.block.h-10  "featured.png"
+       the picture featured.png never loaded: its frame shows empty (and 2 more like it: "featured.png", "featured.png")
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  FAIL spill           footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(8)
+       runs 53px past the right edge of the panel it sits on (footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(3))  [390-65-spill.jpg]
+       fix: keep the box inside the panel it starts on: shrink it, or grow the panel to hold it
+  FAIL overlap-text    footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(3)
+       lies over the text "Go on, throw one" (div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(2))  [390-66-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  FAIL scroll-linked   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(1)  "Imaginry"
+       fades with the scroll and changes back when the scroll goes back (opacity); 30 more parts of this section change with the scroll too (span:nth-of-type(4), span:nth-of-type(5), span:nth-of-type(6), span:nth-of-type(7), ...)  [390-07-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "Solar PrintSolarize & halftone Gallery O"
+       moves with the scroll and changes back when the scroll goes back (moves); 1 more part of this section change with the scroll too (div.flex.w-max:nth-of-type(2))  [390-22-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > div.mx-auto.mt-12  "Open a blank canvas, or remix any design"
+       moves with the scroll and changes back when the scroll goes back (moves, opacity); 3 more parts of this section change with the scroll too (span.block:nth-of-type(1), span.block.text-right, span.block.bg-clip-text)  [390-56-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   section#top > div.sticky.top-0  "Stack light, glass and grain into backgr"
+       held on screen for 1.9 screens of scroll (position: sticky), and 8 parts inside change as the page scrolls through it (moves, opacity): div.absolute.inset-0:nth-of-type(1), div.absolute:nth-of-type(1), div.absolute:nth-of-type(2), div.absolute:nth-of-type(3), ...  [390-74-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-linked   section#how > div.sticky.top-0  "(02) How it works Built in layers Every "
+       held on screen for 2.8 screens of scroll (position: sticky), and 10 parts inside change as the page scrolls through it (moves, clip, opacity, words): div.relative.max-h-full, p.mt-4.font-display, p.mt-1.font-condensed; 1 more part of this section change with the scroll too (p.pointer-events-none.absolute)  [390-75-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(1)  "AI models involved 0"
+       4 parts of this section animate in when scrolled into view (fades in from 0.0, rises 30px): div.flex.flex-col:nth-of-type(1), div.flex.flex-col:nth-of-type(2), div.flex.flex-col:nth-of-type(3), div.flex.flex-col:nth-of-type(4)  [390-11-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Rendered on this"
+       2 parts of this section animate in when scrolled into view (rises 36px): span.block, span.block  [390-23-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.mt-4.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Take it"
+       6 parts of this section animate in when scrolled into view (fades in from 0.0, rises 60px): span.block, span.block, article.group.relative:nth-of-type(1), article.group.relative:nth-of-type(2), article.group.relative:nth-of-type(3), ...  [390-27-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   h2.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "A free browser studio for"
+       12 parts of this section animate in when scrolled into view (fades in from 0.0, slides 30px sideways): span.block, span.block, span.block, span.font-display.leading-none, h3.font-display, ...  [390-38-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(2)  "photos uploaded, ever 0"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [390-12-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(3)  "stills at any ratio 4K"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [390-13-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(4)  "to make and export $0"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver)  [390-14-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(1)  "1:1 4:5 16:9 9:16 21:9 01 · Stills Up to"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [390-30-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(2)  "0s fades into the start 6s 02 · Loops Vi"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [390-31-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(3)  "Framer React HTML import ImaginryLook fr"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [390-37-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#export > div.grid.gap-3 > article.group.relative:nth-of-type(4)  "Export as HTML PNG MP4 WebM AV1 React Fr"
+       starts an animation (1.2 s) the moment it is scrolled into view (an IntersectionObserver)  [390-39-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(1)  "01 A design tool, not an AI Every textur"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [390-40-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(2)  "02 Your photos stay with you A photo you"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [390-41-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL scroll-reveal   section#about > ol > li.group.relative:nth-of-type(3)  "03 Optional Google sign-in Signing in wi"
+       starts an animation (1.0 s) the moment it is scrolled into view (an IntersectionObserver) on span.font-display.leading-none  [390-44-scroll-reveal.jpg]
+       fix: show it at rest: no fade, rise or unmask when it is scrolled into view
+  FAIL no-visual       div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2)  "(01) What it is Imaginry is a free studi"
+       no picture, effect or mock in this section; a feature section needs a visual  [390-15-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  FAIL no-visual       section#about  "A free browser studio for abstract backg"
+       no picture, effect or mock in this section; a feature section needs a visual  [390-42-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  FAIL text-only       div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your next background is one drag away"
+       the closing section is only text: no picture, icon, mock or effect in it  [390-45-text-only.jpg]
+       fix: give the section a visual: a photograph that fits, the real icons, or a UI fragment on a ground
+  FAIL cta             section#top
+       the hero has no button (the nav's does not count)  [390-01-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  FAIL cta             div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your next background is one drag away"
+       the last section before the footer ends with no button  [390-46-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  FAIL heading-scale   dl.grid.grid-cols-2 > div.flex.flex-col:nth-of-type(1) > dd.font-display.leading-none > span  "0"
+       the figure "0" is set at 40px, larger than the h1 (38px) (and 1 more like it: "0")  [390-16-heading-scale.jpg]
+       fix: set figures below the h1: a stat reads as data, not as the headline
+  FAIL stagger         div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       the 3 lines of this heading start at 3, 168, 3px: a headline broken across columns, read in a zigzag  [390-47-stagger.jpg]
+       fix: start every row of the list on one left edge
+  FAIL off-grid        section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span.inline-block.overflow-hidden:nth-of-type(9)
+       left edge at 222px, 6px off a common edge of its section at 216px (4 elements); 1 more in this section off the grid too (span.inline-block.overflow-hidden:nth-of-type(30) at 29.5px)  [390-08-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  FAIL tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(1)
+       rotated -77.5° (and 5 more like it: div.absolute.left-0:nth-of-type(2), div.absolute.left-0:nth-of-type(6), div.absolute.left-0:nth-of-type(8), div.absolute.left-0:nth-of-type(10), ...)  [390-67-tilt.jpg]
+       fix: set it straight
+  FAIL tilt            footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > div.absolute.inset-0 > div.absolute.left-0:nth-of-type(3)
+       rotated 134.0° (and 4 more like it: div.absolute.left-0:nth-of-type(5), div.absolute.left-0:nth-of-type(7), div.absolute.left-0:nth-of-type(9), div.absolute.left-0:nth-of-type(11))  [390-68-tilt.jpg]
+       fix: set it straight
+  FAIL contrast        section.relative.mx-auto:nth-of-type(5) > a.relative.block > div.absolute.inset-x-0 > p.font-condensed.font-semibold  "Best on a laptop or desktop"
+       body text over a effect reads at 4.0:1 at its worst tenth (needs 4.5:1), on a busy ground  [390-28-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  FAIL contrast        section.relative.mx-auto:nth-of-type(5) > a.relative.block > div.absolute.inset-x-0 > p.mt-1  "The studio wants a wide screen. Tap to o"
+       body text over a effect reads at 2.0:1 at its worst tenth (needs 4.5:1)  [390-29-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  FAIL text-contrast   div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > p.font-condensed  "Free · No AI · Nothing uploaded"
+       a caption, label or muted line in #726e6a on #0d0c0b reads 3.88:1 (needs 4.5:1); 8 like it, like "Explore", "Make", "Legal"  [390-02-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(17)  "into"
+       a caption, label or muted line in #474541 on #0d0c0b reads 2.05:1 (needs 3:1)  [390-09-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section.relative.mx-auto:nth-of-type(2) > div.grid.gap-8 > p.font-display > span:nth-of-type(18)  "one-off"
+       a caption, label or muted line in #2a2826 on #0d0c0b reads 1.34:1 (needs 3:1); 25 like it, like "images", "and", "looping"  [390-10-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#how > div.sticky.top-0 > div:nth-of-type(1) > p.mt-5.leading-relaxed  "Every design is a stack of effects. Each"
+       body text in #939188 on #0d0c0b reads 6.16:1 (needs 7:1); 7 like it, like "Every card below was d", "Not a video, not a moc", "Layer effects, tweak t"  [390-18-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.grid.gap-3 > article.group.relative:nth-of-type(1) > div.relative.p-6 > p.leading-relaxed  "Square for social, tall for stories, ult"
+       body text in #97948b on #171512 reads 6.02:1 (needs 7:1); 4 like it, like "MP4, WebM or AV1, rend", "Framer, React or plain", "Stills, three video co"  [390-32-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#about > ol > li.group.relative:nth-of-type(1) > span.font-display.leading-none  "01"
+       a caption, label or muted line in #393835 on #0d0c0b reads 1.66:1 (needs 3:1); 3 like it, like "02", "03"  [390-43-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       body text in #8f887d on #0d0c0b reads 5.57:1 (needs 7:1)  [390-48-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > div.mx-auto.mt-12 > p.leading-relaxed  "Open a blank canvas, or remix any design"
+       body text in #3b3a37 on #0d0c0b reads 1.72:1 (needs 7:1)  [390-49-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL text-contrast   div.relative:nth-of-type(2) > footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(2)  "Go on, throw one"
+       a caption, label or muted line in #625f59 on #171512 reads 2.85:1 (needs 4.5:1)  [390-69-text-contrast.jpg]
+       fix: body text in the ink at 7:1 or more; grey (4.5:1 or more) only for captions and labels
+  FAIL section-gaps    div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) / section#how
+       260px between these sections, +69% against the median 154px  [390-17-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+  WARN empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(19) > a.block.opacity-70 > img.block.h-10  "badge2-dark.svg"
+       the picture badge2-dark.svg was still loading 3 s after it came on screen (its frame showed empty meanwhile): make it smaller, or load it before it is reached
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  WARN empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(20) > a.block.opacity-70 > img.block.h-10  "badge-dark.svg"
+       the picture badge-dark.svg was still loading 3 s after it came on screen (its frame showed empty meanwhile): make it smaller, or load it before it is reached
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  WARN empty-visual    ul.marquee-track.flex > li.shrink-0.px-3:nth-of-type(21) > a.block.opacity-70 > img.block.h-10  "imaginry-tech.svg?metric=truedr"
+       the picture imaginry-tech.svg?metric=truedr was still loading 3 s after it came on screen (its frame showed empty meanwhile): make it smaller, or load it before it is reached
+       fix: make the visual draw at every width: a picture that loads, an effect that renders, or its still fallback; never an empty frame
+  WARN overlap-text    section#top > div.sticky.top-0 > div.absolute.inset-0:nth-of-type(1) > div.absolute.inset-0:nth-of-type(2)
+       lies over the text "Drawn live, right now, by your GPU" (div.pointer-events-none.absolute:nth-of-type(4) > p.font-condensed) (caught mid-way through a scroll-linked animation)  [390-05-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN overlap-text    section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(5)  "PlanetoidPolar & bloom"
+       lies over the text "Warp SpeedZoom blur & sparkle" (span.absolute.inset-x-3 > span.truncate.font-condensed) (caught mid-way through a scroll-linked animation)  [390-24-overlap-text.jpg]
+       fix: move the box off the text (or the text off the box)
+  WARN cut-text        h1.order-1.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) > span.block  "Textures that"
+       cut 7px at the top by the overflow of div.pointer-events-none.absolute:nth-of-type(3) > h1.order-1.font-display > span.block > span.block.overflow-hidden:nth-of-type(1) (caught mid-way through a scroll-linked animation) (and 2 more like it: "didn’t exist", "a minute ago.")  [390-03-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       sits across the edge of a panel behind it (caught mid-way through a scroll-linked animation)  [390-50-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN cut-text        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text  "is one drag away"
+       runs past the edge of its box div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text (caught mid-way through a scroll-linked animation)  [390-51-cut-text.jpg]
+       fix: give the text room: no overflow clipping a line, no line past its box
+  WARN scroll-linked   footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(1) > span.absolute.inset-0  "imaginry"
+       moves with the scroll and changes back when the scroll goes back (clip)  [390-73-scroll-linked.jpg]
+       fix: remove the scroll-driven motion; motion lives inside a visual as a small loop
+  WARN no-visual       section#export  "Take it anywhere"
+       pictures, effects and mocks cover 19% of this section; a feature section needs a visual (about 25% or more)  [390-33-no-visual.jpg]
+       fix: give the section a visual: a UI fragment on a ground, real icons, or a photograph that fits
+  WARN cta             section#how  "Built in layers"
+       a section over 1.5 screens long with no link or button in it  [390-19-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN cta             section#export  "Take it anywhere"
+       a section over 1.5 screens long with no link or button in it  [390-34-cta.jpg]
+       fix: add the action: a button in the hero, one on every priced item, one in the closing section
+  WARN stagger         section#export > div.grid.gap-3  "1:1 4:5 16:9 9:16 21:9 01 · Stills Up to"
+       4 rows start at 2 different left offsets (+4, +4, +0, +4px)  [390-35-stagger.jpg]
+       fix: start every row of the list on one left edge
+  WARN stagger         div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       3 rows start at 2 different left offsets (+0, +165, +0px)  [390-52-stagger.jpg]
+       fix: start every row of the list on one left edge
+  WARN off-grid        div.absolute:nth-of-type(2) > div > div > a.block.overflow-hidden
+       left edge at 11.5px, 4.5px off the page margin at 16px (53 elements, none of them near it) (caught mid-way through a scroll-linked animation)  [390-04-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text  "is one drag away"
+       left edge at 3px, 13px off the page margin at 16px (53 elements, like p.border-t.pt-6); 1 more in this section off the grid too (span.block:nth-of-type(1) at 3px) (caught mid-way through a scroll-linked animation)  [390-53-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN off-grid        div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display  "Your next background is one drag away"
+       the section's heading starts at -54px, 70px off the page margin (16px), and no other section starts there  [390-54-off-grid.jpg]
+       fix: move it onto the page margin, or the column edge its section uses
+  WARN tilt            section#how > div.sticky.top-0 > div.flex.min-h-0 > div.relative.max-h-full  "Gradient 1/4"
+       rotated -3.8° (caught mid-way through a scroll-linked animation)  [390-20-tilt.jpg]
+       fix: set it straight
+  WARN contrast        div.flex.min-h-0 > div.relative.max-h-full > div.absolute.left-4 > span:nth-of-type(2)  "1/4"
+       body text over a picture reads at 2.9:1 at its worst tenth (needs 4.5:1) (caught mid-way through a scroll-linked animation)  [390-21-contrast.jpg]
+       fix: put the text on a calm part of the picture, or on a solid panel
+  WARN busy-ground     a.group.relative:nth-of-type(4) > span.absolute.inset-x-3 > span.truncate.font-condensed > span.ml-2  "Zoom blur & sparkle"
+       text over a detailed part of a picture (its ground changes by 2.3 L* from one pixel to the next under the words) (caught mid-way through a scroll-linked animation)  [390-25-busy-ground.jpg]
+       fix: move the text to a calm part of the picture, or put it on a panel
+  WARN section-gaps    section#about / div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)
+       214px between these sections, +39% against the median 154px  [390-55-section-gaps.jpg]
+       fix: use one gap between sections (all within 25% of each other)
+  WARN photo-set       div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(4) > img.h-full.w-full  "d005d783-e9a8-48c8-907a-9a103d679737"
+       7 photographs in more than one look: warm and cool photographs mixed (b* -44 to +24); the odd one out is d005d783-e9a8-48c8-907a-9a103d679737  [390-26-photo-set.jpg]
+       fix: grade the photographs to one look (light, colour, warmth), or replace the odd one out
+  WARN visual-caption  div.sticky.top-0 > div.pointer-events-none.absolute:nth-of-type(3) > div.order-2 > p.font-condensed  "Free · No AI · Nothing uploaded"
+       a small 14px line is laid over the lower half of the canvas: "Free · No AI · Nothing uploaded"; no caption or description under any image, render or visual (house rule)  [390-06-visual-caption.jpg]
+       fix: take the line away: no caption or description under, over or on any image, render or visual; a licence credit goes in one footer line
+  WARN visual-caption  div.relative.flex-1 > div.absolute.inset-x-4 > div.flex.justify-between > span:nth-of-type(2)  "fades into the start"
+       a small 14px line is laid over the lower half of the canvas: "fades into the start"; no caption or description under any image, render or visual (house rule)  [390-36-visual-caption.jpg]
+       fix: take the line away: no caption or description under, over or on any image, render or visual; a licence credit goes in one footer line
+  FAIL hero-screen     div.overflow-x-clip > div.relative.z-10  "Stack light, glass and grain into backgr"
+       the hero ends at 12482px on a 844px screen, 11638px below the fold: it ends at the fold, 1px either way (SR-1)  [390-rhythm-01-hero-screen.jpg]
+       fix: make the hero exactly one screen (height: 100svh, its content fitted inside), never taller or shorter
+  FAIL section-height  div.overflow-x-clip > div.relative:nth-of-type(2)  "imaginryGenerative textures and looping "
+       the section is 1058px tall (1.3 screens), 214px over one screen (844px): every section after the hero is one screen or two, 2px either way (SR-2)  [390-rhythm-05-section-height.jpg]
+       fix: set the section to one screen or two (height: calc(var(--h,1) * 100vh), --h 1 or 2) and cut or split its content to fit
+  FAIL section-height  div.overflow-x-clip > div.relative:nth-of-type(2)  "imaginryGenerative textures and looping "
+       the section starts at 12482px, 178px above the screen grid (15 x 844px): sections start on whole screens (SR-2)  [390-rhythm-06-section-height.jpg]
+       fix: make every section above it exactly one or two screens tall, so this one starts on a whole screen
+  FAIL section-height  div.overflow-x-clip > div.relative:nth-of-type(2)  "imaginryGenerative textures and looping "
+       the section's content does not fit it: its lowest content ends 1038px below its top, past 1010px (the section less 48px of bottom padding) (SR-2)  [390-rhythm-07-section-height.jpg]
+       fix: fit the content above the section's bottom padding (--padb), or make it two screens (.g2) in two groups
+  FAIL section-air     div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2  "AI models involved0photos uploaded, ever"
+       a top border across 92% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [390-rhythm-08-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL section-air     section#about > p.border-t.pt-6  "Sexual, explicit or non-consensual image"
+       a top border across 92% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [390-rhythm-09-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL section-air     div.overflow-x-clip > div.relative:nth-of-type(2) > footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(5)  "Imaginry by @zRuvix1Rendered live, on yo"
+       a top border across 100% of the container, between the section's content: sections and their parts are told apart by air and ground, not lines (SR-3)  [390-rhythm-10-section-air.jpg]
+       fix: take the rule out: sections and their parts are parted by their ground and the air between them
+  FAIL one-section     div.overflow-x-clip > div.relative:nth-of-type(2)  "imaginryGenerative textures and looping "
+       the screen at scroll 11816px (stride 14) shows 178px of section 2 and the content of 2 sections, over 24px each beside section 1: a screen shows one section (another may peek 8px, 24px WARN) (SR-4)  [390-rhythm-11-one-section.jpg]
+       fix: make each section exactly one screen or two, so a screen shows one section and no neighbour peeks
+  FAIL one-heading     section#how > div.sticky.top-0 > div:nth-of-type(1) > h2.mt-4.font-display  "Built inlayers"
+       the hero holds an h2 (6): its heading is the h1, and an h2 opens the next section (SR-5)  [390-rhythm-12-one-heading.jpg]
+       fix: give each section one h2, first in its .wrap, and the hero only its h1
+  FAIL container-edges div.overflow-x-clip > header.fixed.inset-x-0  "imaginryGalleryExploreHow it worksExport"
+       the nav's content runs 16px from the left and 16px from the right (read from its outermost blocks: no .wrap): the page's container starts at 0px (one container, equal margins, 2px either way) (SR-6)  [390-rhythm-13-container-edges.jpg]
+       fix: use one container on every section and the nav (.wrap): one margin left and right, 64-120px on a desktop, 16-24px on a phone
+  FAIL container-edges div.overflow-x-clip > div.relative.z-10  "Stack light, glass and grain into backgr"
+       the content of section 1 runs 0px from the left and 0px from the right (read from its outermost blocks: no .wrap): the margin is 16-24px at 390px (one container, equal margins, 2px either way) (and 1 more like it: "imaginryGenerative textu") (SR-6)  [390-rhythm-14-container-edges.jpg]
+       fix: use one container on every section and the nav (.wrap): one margin left and right, 64-120px on a desktop, 16-24px on a phone
+  FAIL container-edges div.overflow-x-clip  "imaginryGalleryExploreHow it worksExport"
+       a <div> at the top of the page, outside header.nav, main, footer.closing and nav.actionbar (SR-6)  [390-rhythm-15-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.overflow-x-clip > div.relative.z-10  "Stack light, glass and grain into backgr"
+       the section needs exactly one in-flow child .wrap (it has 8 in-flow children, 0 .wrap) (and 1 more like it: "imaginryGenerative textu") (SR-6)  [390-rhythm-16-container-edges.jpg]
+       fix: build the page as header.nav, a main of sections (each one in-flow .wrap plus background layers) and footer.closing
+  FAIL container-edges div.relative:nth-of-type(2) > footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(2)  "Go on, throw one"
+       1 text block starts on a left line at x 292, 292px from the container's left: text starts on the container's left, or on one split line (x 173, 207, 242) (SR-6)  [390-rhythm-17-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.text-right  "background"
+       1 text block starts on a left line at x 225, 225px from the container's left: text starts on the container's left, or on one split line (x 173, 207, 242) (and 11 more like it: x -54, "Your nextbackgroundis on", x 52) (SR-6)  [390-rhythm-18-container-edges.jpg]
+       fix: start the text on the container's left, or on the one split line every split shares
+  FAIL container-edges div.relative:nth-of-type(2) > footer.relative.overflow-hidden > div.relative.mx-auto:nth-of-type(4) > p.pointer-events-none.absolute:nth-of-type(1)  "imaginryimaginry"
+       "imaginryimaginry" is set centred across 390px, over half the 390px container: text that wide is set left (and 2 more like it: "imaginry", "background") (SR-6)  [390-rhythm-19-container-edges.jpg]
+       fix: set the text left (text-align: start)
+  FAIL container-edges div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8) > h2.mx-auto.font-display > span.block.bg-clip-text  "is one drag away"
+       a box over half the container wide runs 0-304px, not on the container's lines at 0-390px (and 4 more like it: "AI models involved0photo", div.relative.z-10 > section.relative.mx-auto:nth-of-type(5) > a.relative.block > img.absolute.inset-0, "Best on a laptop or desk") (SR-6)  [390-rhythm-20-container-edges.jpg]
+       fix: run the picture or box from the container's left line to its right line, or put it in a row or a split
+  FAIL row-lines       div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1)  "Marble HallRidged noise & gradient mapLi"
+       a row of 14 items: its first item starts at -94px, the container's left line at 0px; its last item ends at 2250px, the container's right line at 390px (2px either way) (SR-7)  [390-rhythm-21-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2)  "Toy BoxBricksRust ColumnsWavy glassSunda"
+       a row of 14 items: its first item starts at -1007px, the container's left line at 0px; its last item ends at 1790px, the container's right line at 390px (2px either way) (SR-7)  [390-rhythm-22-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.overflow-x-clip > div.relative.z-10 > section.relative.mx-auto:nth-of-type(2) > dl.grid.grid-cols-2  "AI models involved0photos uploaded, ever"
+       a row of 2 items: its first item starts at 16px, the container's left line at 0px; its last item ends at 374px, the container's right line at 390px (2px either way) (and 1 more like it: "imaginryGenerative textu") (SR-7)  [390-rhythm-23-row-lines.jpg]
+       fix: start the row's first item on the container's left line and end its last on the right line, every item one height
+  FAIL row-lines       div.overflow-x-clip > div.relative.z-10 > section.relative.overflow-x-clip:nth-of-type(8)  "Your nextbackgroundis one drag awayOpen "
+       a clipped carousel: 3 items cut at rest (SR-7)  [390-rhythm-24-row-lines.jpg]
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL row-lines       footer.relative.overflow-hidden > div.relative.mt-14 > div.min-w-0.flex-1 > div.marquee.relative
+       a clipped carousel: its window runs 102-390px, not on the container at 0-390px; 2 items cut at rest (SR-7)  [390-rhythm-25-row-lines.jpg]
+       fix: show every item inside the container, or stack them: no sideways scroller, no half-cut carousel
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(2) > a.group.relative:nth-of-type(5)  "Night WeavePlaid & light"
+       a row item is cut by a frame round it: 7 x 170px of its 227 x 170px shows (SR-7)  [390-rhythm-26-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(4)  "Lagoon LensBulge & glass"
+       a row item is cut by a frame round it: 23 x 170px of its 170 x 170px shows (SR-7)  [390-rhythm-27-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  FAIL row-lines       section.relative.overflow-x-clip:nth-of-type(4) > div.flex.flex-col:nth-of-type(2) > div.flex.w-max:nth-of-type(1) > a.group.relative:nth-of-type(1)  "Marble HallRidged noise & gradient map"
+       a row item is cut by a frame round it: 34 x 170px of its 128 x 170px shows (SR-7)  [390-rhythm-28-row-lines.jpg]
+       fix: show the row item whole: no frame cutting it
+  (probe error) section-tile: no top-level sections (no main > *, no body > section)
+
+first screen at 1280, 1152, 1024, 896  0 FAIL  0 WARN
+
+checks
+  PASS assets                 PASS shader-lint            FAIL gl-fallback            
+  FAIL empty-visual           PASS hero-fill              PASS flush                  
+  PASS placeholder            PASS sample-label           PASS caption                
+  PASS credit-wall            PASS nav                    PASS nav-covers             
+  FAIL spill                  PASS off-viewport           PASS fold-card              
+  PASS hover-spill            FAIL overlap-text           PASS row-gap                
+  FAIL cut-text               PASS fold-cut               PASS marquee                
+  FAIL scroll-linked          FAIL scroll-reveal          PASS pinned                 
+  FAIL loop-pause             FAIL reduced-motion         FAIL hidden-content         
+  PASS webgl                  FAIL no-visual              FAIL text-only              
+  PASS card-visual            PASS hidden-visual          PASS card-family            
+  FAIL card-layout            PASS nesting                PASS effect-repeat          
+  PASS ui-fit                 PASS ui-centre              PASS dark-ground            
+  PASS button-styles          PASS button-shape           PASS same-action            
+  PASS button-picture         FAIL cta                    PASS pricing-tiers          
+  FAIL copy-headline          FAIL copy-fact              FAIL copy-headings          
+  PASS copy-buttons           WARN copy-actions           FAIL heading-scale          
+  FAIL stagger                PASS top-stagger            FAIL off-grid               
+  WARN col-edge               PASS right-edge             PASS centre-axis            
+  FAIL tilt                   FAIL contrast               FAIL text-contrast          
+  PASS body-size              WARN busy-ground            FAIL section-gaps           
+  PASS proximity              PASS hole                   PASS links                  
+  PASS forms                  PASS photo-upscale          WARN photo-set              
+  PASS photo-credit           WARN nav-family             WARN nav-labels             
+  PASS link-styles            PASS heading-align          PASS label-centre           
+  PASS fake-button            PASS stranded-action        PASS orphan                 
+  PASS unit-break             PASS tab-wrap               PASS effects-fit            
+  PASS fade-cut               PASS photo-weight           WARN copy-length            
+  PASS nav-current            PASS progress-bar           WARN photo-repeat           
+  PASS button-contrast        PASS photo-print            PASS grounds                
+  PASS split-align            PASS fact-agree             PASS fold-action            
+  PASS action-count           PASS one-screen             PASS hover                  
+  WARN hover-move             PASS product-shown          PASS same-object            
+  PASS font-load              WARN visual-caption         PASS visual-empty           
+  PASS effect-kind            PASS street-number          PASS postcode               
+  PASS coordinates            PASS company-number         PASS phone-number           
+  FAIL hero-screen            FAIL section-height         FAIL section-air            
+  FAIL one-section            FAIL one-heading            FAIL container-edges        
+  FAIL row-lines              FAIL split-pair             PASS motion-layer           
+  PASS count-text             PASS loop-cycle             PASS section-tile           
+
+total  285 FAIL  94 WARN  (crops and report.json in D:\Coding-Folder\Ruvix-Codes\imaginry.tech\.taste-skill\before\consistency)

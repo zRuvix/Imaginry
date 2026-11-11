@@ -69,7 +69,7 @@ const BADGES = [
 const HALF = Array.from({ length: 4 }, () => BADGES).flat();
 
 /** Badges drift right to left in a loop; hovering pauses them. */
-function BadgeMarquee() {
+export function BadgeMarquee() {
   return (
     <div
       className="marquee relative overflow-hidden"

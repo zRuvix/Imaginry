@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Scroll scenes run on tablets and up, and only when motion is welcome. */
+@custom-variant live (@media (min-width: 768px) and (prefers-reduced-motion: no-preference));
+
 :root {
   /* Studio + landing palette: warm charcoal, bone, one ember accent */
   --ink: #0d0c0b;
@@ -488,4 +491,142 @@ input[type="number"] {
 }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
+}
+
+/* ---------------------------------------------------------------- home */
+
+.home {
+  --gut: 80px;
+  --padt: 120px;
+  --padb: 72px;
+  --nav: 72px;
+  background: var(--ink);
+  color: var(--bone);
+}
+@media (max-width: 1023px) {
+  .home { --gut: 48px; }
+}
+@media (max-width: 639px) {
+  .home { --gut: 24px; --padt: 96px; --padb: 48px; --nav: 64px; }
+}
+.home .wrap {
+  width: min(100% - 2 * var(--gut), 1280px);
+  margin-inline: auto;
+}
+
+/* Every section is exactly one or two screens. */
+.home-main > section {
+  position: relative;
+  min-height: calc(var(--h, 1) * 100svh);
+  padding: var(--padt) 0 var(--padb);
+}
+@media (min-width: 1024px) {
+  .home-main > section { height: calc(var(--h, 1) * 100svh); }
+}
+
+/* A scene: its stage sticks for one screen while a scrubbed timeline plays.
+   Without motion (phones, reduced motion) it rests as the finished composition. */
+.home-main > section.scene { padding: 0; }
+@media (min-width: 768px) and (prefers-reduced-motion: no-preference) {
+  .home-main > section.scene { height: 200svh; min-height: 0; }
+  .scene > .stage { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+}
+
+.home .h1,
+.home .h2 {
+  font-family: var(--font-special-gothic), var(--font-familjen), sans-serif;
+  font-weight: 400;
+  text-wrap: balance;
+}
+.home .h1 { font-size: clamp(31px, 4.7vw, 68px); line-height: 1.02; letter-spacing: -0.035em; }
+.home .h2 { font-size: clamp(27px, 3.3vw, 46px); line-height: 1.05; letter-spacing: -0.03em; }
+.home .lead { font-size: clamp(17px, 1.4vw, 20px); line-height: 1.5; color: color-mix(in srgb, var(--bone) 66%, transparent); }
+
+/* Words rise out of their own masks, one after another. */
+.rv-w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+.rv-i { display: inline-block; }
+html.rv-on .rv .rv-i {
+  transition: transform 1.05s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--d, 0ms) + var(--i, 0) * 60ms);
+}
+html.rv-on .rv:not(.is-in) .rv-i { transform: translateY(118%); }
+html.rv-on [data-rise] {
+  transition: opacity 0.9s ease, transform 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--d, 0ms);
+}
+html.rv-on [data-rise]:not(.is-in) { opacity: 0; transform: translateY(26px); }
+
+/* Text links: the underline draws in from the left. */
+.home .ulink { position: relative; display: inline-flex; align-items: center; gap: 6px; }
+.home .ulink::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -3px 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.home .ulink:hover::after,
+.home .ulink:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+
+/* The quiet second button beside "Open studio". */
+.home .btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(237, 231, 220, 0.22);
+  color: var(--bone);
+  font-weight: 500;
+  transition: background-color 0.4s, box-shadow 0.4s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.home .btn-ghost:hover { background: rgba(237, 231, 220, 0.08); box-shadow: inset 0 0 0 1px rgba(237, 231, 220, 0.45); transform: translateY(-1px); }
+.home .btn-ghost:active { transform: translateY(0) scale(0.97); }
+.home .launch-btn { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s; }
+.home .launch-btn:hover { transform: translateY(-1px); }
+.home .launch-btn:active { transform: translateY(0) scale(0.97); }
+
+/* Linked cards lift; their picture zooms inside its frame. */
+.home .lift { transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s; }
+.home .lift:hover,
+.home .lift:focus-visible { transform: translateY(-4px); box-shadow: 0 28px 50px -24px rgba(0, 0, 0, 0.9); }
+.home .lift img { transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1); }
+.home .lift:hover img,
+.home .lift:focus-visible img { transform: scale(1.045); }
+
+/* Still fallback under every live canvas, so no frame is ever empty. */
+.home .still-ground {
+  background:
+    radial-gradient(90% 120% at 12% 8%, #ffb27a 0%, transparent 46%),
+    radial-gradient(80% 110% at 88% 92%, #7a1d2e 0%, transparent 55%),
+    linear-gradient(120deg, #ff5a2c, #2a1512 70%);
+}
+
+/* Pulses that run along the privacy diagram's lines. */
+@keyframes pulse-run {
+  0% { transform: translateY(-6px); opacity: 0; }
+  12% { opacity: 1; }
+  78% { opacity: 1; }
+  90%, 100% { transform: translateY(var(--run, 48px)); opacity: 0; }
+}
+.home .pulse { animation: pulse-run var(--m-cycle, 3.2s) cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* The main action's rim breathes, so it never sits dead still. */
+@keyframes cta-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 44, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(255, 90, 44, 0.12); }
+}
+.home .cta-live { animation: cta-breathe 3.2s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home .pulse,
+  .home .cta-live { animation: none; }
+  .home .pulse { opacity: 0; }
+  .home .lift,
+  .home .lift img,
+  .home .btn-ghost,
+  .home .launch-btn { transition: none; }
 }
