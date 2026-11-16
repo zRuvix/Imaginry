@@ -75,6 +75,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           src="https://umi.bhaskarsaikia.dev/script.js"
           data-website-id="39f68bbc-bfe7-4ceb-bec9-74defe2dffb4"
         />
+        {/* Rybbit analytics */}
+        <script defer src="https://stats.zruvix.com/api/script.js?siteId=c9d40f5c030f" />
       </head>
       <body className="h-full" suppressHydrationWarning><NoImageDrag />
         {children}
