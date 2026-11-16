@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { ReactLenis, useLenis, type LenisRef } from "lenis/react";
+import "lenis/dist/lenis.css";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { freshLooks } from "@/components/landing/fresh";
 import { useLookImages } from "@/components/landing/useLookImages";
 import type { CuratedLook } from "@/lib/studio/looks";
@@ -12,7 +14,7 @@ import HomeNav from "./HomeNav";
 import LayersScene, { randomStory } from "./LayersScene";
 import LiveScene from "./LiveScene";
 import Privacy from "./Privacy";
-import { ScrollTrigger, useReveals } from "./scene";
+import { gsap, ScrollTrigger, useReveals } from "./scene";
 
 /** Cards in the "fresh off the GPU" grid. */
 const CARDS = 8;
@@ -23,6 +25,12 @@ const FOCUS_PX = 1440;
 const EMPTY: CuratedLook[] = [];
 
 type Fresh = { gallery: CuratedLook[]; story: CuratedLook[]; live: CuratedLook; loop: CuratedLook };
+
+/** Tells the scroll scenes about every smoothed scroll step, so scrubbed motion stays in step with the page. */
+function ScrollSync() {
+  useLenis(() => ScrollTrigger.update());
+  return null;
+}
 
 /**
  * The homepage. Every picture on it is drawn by the visitor's GPU after the
@@ -44,6 +52,14 @@ export default function Home() {
 
   useReveals();
 
+  // Smooth scrolling runs on GSAP's clock, the same one the scroll scenes use.
+  const lenis = useRef<LenisRef>(null);
+  useEffect(() => {
+    const tick = (time: number) => lenis.current?.lenis?.raf(time * 1000);
+    gsap.ticker.add(tick);
+    return () => gsap.ticker.remove(tick);
+  }, []);
+
   // Scene positions depend on the display face's metrics.
   useEffect(() => {
     let alive = true;
@@ -54,7 +70,8 @@ export default function Home() {
   }, []);
 
   return (
-    <>
+    <ReactLenis root ref={lenis} options={{ autoRaf: false, lerp: 0.1, anchors: true }}>
+      <ScrollSync />
       <HomeNav />
       <main className="home home-main overflow-x-clip">
         <Hero look={fresh?.live} />
@@ -65,6 +82,6 @@ export default function Home() {
         <Privacy />
       </main>
       <Closing fill={gallery[4] ?? null} />
-    </>
+    </ReactLenis>
   );
 }

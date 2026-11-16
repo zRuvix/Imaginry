@@ -6,6 +6,7 @@ import { Credit } from "@/components/Credit";
 import { BadgeMarquee } from "@/components/landing/Footer";
 import LaunchButton from "@/components/landing/LaunchButton";
 import { LEGAL_PAGES } from "@/lib/legal";
+import { SPONSORS } from "@/lib/sponsors";
 import { gsap, MOTION, useScene, Words } from "./scene";
 
 const COLUMNS = [
@@ -114,10 +115,36 @@ export default function Closing({ fill }: { fill: string | null }) {
             ))}
           </div>
 
-          <div className="mt-8 flex items-center gap-6">
-            <p className="shrink-0 text-[14px] text-[var(--bone)]/60">Featured on</p>
-            <div className="min-w-0 flex-1">
-              <BadgeMarquee />
+          <div className="mt-8 flex flex-wrap items-center gap-x-10 gap-y-5">
+            {SPONSORS.length > 0 && (
+              <div className="flex shrink-0 items-center gap-4">
+                <p className="text-[14px] text-[var(--bone)]/60">Sponsored by</p>
+                {SPONSORS.map((s) => (
+                  <a
+                    key={s.name}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener sponsored"
+                    className="group flex h-10 items-center gap-2.5 rounded-full bg-white/[0.07] pl-1.5 pr-4 text-[15px] text-[var(--bone)]/85 transition-colors hover:bg-white/[0.12] hover:text-[var(--bone)]"
+                  >
+                    <span className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--bone)] font-display text-[12px] text-[var(--ink)] transition-transform duration-500 group-hover:rotate-[-8deg]">
+                      {s.logo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={s.logo} alt="" className="size-full object-cover" />
+                      ) : (
+                        s.name.charAt(0)
+                      )}
+                    </span>
+                    {s.name}
+                  </a>
+                ))}
+              </div>
+            )}
+            <div className="flex min-w-[min(100%,320px)] flex-1 items-center gap-6">
+              <p className="shrink-0 text-[14px] text-[var(--bone)]/60">Featured on</p>
+              <div className="min-w-0 flex-1">
+                <BadgeMarquee />
+              </div>
             </div>
           </div>
 

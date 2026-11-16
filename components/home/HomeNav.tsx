@@ -56,7 +56,7 @@ export default function HomeNav() {
       </nav>
 
       {open && (
-        <div id="home-menu" className="fixed inset-x-0 bottom-0 top-[var(--nav)] overflow-y-auto bg-[var(--ink)] lg:hidden">
+        <div id="home-menu" data-lenis-prevent className="fixed inset-x-0 bottom-0 top-[var(--nav)] overflow-y-auto bg-[var(--ink)] lg:hidden">
           <ul className="wrap flex flex-col pt-6">
             {LINKS.map((l) => (
               <li key={l.href} className="border-b border-white/10">

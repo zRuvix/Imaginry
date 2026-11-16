@@ -16,6 +16,7 @@ export type Sponsor = {
 export const STUDIO_SLOTS = 4;
 
 export const SPONSORS: Sponsor[] = [
+  { name: "What Did You Make?", href: "https://whatdidyoumake.com", logo: "https://www.whatdidyoumake.com/icon.svg" },
   // { name: "Acme", href: "https://acme.example", logo: "/sponsors/acme.svg" },
 ];
 
