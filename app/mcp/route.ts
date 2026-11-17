@@ -1,6 +1,9 @@
 import { type NextRequest } from "next/server";
 import { SITE_URL } from "@/lib/seo";
-import { ToolError, TOOLS, TOOLS_BY_NAME, type ToolContext } from "@/lib/server/mcp-tools";
+import { ToolContent, ToolError, TOOLS, TOOLS_BY_NAME, type ToolContext } from "@/lib/server/mcp-tools";
+
+// render_png runs headless Chromium on the CPU, which takes a few seconds.
+export const maxDuration = 60;
 
 /**
  * Public MCP server for AI agents, over Streamable HTTP in stateless mode:
@@ -45,6 +48,9 @@ async function callTool(params: Record<string, unknown>, ctx: ToolContext) {
   const args = params.arguments && typeof params.arguments === "object" ? (params.arguments as Record<string, unknown>) : {};
   try {
     const value = await tool.run(args, ctx);
+    if (value instanceof ToolContent) {
+      return { content: value.content, ...(value.structured ? { structuredContent: value.structured } : {}) };
+    }
     return {
       content: [{ type: "text", text: JSON.stringify(value, null, 2) }],
       ...(value && typeof value === "object" && !Array.isArray(value) ? { structuredContent: value } : {}),
@@ -107,6 +113,7 @@ export async function POST(request: NextRequest) {
   }
   const ctx: ToolContext = {
     caller: request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local",
+    origin: request.nextUrl.origin,
   };
 
   if (Array.isArray(body)) {

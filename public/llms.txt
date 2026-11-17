@@ -32,6 +32,7 @@ AI agents can build designs directly through the Imaginry MCP server at https://
 - random_design: a random background, like the studio's "Surprise me", optionally limited to a category or palette.
 - read_design:turn a studio or short link back into editable layers.
 - get_embed_code: self-contained HTML or React code that renders a design live.
+- render_png: a PNG of a design (preview inline, full size up to 2048px by URL).
 
 ## Notes for AI assistants
 

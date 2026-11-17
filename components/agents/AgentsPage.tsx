@@ -188,7 +188,7 @@ const TOOLS: { names: string[]; title: string; body: string }[] = [
   { names: ["list_looks"], title: "Start from a look", body: "The gallery’s premade designs by mood, each ready to remix." },
   { names: ["list_effects", "get_effect"], title: "Know every effect", body: "All 51 effects with their settings, ranges and presets, so the agent picks real values." },
   { names: ["read_design"], title: "Edit a link", body: "Turns any studio or short link back into layers the agent can change." },
-  { names: ["get_embed_code"], title: "Put it on a site", body: "HTML or React that draws the design live on a canvas, with no dependency on us." },
+  { names: ["render_png", "get_embed_code"], title: "Export it", body: "A PNG up to 2048px the agent can see, or HTML and React that draw the design live." },
 ];
 
 function Tools() {
@@ -196,7 +196,7 @@ function Tools() {
     <section id="tools" style={{ "--h": 1 } as CSSProperties} aria-labelledby="tools-h">
       <div className="wrap flex flex-col lg:h-full">
         <h2 id="tools-h" className="h2 max-w-[20ch] text-[var(--bone)]">
-          <Words text="Seven tools, one studio behind them" />
+          <Words text="Eight tools, one studio behind them" />
         </h2>
         <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:mt-auto lg:grid-cols-3">
           {TOOLS.map((t, i) => (

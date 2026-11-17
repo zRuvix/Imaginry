@@ -1,5 +1,6 @@
 import "server-only";
 import { SITE_URL } from "@/lib/seo";
+import { fitSize, PNG_MAX_SIDE, renderPng } from "@/lib/server/png";
 import { allowRequest, createShortLink, resolveShortLink } from "@/lib/server/shortlinks";
 import { htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { GALLERY, GALLERY_TAGS, stateForLook } from "@/lib/studio/looks";
@@ -29,8 +30,17 @@ import { decodeShare, encodeShare } from "@/lib/studio/storage";
 
 export class ToolError extends Error {}
 
+/** A tool result with its own content blocks (e.g. an image), plus structured data. */
+export class ToolContent {
+  constructor(
+    public content: Record<string, unknown>[],
+    public structured?: Record<string, unknown>,
+  ) {}
+}
+
 type Args = Record<string, unknown>;
-export type ToolContext = { caller: string };
+/** `origin` is this site's own base URL for the request, used to reach /render. */
+export type ToolContext = { caller: string; origin: string };
 
 export type Tool = {
   name: string;
@@ -43,6 +53,9 @@ export type Tool = {
 
 /** Image layers need a photo uploaded in the studio, which a link can't carry. */
 const BUILDABLE: SectionKey[] = SECTION_KEYS.filter((k) => k !== "image");
+
+/** Long side of the preview image render_png sends inline. */
+const PREVIEW_SIDE = 800;
 
 const studioUrl = (design: string) => `${SITE_URL}/studio#${design}`;
 
@@ -442,6 +455,61 @@ export const TOOLS: Tool[] = [
       const state = await resolveDesign(design);
       const compact = encodeShare(state);
       return { studio_url: studioUrl(compact), design: compact, ...describeState(state) };
+    },
+  },
+  {
+    name: "render_png",
+    title: "Render PNG",
+    description:
+      "Renders a design to a PNG. Returns a preview image you can look at, plus a download URL for the full-size PNG (up to 2048px on the long side). Takes a few seconds.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        design: designInput,
+        width: { type: "integer", minimum: 64, maximum: PNG_MAX_SIDE, description: "Pixels. Default 1600." },
+        height: { type: "integer", minimum: 64, maximum: PNG_MAX_SIDE, description: "Pixels. Default 1000." },
+        time: { type: "number", minimum: 0, description: "Which moment of the animation to capture, in seconds. Default 0." },
+      },
+      required: ["design"],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+    run: async (args, ctx) => {
+      const state = await resolveDesign(args.design);
+      const design = encodeShare(state);
+      const size = fitSize(Number(args.width ?? 1600), Number(args.height ?? 1000));
+      const time = Math.min(600, Math.max(0, Number(args.time) || 0));
+      try {
+        if (!(await allowRequest(`png:${ctx.caller}`, 12))) throw new ToolError("Too many renders, try again in a minute");
+      } catch (e) {
+        if (e instanceof ToolError) throw e;
+      }
+      // The preview keeps the shape but stays small enough to send inline.
+      const scale = Math.min(1, PREVIEW_SIDE / Math.max(size.width, size.height));
+      const preview = { width: Math.round(size.width * scale), height: Math.round(size.height * scale) };
+      let png: Buffer;
+      try {
+        png = await renderPng(ctx.origin, design, preview, time);
+      } catch (e) {
+        console.error("[mcp] render_png", e instanceof Error ? e.message : e);
+        throw new ToolError("The renderer is unavailable right now; open the studio link and export from there");
+      }
+      const query = new URLSearchParams({ d: design, w: String(size.width), h: String(size.height), ...(time ? { t: String(time) } : {}) });
+      const info = {
+        download_url: `${SITE_URL}/api/png?${query}`,
+        width: size.width,
+        height: size.height,
+        preview_width: preview.width,
+        preview_height: preview.height,
+        studio_url: studioUrl(design),
+      };
+      return new ToolContent(
+        [
+          { type: "image", data: png.toString("base64"), mimeType: "image/png" },
+          { type: "text", text: JSON.stringify(info, null, 2) },
+        ],
+        info,
+      );
     },
   },
   {
