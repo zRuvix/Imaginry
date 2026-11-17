@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import LaunchButton from "@/components/landing/LaunchButton";
 import { Logo } from "@/components/Logo";
 
-const LINKS = [
+const LINKS: NavLink[] = [
   { href: "/gallery", label: "Gallery" },
   { href: "/explore", label: "Explore" },
   { href: "#layers", label: "Layers" },
@@ -15,7 +15,9 @@ const LINKS = [
 ];
 
 /** One fixed, opaque bar on the page's edge lines; a full-screen menu on small screens. */
-export default function HomeNav() {
+type NavLink = { href: string; label: string; current?: boolean };
+
+export default function HomeNav({ links = LINKS }: { links?: NavLink[] }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function HomeNav() {
           <Logo size={26} />
         </Link>
         <div className="hidden items-center gap-8 text-[15px] text-[var(--bone)]/70 lg:flex">
-          {LINKS.map((l) => (
-            <a key={l.href} href={l.href} className="ulink transition-colors hover:text-[var(--bone)]">
+          {links.map((l: NavLink) => (
+            <a key={l.href} href={l.href} aria-current={l.current ? "page" : undefined} className="ulink transition-colors hover:text-[var(--bone)] aria-[current=page]:text-[var(--bone)]">
               {l.label}
             </a>
           ))}
@@ -58,7 +60,7 @@ export default function HomeNav() {
       {open && (
         <div id="home-menu" data-lenis-prevent className="fixed inset-x-0 bottom-0 top-[var(--nav)] overflow-y-auto bg-[var(--ink)] lg:hidden">
           <ul className="wrap flex flex-col pt-6">
-            {LINKS.map((l) => (
+            {links.map((l: NavLink) => (
               <li key={l.href} className="border-b border-white/10">
                 <a
                   href={l.href}

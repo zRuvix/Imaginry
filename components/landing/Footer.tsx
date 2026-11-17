@@ -116,6 +116,7 @@ const COLUMNS = [
     links: [
       { label: "Open studio", href: "/studio" },
       { label: "Start from a photo", href: "/studio" },
+      { label: "AI agents (MCP)", href: "/agents" },
       { label: "Sponsor", href: "/sponsor" },
     ],
   },

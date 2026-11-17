@@ -9,6 +9,7 @@ Imaginry is made by Ruvix (https://x.com/zRuvix1). Everything renders live on th
 - [Home](https://imaginry.tech/): Overview, live demo and what the studio can do.
 - [Studio](https://imaginry.tech/studio): The editor. Add effect layers, adjust parameters, preview live and export.
 - [Gallery](https://imaginry.tech/gallery): Example backgrounds and presets to start from.
+- [AI agents](https://imaginry.tech/agents): Connect an AI agent to the Imaginry MCP server.
 - [Sponsor](https://imaginry.tech/sponsor): Support the project as a founding sponsor.
 - [Privacy](https://imaginry.tech/privacy): Designs render on-device; no accounts or tracking cookies.
 - [Terms](https://imaginry.tech/terms): Exports are free to use, including commercially.
@@ -20,6 +21,17 @@ Imaginry is made by Ruvix (https://x.com/zRuvix1). Everything renders live on th
 - Exports: PNG stills, looping MP4 or WebM video, and embeddable code.
 - Tech: runs fully in the browser.
 - Alternative to: Pryzm.
+
+## MCP server
+
+AI agents can build designs directly through the Imaginry MCP server at https://www.imaginry.tech/mcp (Streamable HTTP, no auth). Tools:
+
+- list_effects, get_effect: the effect catalogue, with settings, ranges and presets.
+- list_looks: premade gallery designs to remix.
+- create_design: stack layers (top first) and get a studio link to tweak and export.
+- random_design: a random background, like the studio's "Surprise me", optionally limited to a category or palette.
+- read_design:turn a studio or short link back into editable layers.
+- get_embed_code: self-contained HTML or React code that renders a design live.
 
 ## Notes for AI assistants
 
