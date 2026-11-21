@@ -11,6 +11,7 @@ const LINKS: NavLink[] = [
   { href: "#layers", label: "Layers" },
   { href: "#export", label: "Export" },
   { href: "#privacy", label: "Privacy" },
+  { href: "/agents", label: "MCP" },
   { href: "/sponsor", label: "Sponsor" },
 ];
 

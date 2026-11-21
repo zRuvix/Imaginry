@@ -9,6 +9,7 @@ import {
   type SharedDesign,
   type Socials,
 } from "@/lib/profile";
+import { AVATAR_SEED, avatarUrl, newAvatarSeed } from "@/lib/avatar";
 import { decodeShare, encodeShare } from "@/lib/studio/storage";
 import { pool } from "./auth-options";
 import { auth } from "./auth";
@@ -38,20 +39,28 @@ type ProfileRow = {
   last_name: string | null;
   socials: Socials;
   is_public: boolean;
+  /** The Google picture. */
   image: string | null;
+  avatar_seed: string | null;
 };
+
+/** The picture shown everywhere: the generated avatar when there is one, else Google's. */
+const pictureOf = (r: { image: string | null; avatar_seed: string | null }) =>
+  r.avatar_seed ? avatarUrl(r.avatar_seed) : r.image;
 
 const toProfile = (r: ProfileRow): Profile => ({
   username: r.username,
   firstName: r.first_name,
   lastName: r.last_name,
-  image: r.image,
+  image: pictureOf(r),
+  avatarSeed: r.avatar_seed,
+  googleImage: r.image,
   socials: r.socials ?? {},
   isPublic: r.is_public,
 });
 
 const PROFILE_SELECT = `
-  select p.user_id, p.username, p.first_name, p.last_name, p.socials, p.is_public, u.image
+  select p.user_id, p.username, p.first_name, p.last_name, p.socials, p.is_public, p.avatar_seed, u.image
   from profile p join "user" u on u.id = p.user_id`;
 
 /** A first username from the email, e.g. "jane.doe" or "jane.doe4821" if taken. */
@@ -77,11 +86,12 @@ async function loadOrCreateProfile(user: { id: string; email: string }): Promise
     // Insert and read back in one round trip.
     const r = await db().query<ProfileRow>(
       `with ins as (
-         insert into profile (user_id, username) values ($1, $2) on conflict do nothing returning *
+         insert into profile (user_id, username, avatar_seed) values ($1, $2, $3) on conflict do nothing returning *
        )
-       select ins.user_id, ins.username, ins.first_name, ins.last_name, ins.socials, ins.is_public, u.image
+       select ins.user_id, ins.username, ins.first_name, ins.last_name, ins.socials, ins.is_public, ins.avatar_seed, u.image
        from ins join "user" u on u.id = ins.user_id`,
-      [user.id, candidate],
+      // Every new account starts with its own generated avatar instead of the Google photo.
+      [user.id, candidate, newAvatarSeed()],
     );
     if (r.rows[0]) return toProfile(r.rows[0]);
   }
@@ -141,7 +151,7 @@ export async function updateProfile(
            updated_at = now()
          where user_id = $1 returning *
        )
-       select upd.user_id, upd.username, upd.first_name, upd.last_name, upd.socials, upd.is_public, u.image,
+       select upd.user_id, upd.username, upd.first_name, upd.last_name, upd.socials, upd.is_public, upd.avatar_seed, u.image,
               old.username as old_username
        from upd join "user" u on u.id = upd.user_id cross join old`,
       [userId, username, firstName, lastName, JSON.stringify(socials), input.isPublic !== false],
@@ -157,7 +167,15 @@ export async function updateProfile(
   return { profile: toProfile(row) };
 }
 
-type DesignRow = { id: string; title: string; data: string; created_at: Date | string; username: string; image: string | null };
+type DesignRow = {
+  id: string;
+  title: string;
+  data: string;
+  created_at: Date | string;
+  username: string;
+  image: string | null;
+  avatar_seed: string | null;
+};
 
 const toDesign = (r: DesignRow): SharedDesign => ({
   id: r.id,
@@ -165,11 +183,11 @@ const toDesign = (r: DesignRow): SharedDesign => ({
   data: r.data,
   createdAt: new Date(r.created_at).toISOString(),
   username: r.username,
-  image: r.image,
+  image: pictureOf(r),
 });
 
 const DESIGN_SELECT = `
-  select d.id, d.title, d.data, d.created_at, p.username, u.image
+  select d.id, d.title, d.data, d.created_at, p.username, p.avatar_seed, u.image
   from design d join profile p on p.user_id = d.user_id join "user" u on u.id = d.user_id`;
 
 type ProfileRecord = { userId: string; profile: Profile; designs: SharedDesign[] };
@@ -177,10 +195,10 @@ type ProfileRecord = { userId: string; profile: Profile; designs: SharedDesign[]
 /** A profile and all its designs in a single query. */
 async function loadProfileRecord(username: string): Promise<ProfileRecord | null> {
   const r = await db().query<ProfileRow & { designs: DesignRow[] }>(
-    `select p.user_id, p.username, p.first_name, p.last_name, p.socials, p.is_public, u.image,
+    `select p.user_id, p.username, p.first_name, p.last_name, p.socials, p.is_public, p.avatar_seed, u.image,
        coalesce((
          select json_agg(d order by d.created_at desc) from (
-           select id, title, data, created_at, p.username, u.image
+           select id, title, data, created_at, p.username, p.avatar_seed, u.image
            from design where user_id = p.user_id order by created_at desc limit 200
          ) d
        ), '[]') as designs
@@ -219,6 +237,25 @@ export function exploreFeed(before: string | null) {
   });
 }
 
+/**
+ * Switches the profile picture: a seed shows that generated avatar, null goes
+ * back to the Google photo. Returns null when the seed isn't valid.
+ */
+export async function setAvatar(userId: string, seed: unknown): Promise<Profile | null> {
+  if (seed !== null && (typeof seed !== "string" || !AVATAR_SEED.test(seed))) return null;
+  const r = await db().query<ProfileRow>(
+    `with upd as (update profile set avatar_seed = $2, updated_at = now() where user_id = $1 returning *)
+     select upd.user_id, upd.username, upd.first_name, upd.last_name, upd.socials, upd.is_public, upd.avatar_seed, u.image
+     from upd join "user" u on u.id = upd.user_id`,
+    [userId, seed],
+  );
+  const row = r.rows[0];
+  if (!row) return null;
+  // The picture shows on the profile page and on every card in Explore.
+  await invalidate(keys.me(userId), keys.profile(row.username), keys.feed(null));
+  return toProfile(row);
+}
+
 const MAX_DESIGNS_PER_USER = 200;
 const ID_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
@@ -249,7 +286,7 @@ export async function publishDesign(
        select $1, $2, $3, $4 where (select count(*) from design where user_id = $2) < $5
        returning *
      )
-     select ins.id, ins.title, ins.data, ins.created_at, p.username, u.image
+     select ins.id, ins.title, ins.data, ins.created_at, p.username, p.avatar_seed, u.image
      from ins join profile p on p.user_id = ins.user_id join "user" u on u.id = ins.user_id`,
     [id, userId, cleanTitle, encodeShare(state), MAX_DESIGNS_PER_USER],
   );

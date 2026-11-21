@@ -95,6 +95,7 @@ export default function AccountBar() {
               setProfile(p);
               setEditing(false);
             }}
+            onAvatarChange={setProfile}
           />,
           document.body,
         )}
@@ -107,7 +108,7 @@ export default function AccountBar() {
           {user ? (
             <>
               <div className="flex items-center gap-2.5 px-1 pb-3">
-                <Avatar src={user.image} name={user.name || user.email} />
+                <Avatar src={profile ? profile.image : user.image} name={user.name || user.email} />
                 <div className="min-w-0">
                   <p className="truncate text-[13.5px] text-bone">{user.name}</p>
                   <p className="truncate text-[12px] text-bone/50">{user.email}</p>
@@ -219,7 +220,7 @@ export default function AccountBar() {
         {isPending ? (
           <span className="skeleton size-8 shrink-0 rounded-full" />
         ) : user ? (
-          <Avatar src={user.image} name={user.name || user.email} />
+          <Avatar src={profile ? profile.image : user.image} name={user.name || user.email} />
         ) : (
           <span className="grid size-8 shrink-0 place-items-center rounded-full bg-raised text-bone/60">
             <User size={16} />

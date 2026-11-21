@@ -173,10 +173,15 @@ export default function ProfilePage() {
               <ProfileEditor
                 profile={page.profile}
                 onClose={() => setEditing(false)}
+                onAvatarChange={(p) => {
+                  setProfile(p);
+                  // The picture also shows on each of this profile's cards.
+                  setPage({ ...page, profile: p, designs: page.designs.map((d) => ({ ...d, image: p.image })) });
+                }}
                 onSaved={(p) => {
                   setProfile(p);
                   setEditing(false);
-                  setPage({ ...page, profile: p });
+                  setPage({ ...page, profile: p, designs: page.designs.map((d) => ({ ...d, image: p.image })) });
                   // A new username means a new address.
                   if (p.username !== page.profile.username) {
                     window.history.replaceState(null, "", `/profile/${p.username}`);

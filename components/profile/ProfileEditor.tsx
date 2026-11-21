@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { X } from "@/components/icons";
+import { Dices, X } from "@/components/icons";
+import { avatarDataUri, newAvatarSeed } from "@/lib/avatar";
 import { useClickOutside } from "@/components/studio/controls";
 import {
   displayName,
@@ -25,15 +26,138 @@ function Label({ children, error }: { children: React.ReactNode; error?: string 
   );
 }
 
-/** Pop-up card for editing your public profile. The avatar comes from Google and can't be changed here. */
+const CANDIDATES = 5;
+const deal = () => Array.from({ length: CANDIDATES }, newAvatarSeed);
+
+/**
+ * The profile picture: a generated avatar (shuffle for new ones and pick one)
+ * or the Google photo. A pick saves right away, separately from the form.
+ */
+function AvatarPicker({
+  profile,
+  name,
+  onChange,
+}: {
+  profile: Profile;
+  name: string;
+  onChange: (p: Profile) => void;
+}) {
+  const [seed, setSeed] = useState(profile.avatarSeed);
+  const [candidates, setCandidates] = useState(deal);
+  const [turns, setTurns] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const latest = useRef(0);
+
+  const choose = async (next: string | null) => {
+    if (next === seed) return;
+    const before = seed;
+    setSeed(next);
+    setError(null);
+    // Only the newest pick may update the screen when clicks overlap.
+    const call = ++latest.current;
+    try {
+      const res = await fetch("/api/profile/avatar", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ seed: next }),
+      });
+      const body = await res.json();
+      if (call !== latest.current) return;
+      if (!res.ok) throw new Error(body.error);
+      onChange(body.profile);
+    } catch {
+      if (call !== latest.current) return;
+      setSeed(before);
+      setError("Couldn’t save your picture");
+    }
+  };
+
+  const shown = seed ? avatarDataUri(seed) : profile.googleImage;
+  const chip = (on: boolean) =>
+    `press relative size-9 shrink-0 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1c1a17] transition-[box-shadow,transform] duration-300 hover:scale-110 ${
+      on ? "ring-bone" : "ring-transparent"
+    }`;
+
+  return (
+    <div className="rounded-[16px] bg-white/[0.04] p-3">
+      <div className="flex items-center gap-3">
+        {shown ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img key={shown} src={shown} alt="" referrerPolicy="no-referrer" className="anim-pop size-14 rounded-full object-cover" />
+        ) : (
+          <span className="grid size-14 place-items-center rounded-full bg-ember/20 font-display text-[20px] text-ember">
+            {name.slice(0, 1).toUpperCase()}
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-[14px]">{name}</p>
+          <p className={`text-[12px] ${error ? "text-ember" : "text-bone/45"}`}>
+            {error ?? (seed ? "A one-of-a-kind picture, drawn from a seed." : "Your Google photo.")}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex items-center gap-2" role="radiogroup" aria-label="Profile picture">
+        {profile.googleImage && (
+          <button
+            type="button"
+            role="radio"
+            aria-checked={seed === null}
+            aria-label="Use my Google photo"
+            title="Your Google photo"
+            onClick={() => choose(null)}
+            className={chip(seed === null)}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={profile.googleImage} alt="" referrerPolicy="no-referrer" className="size-full object-cover" />
+          </button>
+        )}
+        {candidates.map((c, i) => (
+          <button
+            key={c}
+            type="button"
+            role="radio"
+            aria-checked={seed === c}
+            aria-label={`Generated picture ${i + 1}`}
+            onClick={() => choose(c)}
+            className={`${chip(seed === c)} anim-pop`}
+            style={{ animationDelay: `${i * 45}ms` }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={avatarDataUri(c)} alt="" className="size-full" />
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={() => {
+            setCandidates(deal());
+            setTurns((t) => t + 1);
+          }}
+          aria-label="Shuffle new pictures"
+          title="Shuffle"
+          className="press ml-auto flex size-9 shrink-0 items-center justify-center rounded-full bg-white/[0.07] text-bone/75 hover:bg-white/[0.12] hover:text-bone"
+        >
+          <span className="transition-transform duration-500" style={{ transform: `rotate(${turns * 180}deg)` }}>
+            <Dices size={15} />
+          </span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Pop-up card for editing your public profile. */
 export default function ProfileEditor({
   profile,
   onClose,
   onSaved,
+  onAvatarChange,
 }: {
   profile: Profile;
   onClose: () => void;
   onSaved: (p: Profile) => void;
+  /** A new picture was saved (the form stays open). */
+  onAvatarChange?: (p: Profile) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, true, onClose);
@@ -86,20 +210,11 @@ export default function ProfileEditor({
 
         <form onSubmit={save} className="flex min-h-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-4">
-            <div className="flex items-center gap-3 rounded-[16px] bg-white/[0.04] p-3">
-              {profile.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.image} alt="" referrerPolicy="no-referrer" className="size-12 rounded-full object-cover" />
-              ) : (
-                <span className="grid size-12 place-items-center rounded-full bg-ember/20 font-display text-ember">
-                  {username.slice(0, 1).toUpperCase()}
-                </span>
-              )}
-              <div className="min-w-0">
-                <p className="truncate text-[14px]">{displayName({ username, firstName, lastName })}</p>
-                <p className="text-[12px] text-bone/45">Your picture comes from your Google account.</p>
-              </div>
-            </div>
+            <AvatarPicker
+              profile={profile}
+              name={displayName({ username, firstName, lastName })}
+              onChange={(p) => onAvatarChange?.(p)}
+            />
 
             <label className="block">
               <Label error={errors.username}>Username</Label>

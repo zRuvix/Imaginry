@@ -30,6 +30,8 @@ await authOptions.database.query(`
     updated_at  timestamptz not null default now()
   );
   create unique index if not exists profile_username_key on profile (lower(username));
+  -- Seed of the generated avatar (lib/avatar); null shows the Google picture.
+  alter table profile add column if not exists avatar_seed text;
 
   create table if not exists design (
     id          text primary key,

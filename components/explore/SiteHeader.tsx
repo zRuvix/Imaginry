@@ -10,6 +10,7 @@ const LINKS = [
   ["/gallery", "Gallery"],
   ["/explore", "Explore"],
   ["/studio", "Studio"],
+  ["/agents", "MCP"],
 ] as const;
 
 /** Top bar for Explore and profile pages. */

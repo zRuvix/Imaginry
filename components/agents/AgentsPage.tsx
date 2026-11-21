@@ -20,7 +20,7 @@ const NAV = [
   { href: "#setup", label: "Setup" },
   { href: "#tools", label: "Tools" },
   { href: "#prompts", label: "Prompts" },
-  { href: "/agents", label: "Agents", current: true },
+  { href: "/agents", label: "MCP", current: true },
 ];
 
 // ---------------------------------------------------------------- copy

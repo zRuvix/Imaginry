@@ -18,7 +18,12 @@ export type Profile = {
   username: string;
   firstName: string | null;
   lastName: string | null;
+  /** What to show: the generated avatar when there is one, else the Google picture. */
   image: string | null;
+  /** Seed of the generated avatar (see lib/avatar); null when the Google picture is used. */
+  avatarSeed: string | null;
+  /** The Google account picture, so people can switch back to it. */
+  googleImage: string | null;
   socials: Socials;
   isPublic: boolean;
 };

@@ -76,6 +76,7 @@ export default function CommandBar(p: Props) {
           {[
             ["/gallery", "Gallery"],
             ["/explore", "Explore"],
+            ["/agents", "MCP"],
             ["/sponsor", "Sponsor"],
           ].map(([href, label]) => (
             <Link

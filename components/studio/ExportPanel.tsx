@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronDown, X } from "@/components/icons";
+import Link from "next/link";
+import { ArrowUpRight, ChevronDown, X } from "@/components/icons";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { renderOffscreen } from "@/lib/studio/renderer";
@@ -409,6 +410,32 @@ export default function ExportPanel(p: Props) {
             </Action>
           )}
         </Card>
+
+        {/* The MCP server: the same looks, built by an AI agent. */}
+        <Link
+          href="/agents"
+          target="_blank"
+          className="press group relative block overflow-hidden rounded-[20px] bg-white/[0.04] p-4 hover:bg-white/[0.07]"
+        >
+          <span
+            aria-hidden
+            className="absolute -right-8 -top-10 size-28 rounded-full bg-ember/25 blur-2xl transition-transform duration-700 group-hover:scale-125"
+          />
+          <span className="relative flex items-center gap-2 text-[11.5px] font-medium text-ember">
+            <span className="size-1.5 animate-pulse rounded-full bg-ember" />
+            Imaginry MCP
+          </span>
+          <span className="relative mt-1.5 flex items-start justify-between gap-3">
+            <span className="text-[14px] leading-snug text-bone">
+              Let Claude, Cursor or ChatGPT build looks like this for you.
+            </span>
+            <ArrowUpRight
+              size={16}
+              className="mt-0.5 shrink-0 text-bone/50 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-bone"
+            />
+          </span>
+          <span className="relative mt-1 block text-[12.5px] text-bone/50">Free, no API key. Set it up in a minute.</span>
+        </Link>
       </div>
     </div>
   );

@@ -180,6 +180,7 @@ export default function Gallery() {
                   {[
                     ["/gallery", "Gallery"],
                     ["/studio", "Studio"],
+                    ["/agents", "MCP"],
                     ["/sponsor", "Sponsor"],
                   ].map(([href, label]) => (
                     <Link
