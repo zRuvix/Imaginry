@@ -150,7 +150,8 @@ export default function Studio() {
 
   // Keep the selection on a layer that still exists.
   useEffect(() => {
-    if (selected && !state.order.includes(selected)) setSelected(state.order[0] ?? null);
+    // Also picks the top layer when layers come back (say, undoing a clear).
+    if (selected ? !state.order.includes(selected) : state.order.length) setSelected(state.order[0] ?? null);
   }, [state.order, selected]);
 
   const isLocked = useCallback(
@@ -315,6 +316,17 @@ export default function Studio() {
     set((s) => withoutLayer(s, key));
   };
 
+  /** Empties the stack except locked layers. The photo stays in memory so undo brings it back. */
+  const clearLayers = () => {
+    const { order, sections } = stateRef.current;
+    const clearing = order.filter((k) => !sections[k].locked);
+    if (!clearing.length) return notify(order.length ? "Every layer is locked" : "Nothing to clear");
+    set((s) => clearing.reduce(withoutLayer, s));
+    setSelected(order.find((k) => !clearing.includes(k)) ?? null);
+    const kept = order.length - clearing.length;
+    notify(`Cleared ${clearing.length} ${clearing.length === 1 ? "layer" : "layers"}${kept ? `, kept ${kept} locked` : ""} · Ctrl Z to undo`);
+  };
+
   const addLayerFromMenu = (key: SectionKey) => {
     if (key === "image" && !image) return fileRef.current?.click();
     // Start from the effect's first preset so it looks good immediately.
@@ -476,8 +488,8 @@ export default function Studio() {
   };
 
   // ---- keyboard
-  const actions = useRef({ randomize, deleteLayer, flipFlag, zoomImage, resetImageView, photoOnStage });
-  actions.current = { randomize, deleteLayer, flipFlag, zoomImage, resetImageView, photoOnStage };
+  const actions = useRef({ randomize, deleteLayer, clearLayers, flipFlag, zoomImage, resetImageView, photoOnStage });
+  actions.current = { randomize, deleteLayer, clearLayers, flipFlag, zoomImage, resetImageView, photoOnStage };
   const { undo, redo } = history;
   useEffect(() => {
     const typing = (t: EventTarget | null) =>
@@ -509,6 +521,9 @@ export default function Studio() {
         setShortcutsOpen(false);
         setZen(false);
         setExportOpen(false);
+      } else if ((e.key === "Delete" || e.key === "Backspace") && e.shiftKey) {
+        e.preventDefault();
+        actions.current.clearLayers();
       } else if ((e.key === "Delete" || e.key === "Backspace") && sel) actions.current.deleteLayer(sel);
       else if (key === "h" && sel) actions.current.flipFlag(sel, "enabled");
       else if ((e.key === "+" || e.key === "=") && actions.current.photoOnStage) actions.current.zoomImage(1.2);

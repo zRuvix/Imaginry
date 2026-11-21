@@ -14,6 +14,7 @@ const KEYS: [string, string][] = [
   ["[  ]", "Previous / next layer"],
   ["H", "Hide or show the selected layer"],
   ["Delete", "Remove the selected layer"],
+  ["Shift Delete", "Clear all layers (locked ones stay)"],
   ["Ctrl Z", "Undo"],
   ["Ctrl Shift Z", "Redo"],
   ["Ctrl V", "Paste a photo"],
