@@ -2,12 +2,13 @@ import { ArrayBufferTarget as Mp4Target, Muxer as Mp4Muxer } from "mp4-muxer";
 import { ArrayBufferTarget as WebmTarget, Muxer as WebmMuxer } from "webm-muxer";
 import { renderOffscreen } from "./renderer";
 import type { StudioState } from "./schema";
+import type { AnimatedGif } from "./gif";
 
 export type VideoFormat = "mp4" | "webm" | "av1";
 
 export type VideoOptions = {
   state: StudioState;
-  image: TexImageSource | null;
+  image: TexImageSource | AnimatedGif | null;
   width: number;
   height: number;
   fps: number;

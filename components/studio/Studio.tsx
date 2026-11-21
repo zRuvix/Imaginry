@@ -14,6 +14,8 @@ import {
 } from "@/lib/studio/schema";
 import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } from "@/lib/studio/storage";
 import { IMAGE_PAN, IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
+import { AnimatedGif, type StudioImage } from "@/lib/studio/gif";
+import { randomCurves } from "@/lib/studio/curves";
 import { GALLERY, stateForLook } from "@/lib/studio/looks";
 import { useHistory } from "@/lib/studio/useHistory";
 import { useMyProfile } from "@/lib/useMyProfile";
@@ -29,7 +31,7 @@ import Shortcuts from "./Shortcuts";
 import Stage, { ASPECTS, type Aspect, type PanZoom } from "./Stage";
 
 /** Renders a still on the shared offscreen context (returns its own canvas). */
-function renderStill(state: StudioState, width: number, height: number, image: HTMLImageElement | null, time: number) {
+function renderStill(state: StudioState, width: number, height: number, image: StudioImage | null, time: number) {
   return renderOffscreen(state, width, height, { time, image });
 }
 
@@ -99,7 +101,7 @@ export default function Studio() {
   const [aspect, setAspect] = useState<Aspect>("fill");
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(1);
-  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [image, setImage] = useState<StudioImage | null>(null);
   const [saved, setSaved] = useState<SavedDesign[]>([]);
   const [toast, setToast] = useState<{ msg: string; n: number } | null>(null);
   const [exportOpen, setExportOpen] = useState(false);
@@ -189,11 +191,10 @@ export default function Studio() {
   // ---- image
   const loadImageFile = useCallback(
     (file: File) => {
-      const img = new Image();
-      img.onload = () => {
+      const use = (next: StudioImage, label: string) => {
         setImage((prev) => {
           if (prev) URL.revokeObjectURL(prev.src);
-          return img;
+          return next;
         });
         // A solid gradient on top would hide the photo; let it blend over it instead.
         const g = stateRef.current.sections.gradient;
@@ -204,10 +205,26 @@ export default function Studio() {
           return { ...s, sections, order: addLayer(s.order, "image") };
         });
         setSelected("image");
-        notify(blended ? "Gradient now overlays your photo" : "Photo added");
+        notify(blended ? `Gradient now overlays your ${label}` : `${label[0].toUpperCase()}${label.slice(1)} added`);
       };
-      img.onerror = () => notify("Couldn't read that image");
-      img.src = URL.createObjectURL(file);
+      const loadStill = () => {
+        const img = new Image();
+        img.onload = () => use(img, "photo");
+        img.onerror = () => notify("Couldn't read that image");
+        img.src = URL.createObjectURL(file);
+      };
+      if (file.type !== "image/gif") return loadStill();
+      // GIFs play on the image layer's clock; a one-frame GIF is just a photo.
+      AnimatedGif.fromFile(file).then(
+        (gif) => {
+          if (gif.frames.length > 1) use(gif, "GIF");
+          else {
+            URL.revokeObjectURL(gif.src);
+            loadStill();
+          }
+        },
+        () => loadStill(),
+      );
     },
     [notify, set],
   );
@@ -342,6 +359,7 @@ export default function Studio() {
         else if (c.type === "toggle") next[c.key] = Math.random() < 0.5;
         else if (c.type === "color") next[c.key] = randomHex();
         else if (c.type === "colors") next[c.key] = [...pick(PALETTES).colors];
+        else if (c.type === "curves") next[c.key] = randomCurves();
       }
       return { ...s, seed: Math.round(Math.random() * 1000) / 10, sections: { ...s.sections, [key]: next } };
     });

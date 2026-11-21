@@ -172,7 +172,7 @@ export default function Gallery() {
           <div className="relative mx-auto flex max-w-[1600px] gap-6 px-4 md:px-6">
             {/* Sidebar */}
             <aside className="sticky top-0 hidden h-screen w-[260px] shrink-0 flex-col py-6 lg:flex">
-              <div className="glass-panel flex h-full flex-col rounded-[26px] p-5">
+              <div className="glass-panel no-scrollbar flex h-full min-h-0 flex-col overflow-y-auto rounded-[26px] p-5">
                 <Link href="/" aria-label="Imaginry home" className="press group self-start text-bone hover:text-white">
                   <Logo size={28} textClass="text-[18px]" />
                 </Link>
@@ -215,7 +215,11 @@ export default function Gallery() {
                   )}
                 </label>
 
-                <nav aria-label="Moods" className="mt-5 space-y-0.5">
+                {/* On short windows the mood list scrolls so the footer block stays inside the panel. */}
+                <nav aria-label="Moods" className="no-scrollbar -mx-1 mt-5 flex-1 space-y-0.5 overflow-y-auto px-1"
+                  style={{ minHeight: 164 }}
+                >
+
                   {filters.map((f) => {
                     const on = filter === f;
                     return (
@@ -240,7 +244,7 @@ export default function Gallery() {
                   })}
                 </nav>
 
-                <div className="mt-auto space-y-2 pt-6">
+                <div className="shrink-0 space-y-2 pt-6">
                   <SponsorBlock />
                   <LaunchButton
                     label="Open a blank studio"

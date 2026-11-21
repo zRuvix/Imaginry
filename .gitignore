@@ -19,7 +19,7 @@
 
 # production
 /build
-
+/video
 # misc
 .DS_Store
 *.pem
@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# video (Remotion)
+/video/node_modules
+/video/out

@@ -11,7 +11,9 @@ export type Control =
   | { key: string; label: string; type: "select"; options: string[] }
   | { key: string; label: string; type: "color" }
   | { key: string; label: string; type: "colors"; max: number }
-  | { key: string; label: string; type: "toggle" };
+  | { key: string; label: string; type: "toggle" }
+  /** Point curves for RGB and each channel, stored as one string (see lib/studio/curves). */
+  | { key: string; label: string; type: "curves" };
 
 export const CATEGORIES = ["Color", "Light", "Glass & optics", "Distort", "Texture", "Stylize"] as const;
 export type Category = (typeof CATEGORIES)[number];

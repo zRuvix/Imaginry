@@ -2,6 +2,7 @@ import { EFFECTS } from "./effects";
 import type { Sections, Uniform } from "./effects/define";
 import { BLEND_MODES, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
+import { type AnimatedGif, isAnimatedGif } from "./gif";
 
 export { hexToRgb } from "./effects/define";
 
@@ -143,12 +144,28 @@ export class Renderer {
     return tex;
   }
 
-  setImage(image: TexImageSource | null) {
-    const gl = this.gl;
+  /** A GIF on the image layer, and which of its frames is in the texture. */
+  private gif: AnimatedGif | null = null;
+  private gifFrame = -1;
+
+  setImage(image: TexImageSource | AnimatedGif | null) {
+    if (isAnimatedGif(image)) {
+      if (this.gif !== image) this.gifFrame = -1;
+      this.gif = image;
+      this.imageSize = [image.width, image.height];
+      this.hasImage = true;
+      return;
+    }
+    this.gif = null;
     if (!image) {
       this.hasImage = false;
       return;
     }
+    this.uploadImage(image);
+  }
+
+  private uploadImage(image: TexImageSource) {
+    const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.imageTex);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -206,6 +223,15 @@ export class Renderer {
     };
     gl.viewport(0, 0, width, height);
 
+    // A GIF shows the frame for the image layer's own clock.
+    if (this.gif) {
+      const frame = this.gif.indexAt(layerTime(state, "image", time));
+      if (frame !== this.gifFrame) {
+        this.uploadImage(this.gif.frames[frame]);
+        this.gifFrame = frame;
+      }
+    }
+
     const layers = drawList(state, this.hasImage);
     if (layers.length === 0) {
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -252,7 +278,7 @@ export async function renderOffscreen(
   state: StudioState,
   width: number,
   height: number,
-  options: { time?: number; detail?: number; pixel?: number; image?: TexImageSource | null } = {},
+  options: { time?: number; detail?: number; pixel?: number; image?: TexImageSource | AnimatedGif | null } = {},
 ) {
   if (!offscreen || offscreen.canvas.getContext("webgl2")?.isContextLost()) {
     offscreen = new Renderer(document.createElement("canvas"), true);

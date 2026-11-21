@@ -122,7 +122,7 @@ function ImageTile({
       <span className="min-w-0 flex-1">
         <span className="block text-[13.5px] font-medium text-bone">Your image</span>
         <span className="block truncate text-[12px] text-bone/50">
-          {over ? "Drop to use it as the base" : imageUrl ? "Click to replace" : "Upload, paste or drop a photo"}
+          {over ? "Drop to use it as the base" : imageUrl ? "Click to replace" : "Upload, paste or drop a photo or GIF"}
         </span>
       </span>
     </button>

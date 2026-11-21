@@ -27,7 +27,7 @@ export default defineEffect({
   label: "Image",
   category: "Color",
   blurb: "Your own photo as the base layer.",
-  info: "Use a photo as the base; layers above it (like a gradient) can blend over it. Paste from the clipboard or drop an image onto the stage.",
+  info: "Use a photo or an animated GIF as the base (a GIF plays with the layer's animation); layers above it (like a gradient) can blend over it. Paste from the clipboard or drop an image onto the stage.",
   controls,
   defaults: {
     blur: 0,

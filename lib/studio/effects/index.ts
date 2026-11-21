@@ -4,6 +4,7 @@
  * layer slots into the stack by default.
  */
 import adjust from "./color/adjust";
+import curves from "./color/curves";
 import gradient from "./color/gradient";
 import gradientmap from "./color/gradient-map";
 import image from "./color/image";
@@ -91,6 +92,7 @@ export const EFFECTS = [
   godrays,
   // grade
   adjust,
+  curves,
   splittone,
   iridescent,
   gradientmap,

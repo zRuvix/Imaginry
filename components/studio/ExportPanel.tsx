@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } 
 import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { renderOffscreen } from "@/lib/studio/renderer";
 import type { StudioState } from "@/lib/studio/schema";
+import type { StudioImage } from "@/lib/studio/gif";
 import { encodeLoop, videoSupported, type VideoFormat } from "@/lib/studio/video";
 import { ASPECTS, LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, stagePixelRatio, type Aspect } from "./Stage";
 
@@ -137,7 +138,7 @@ function Action({
 
 type Props = {
   state: StudioState;
-  image: HTMLImageElement | null;
+  image: StudioImage | null;
   aspect: Aspect;
   onAspect: (a: Aspect) => void;
   previewSize: { width: number; height: number };

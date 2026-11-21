@@ -17,6 +17,7 @@ import {
 import { IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
 import { PALETTES } from "@/lib/studio/presets";
 import { BLEND_MODES, SCHEMA_BY_KEY, type SectionKey, type StudioState, type Value } from "@/lib/studio/schema";
+import CurveEditor from "./CurveEditor";
 import { ColorInput, ColorList, IconButton, Scrub, Segmented, Select, Toggle } from "./controls";
 
 type Props = {
@@ -240,6 +241,8 @@ export default function Inspector(p: Props) {
                     <Palettes onPick={set(c.key)} />
                   </div>
                 );
+              case "curves":
+                return <CurveEditor key={c.key} value={String(v ?? "")} onChange={set(c.key)} />;
             }
           })}
         </Group>

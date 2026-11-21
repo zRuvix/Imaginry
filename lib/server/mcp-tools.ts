@@ -2,6 +2,7 @@ import "server-only";
 import { SITE_URL } from "@/lib/seo";
 import { fitSize, PNG_MAX_SIDE, renderPng } from "@/lib/server/png";
 import { allowRequest, createShortLink, resolveShortLink } from "@/lib/server/shortlinks";
+import { CHANNELS, formatCurves, MAX_POINTS, parseCurves, type CurvePoint } from "@/lib/studio/curves";
 import { htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { GALLERY, GALLERY_TAGS, stateForLook } from "@/lib/studio/looks";
 import { GROUPS, PALETTES, PRESETS_BY_ID } from "@/lib/studio/presets";
@@ -71,6 +72,14 @@ function describeControl(c: Control) {
       return { key: c.key, label: c.label, type: "colors", format: "array of #rrggbb", maxItems: c.max };
     case "toggle":
       return { key: c.key, label: c.label, type: "boolean" };
+    case "curves":
+      return {
+        key: c.key,
+        label: c.label,
+        type: "curves",
+        format:
+          'object { rgb, red, green, blue }, each an array of [x, y] points on 0..255 (omitted channels stay straight), e.g. { "rgb": [[0,0],[64,40],[192,216],[255,255]] }',
+      };
   }
 }
 
@@ -110,6 +119,21 @@ function coerce(effect: string, c: Control, raw: unknown, warnings: string[]): V
     }
     case "toggle":
       return raw === true || raw === "true" || raw === 1;
+    case "curves": {
+      if (typeof raw === "string") return formatCurves(parseCurves(raw));
+      if (!raw || typeof raw !== "object") throw new ToolError(`${where} must be an object of point lists like { "rgb": [[0,0],[255,255]] }`);
+      const input = raw as Record<string, unknown>;
+      const out = parseCurves("");
+      for (const ch of CHANNELS) {
+        const pts = input[ch];
+        if (pts === undefined) continue;
+        if (!Array.isArray(pts) || pts.some((pt) => !Array.isArray(pt) || pt.length !== 2 || !pt.every((v) => Number.isFinite(Number(v)))))
+          throw new ToolError(`${where}.${ch} must be an array of [x, y] points on 0..255`);
+        if (pts.length > MAX_POINTS) warnings.push(`${where}.${ch}: only the first ${MAX_POINTS} points are used`);
+        out[ch] = (pts as unknown[][]).map((pt) => [Number(pt[0]), Number(pt[1])] as CurvePoint);
+      }
+      return formatCurves(out);
+    }
   }
 }
 

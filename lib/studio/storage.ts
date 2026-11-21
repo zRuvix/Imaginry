@@ -1,3 +1,4 @@
+import { formatCurves, parseCurves } from "./curves";
 import { PRESETS_BY_ID } from "./presets";
 import {
   BLEND_MODES,
@@ -71,6 +72,9 @@ function packValue(c: Control, v: Value): string {
       return String(v).replace("#", "");
     case "colors":
       return (Array.isArray(v) ? v : []).map((x) => String(x).replace("#", "")).join("-");
+    case "curves":
+      // Already link-safe: "x-y" points, "_" between points, "~" between channels.
+      return formatCurves(parseCurves(v));
   }
 }
 
@@ -86,6 +90,8 @@ function unpackValue(c: Control, raw: string): Value {
       return `#${raw}`;
     case "colors":
       return raw.split("-").filter(Boolean).map((x) => `#${x}`);
+    case "curves":
+      return formatCurves(parseCurves(raw));
   }
 }
 

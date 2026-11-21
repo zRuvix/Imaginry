@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from "react";
 import { Renderer } from "@/lib/studio/renderer";
 import type { StudioState } from "@/lib/studio/schema";
+import type { StudioImage } from "@/lib/studio/gif";
 
 export const ASPECTS = {
   fill: null,
@@ -45,7 +46,7 @@ const renderers = new WeakMap<HTMLCanvasElement, Renderer>();
 
 type Props = {
   state: StudioState;
-  image: HTMLImageElement | null;
+  image: StudioImage | null;
   aspect: Aspect;
   playing: boolean;
   speed: number;
