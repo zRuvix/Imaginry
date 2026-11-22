@@ -36,7 +36,7 @@ export function pageMeta({
 }: {
   title?: string;
   description: string;
-  path: string;
+  path?: string;
   image: string;
   imageAlt: string;
 }): Metadata {
@@ -45,7 +45,7 @@ export function pageMeta({
   return {
     ...(title ? { title } : {}),
     description,
-    alternates: { canonical: path },
+    alternates: { canonical: path ?? null },
     openGraph: {
       type: "website",
       siteName: SITE_NAME,

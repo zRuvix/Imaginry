@@ -6,7 +6,6 @@ import { pageMeta } from "@/lib/seo";
 export const metadata: Metadata = pageMeta({
   title: "Profile",
   description: "Designs this creator made in the Imaginry studio and shared. Open any of them and remix it.",
-  path: "/studio",
   image: "/og/gallery.png",
   imageAlt: "Shared Imaginry designs with a fluted green glass ring",
 });
