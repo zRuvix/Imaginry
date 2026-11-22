@@ -25,7 +25,7 @@ export default function LegalPage({
     <ReactLenis root options={{ lerp: 0.08 }}>
       <CurtainFooter className="min-h-screen text-bone">
         <header className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 md:px-6">
-          <Link href="/" aria-label="Imaginry home" className="group text-bone">
+          <Link href="/studio" aria-label="Imaginry studio" className="group text-bone">
             <Logo size={26} />
           </Link>
           <Link

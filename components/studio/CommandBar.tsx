@@ -69,25 +69,9 @@ export default function CommandBar(p: Props) {
   return (
     <div className="pointer-events-none absolute inset-x-4 top-4 z-30 flex items-start justify-between gap-3">
       <div className={`${pill} pl-3 pr-2`}>
-        <Link href="/" aria-label="Imaginry home" className="press group mr-2 text-bone hover:text-white">
+        <Link href="/studio" aria-label="Imaginry studio" className="press group mr-2 text-bone hover:text-white">
           <Logo size={28} textClass="text-[16px]" />
         </Link>
-        <nav aria-label="Site" className="mr-1 hidden items-center xl:flex">
-          {[
-            ["/gallery", "Gallery"],
-            ["/explore", "Explore"],
-            ["/agents", "MCP"],
-            ["/sponsor", "Sponsor"],
-          ].map(([href, label]) => (
-            <Link
-              key={href}
-              href={href}
-              className="press rounded-full px-2.5 py-1.5 text-[13px] text-bone/60 hover:bg-white/[0.08] hover:text-bone"
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
         <IconButton label="Undo (Ctrl+Z)" onClick={p.onUndo} disabled={!p.canUndo}>
           <Undo2 size={15} />
         </IconButton>
@@ -194,7 +178,7 @@ export default function CommandBar(p: Props) {
         <IconButton label="Save to library" onClick={p.onSave}>
           <Bookmark size={15} />
         </IconButton>
-        <IconButton label="Publish to Explore" onClick={p.onPublish}>
+        <IconButton label="Publish" onClick={p.onPublish}>
           <Globe size={15} />
         </IconButton>
         <button

@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMeta({
     "The rules for using Imaginry: what you can do with your exports, what's not allowed, and the limits of a free browser studio.",
   path: "/terms",
   image: "/og/home.png",
-  imageAlt: "Imaginry — backgrounds that move",
+  imageAlt: "Imaginry abstract background maker with a fluted blue glass ring",
 });
 
 const SECTIONS: LegalSection[] = [

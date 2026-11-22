@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMeta({
     "How Imaginry handles your data: designs render on your device, photos never leave it, optional Google sign-in, no ad cookies, and only anonymous usage stats.",
   path: "/privacy",
   image: "/og/home.png",
-  imageAlt: "Imaginry — backgrounds that move",
+  imageAlt: "Imaginry abstract background maker with a fluted blue glass ring",
 });
 
 const SECTIONS: LegalSection[] = [

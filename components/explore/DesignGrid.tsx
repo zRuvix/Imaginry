@@ -15,7 +15,7 @@ const H = 480;
  * Renders each design's thumbnail on the shared offscreen WebGL context,
  * one at a time, and returns object URLs keyed by design id.
  */
-function useDesignImages(designs: SharedDesign[]) {
+export function useDesignImages(designs: SharedDesign[]) {
   const [urls, setUrls] = useState<Record<string, string>>({});
   const key = designs.map((d) => d.id).join("|");
   // eslint-disable-next-line react-hooks/exhaustive-deps

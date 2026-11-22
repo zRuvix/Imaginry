@@ -6,12 +6,7 @@ import LaunchButton from "@/components/landing/LaunchButton";
 import { Logo } from "@/components/Logo";
 import { useMyProfile } from "@/lib/useMyProfile";
 
-const LINKS = [
-  ["/gallery", "Gallery"],
-  ["/explore", "Explore"],
-  ["/studio", "Studio"],
-  ["/agents", "MCP"],
-] as const;
+const LINKS = [["/studio", "Studio"]] as const;
 
 /** Top bar for Explore and profile pages. */
 export default function SiteHeader() {
@@ -20,7 +15,7 @@ export default function SiteHeader() {
   return (
     <header className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-5 md:px-6">
       <div className="flex items-center gap-4">
-        <Link href="/" aria-label="Imaginry home" className="press group text-bone hover:text-white">
+        <Link href="/studio" aria-label="Imaginry studio" className="press group text-bone hover:text-white">
           <Logo size={28} textClass="text-[17px]" />
         </Link>
         <nav aria-label="Site" className="flex gap-0.5 text-[13.5px]">

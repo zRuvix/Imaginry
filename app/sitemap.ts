@@ -3,11 +3,10 @@ import { SITE_URL } from "@/lib/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages: [string, number, "weekly" | "monthly"][] = [
-    ["", 1, "weekly"],
-    ["/studio", 0.9, "weekly"],
-    ["/gallery", 0.8, "weekly"],
+    ["/", 1, "weekly"],
+    ["/studio", 1, "weekly"],
     ["/explore", 0.8, "weekly"],
-    ["/agents", 0.6, "monthly"],
+    ["/agents", 0.7, "monthly"],
     ["/sponsor", 0.5, "monthly"],
     ["/sponsor/terms", 0.2, "monthly"],
     ["/privacy", 0.2, "monthly"],

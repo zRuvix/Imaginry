@@ -98,23 +98,13 @@ export default function PublishDialog({
 
         {published ? (
           <div className="mt-4 space-y-3">
-            <p className="text-[13.5px] leading-relaxed text-bone/70">
-              “{published.title}” is on your profile and in Explore.
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <Link
-                href={`/profile/${username}`}
-                className="press flex h-10 items-center justify-center gap-1.5 rounded-full bg-raised text-[13px] text-bone/80 hover:text-bone"
-              >
-                Your profile <ArrowUpRight size={13} />
-              </Link>
-              <Link
-                href="/explore"
-                className="press flex h-10 items-center justify-center gap-1.5 rounded-full bg-bone text-[13px] font-medium text-ink hover:bg-white"
-              >
-                Explore <ArrowUpRight size={13} />
-              </Link>
-            </div>
+            <p className="text-[13.5px] leading-relaxed text-bone/70">“{published.title}” is on your profile.</p>
+            <Link
+              href={`/profile/${username}`}
+              className="press flex h-10 items-center justify-center gap-1.5 rounded-full bg-bone text-[13px] font-medium text-ink hover:bg-white"
+            >
+              Your profile <ArrowUpRight size={13} />
+            </Link>
           </div>
         ) : (
           <form onSubmit={publish} className="mt-4 space-y-3">

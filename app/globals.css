@@ -37,6 +37,7 @@
   --font-display: var(--font-special-gothic), var(--font-familjen), sans-serif;
   --font-condensed: var(--font-cabin-condensed), var(--font-familjen), sans-serif;
   --font-outfit: var(--font-outfit), var(--font-familjen), sans-serif;
+  --font-lexend: var(--font-lexend), var(--font-outfit), sans-serif;
 }
 
 html,
@@ -784,4 +785,42 @@ html.rv-on [data-rise]:not(.is-in) { opacity: 0; transform: translateY(26px); }
   .agents-fan__card > img,
   .pill-cta,
   .pill-cta__badge { transition: none; }
+}
+
+/* ---------------------------------------------------------------- landing hero */
+
+
+@keyframes hero-canvas {
+  0% { background-position: 0% 30%; }
+  50% { background-position: 100% 70%; }
+  100% { background-position: 0% 30%; }
+}
+.hero-canvas {
+  background:
+    radial-gradient(60% 70% at 25% 30%, #ff5a2c 0%, transparent 60%),
+    radial-gradient(55% 60% at 80% 75%, #9b8cff 0%, transparent 65%),
+    radial-gradient(50% 50% at 70% 20%, #e9c46a 0%, transparent 60%),
+    linear-gradient(135deg, #2b2a28, #7fa9cf);
+  background-size: 200% 200%;
+  animation: hero-canvas 12s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-canvas { animation: none; }
+}
+
+/* Studio screenshot in the hero: sized by both width and height on landscape
+   screens, full width on portrait ones so it still reaches the grass. */
+.hero-shot {
+  width: min(100%, 56vw, 100svh, 1180px);
+  min-width: min(100%, 560px);
+}
+@media (orientation: portrait) {
+  .hero-shot { width: 100%; }
+}
+
+/* A freshly rendered look fades and settles into its card. */
+@keyframes look-in {
+  from { opacity: 0; transform: scale(1.06); }
+  to { opacity: 1; transform: none; }
 }

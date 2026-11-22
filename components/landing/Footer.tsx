@@ -8,7 +8,7 @@ import type { CuratedLook } from "@/lib/studio/looks";
 import { freshLooks } from "./fresh";
 import { clamp01 } from "./motion";
 import Pebbles from "./Pebbles";
-import { useLookImages } from "./useLookImages";
+import { useLookImages } from "@/components/studio/useLookImages";
 import { Logo } from "@/components/Logo";
 import { Credit } from "@/components/Credit";
 import { LEGAL_PAGES } from "@/lib/legal";
@@ -103,22 +103,8 @@ export function BadgeMarquee() {
 
 const COLUMNS = [
   {
-    title: "Explore",
-    links: [
-      { label: "Gallery", href: "/gallery" },
-      { label: "Explore", href: "/explore" },
-      { label: "How it works", href: "/#how" },
-      { label: "Export", href: "/#export" },
-    ],
-  },
-  {
     title: "Make",
-    links: [
-      { label: "Open studio", href: "/studio" },
-      { label: "Start from a photo", href: "/studio" },
-      { label: "AI agents (MCP)", href: "/agents" },
-      { label: "Sponsor", href: "/sponsor" },
-    ],
+    links: [{ label: "Open studio", href: "/studio" }],
   },
   { title: "Legal", links: LEGAL_PAGES },
 ];

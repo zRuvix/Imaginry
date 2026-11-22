@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
     return new Response(null, { status: 405, headers: { ...CORS, Allow: "POST, OPTIONS" } });
   }
   // A person who opened the URL in a browser gets the setup page.
-  if (accept.includes("text/html")) return Response.redirect(new URL("/agents", request.url), 307);
+  if (accept.includes("text/html")) return Response.redirect(new URL("/studio", request.url), 307);
   return json({
     name: SERVER_INFO.title,
     description: "MCP server for AI agents. Connect an MCP client to this URL (Streamable HTTP).",

@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMeta({
     "Terms for sponsoring Imaginry: how bookings, payment, placements, brand approval, cancellations and refunds work.",
   path: "/sponsor/terms",
   image: "/og/sponsor.png",
-  imageAlt: "Sponsor Imaginry — put your brand in the studio",
+  imageAlt: "Sponsor Imaginry with a sculpted violet glass ring",
 });
 
 const SECTIONS: LegalSection[] = [
@@ -21,8 +21,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <p>
         These terms apply when a brand (&ldquo;you&rdquo;) books a paid placement on Imaginry from {OPERATOR}. They sit
-        alongside our general <Link href="/terms">terms of use</Link>. Plans and prices are listed on the{" "}
-        <Link href="/sponsor">sponsor page</Link>.
+        alongside our general <Link href="/terms">terms of use</Link>. Plans and prices are agreed when you book.
       </p>
     ),
   },

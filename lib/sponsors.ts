@@ -1,5 +1,5 @@
 /**
- * Sponsors shown in the studio's top bar, and the plans sold on /sponsor.
+ * Sponsors shown in the studio's top bar.
  * Add a sponsor by pushing an entry to SPONSORS; empty slots invite brands
  * to book one.
  */

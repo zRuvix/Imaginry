@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
-import { ArrowUpRight, CATEGORY_ICONS, Check, Search, Upload, X } from "@/components/icons";
-import { useLookImages } from "@/components/landing/useLookImages";
+import { CATEGORY_ICONS, Check, Search, Upload, X } from "@/components/icons";
+import { useLookImages } from "./useLookImages";
 import { GALLERY, type CuratedLook } from "@/lib/studio/looks";
 import { GROUPS, type Preset } from "@/lib/studio/presets";
 import { CATEGORIES, SCHEMA, SCHEMA_BY_KEY, type Category, type StudioState } from "@/lib/studio/schema";
@@ -134,13 +133,6 @@ function GalleryTab({ onLoad }: { onLoad: (look: CuratedLook) => void }) {
   const urls = useLookImages(GALLERY, 260);
   return (
     <div className="scroll-thin flex-1 overflow-y-auto px-3 pb-4 pt-1">
-      <Link
-        href="/gallery"
-        className="press mb-3 flex items-center justify-between rounded-[14px] bg-white/[0.05] px-3.5 py-2.5 text-[13px] text-bone/75 hover:bg-white/[0.09] hover:text-bone"
-      >
-        Browse the full gallery
-        <ArrowUpRight size={13} />
-      </Link>
       <div className="grid grid-cols-2 gap-x-2 gap-y-3">
         {GALLERY.map((look, i) => (
           <button

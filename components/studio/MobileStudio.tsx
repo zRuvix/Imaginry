@@ -126,7 +126,7 @@ export default function MobileStudio(p: Props) {
 
       {/* Top bar */}
       <header className="glass-panel fixed inset-x-2.5 top-2.5 z-30 flex h-[52px] items-center gap-0.5 rounded-full pl-2.5 pr-1.5">
-        <Link href="/" aria-label="Imaginry home" className="group mr-auto text-bone">
+        <Link href="/studio" aria-label="Imaginry studio" className="group mr-auto text-bone">
           <Logo size={28} textClass="text-[15px]" />
         </Link>
         <BarButton label="Undo" onClick={p.onUndo} disabled={!p.canUndo}>

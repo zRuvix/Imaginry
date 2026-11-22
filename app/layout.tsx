@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import {
   Cabin_Condensed,
   Familjen_Grotesk,
+  Lexend,
   Outfit,
   Special_Gothic_Expanded_One,
 } from "next/font/google";
@@ -33,12 +34,17 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
+const lexend = Lexend({
+  variable: "--font-lexend",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   ...pageMeta({
     description: DEFAULT_DESCRIPTION,
     path: "/",
     image: "/og/home.png",
-    imageAlt: "Imaginry — backgrounds that move",
+    imageAlt: "Imaginry abstract background maker with a fluted blue glass ring",
   }),
   metadataBase: new URL(SITE_URL),
   title: {
@@ -66,7 +72,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       suppressHydrationWarning
       lang="en"
-      className={`${familjen.variable} ${specialGothic.variable} ${cabinCondensed.variable} ${outfit.variable} h-full antialiased`}
+      className={`${familjen.variable} ${specialGothic.variable} ${cabinCondensed.variable} ${outfit.variable} ${lexend.variable} h-full antialiased`}
     >
       <head>
         {/* Umami analytics */}
