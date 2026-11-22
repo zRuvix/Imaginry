@@ -9,7 +9,7 @@ export const metadata: Metadata = pageMeta({
   title: "Sponsor Terms",
   description:
     "Terms for sponsoring Imaginry: how bookings, payment, placements, brand approval, cancellations and refunds work.",
-  path: "/sponsor/terms",
+  path: "/sponsor-terms",
   image: "/og/sponsor.png",
   imageAlt: "Sponsor Imaginry with a sculpted violet glass ring",
 });

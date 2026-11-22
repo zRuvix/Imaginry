@@ -8,7 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ["/explore", 0.8, "weekly"],
     ["/agents", 0.7, "monthly"],
     ["/sponsor", 0.5, "monthly"],
-    ["/sponsor/terms", 0.2, "monthly"],
+    ["/sponsor-terms", 0.2, "monthly"],
     ["/privacy", 0.2, "monthly"],
     ["/terms", 0.2, "monthly"],
   ];

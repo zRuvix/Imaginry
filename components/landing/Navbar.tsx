@@ -17,7 +17,8 @@ const LINKS = [
 /** Logo left, a white pill of text links centred, one CTA right; a sidebar menu below md. */
 export default function Navbar() {
   const pathname = usePathname();
-  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  // A link is current on its own page and pages under it, so /sponsor-terms doesn't light up Sponsor.
+  const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
 
   return (
     <header className="relative z-20 flex items-center justify-between px-5 pt-5 sm:px-8 sm:pt-6 xl:px-10 xl:pt-8">

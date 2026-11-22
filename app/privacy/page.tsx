@@ -165,7 +165,7 @@ const SECTIONS: LegalSection[] = [
           </li>
           <li>
             <strong>Sponsors.</strong> If you book a sponsorship, we keep what you send us to run it: your brand name,
-            logo, link and the conversation we had. See the <Link href="/sponsor/terms">sponsor terms</Link>.
+            logo, link and the conversation we had. See the <Link href="/sponsor-terms">sponsor terms</Link>.
           </li>
         </ul>
         <p>

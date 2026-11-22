@@ -108,7 +108,7 @@ const SECTIONS: LegalSection[] = [
       <p>
         Some brands pay to appear in the studio, gallery or homepage, and their links are marked as sponsored. We
         don&rsquo;t control and aren&rsquo;t responsible for sponsor or other third-party sites. Booking a placement is
-        covered by our <Link href="/sponsor/terms">sponsor terms</Link>.
+        covered by our <Link href="/sponsor-terms">sponsor terms</Link>.
       </p>
     ),
   },

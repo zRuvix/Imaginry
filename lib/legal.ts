@@ -10,5 +10,5 @@ export const CONTACT_URL = CREATOR_URL;
 export const LEGAL_PAGES = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
-  { label: "Sponsor terms", href: "/sponsor/terms" },
+  { label: "Sponsor terms", href: "/sponsor-terms" },
 ];
