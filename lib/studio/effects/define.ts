@@ -33,6 +33,12 @@ export type EffectDefinition<K extends string = string> = {
   category: Category;
   /** One line shown in the inspector header. */
   blurb: string;
+  /**
+   * Drawn as separate cells (characters, dots, lenses, tiles). Random motion
+   * then moves every cell on its own through cellWander() instead of warping
+   * the whole pattern.
+   */
+  cells?: boolean;
   info?: string;
   controls: Control[];
   defaults: Record<string, Value>;

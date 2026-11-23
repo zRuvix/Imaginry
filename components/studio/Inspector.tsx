@@ -81,6 +81,7 @@ const MOTION_HINTS: Record<MotionType, string> = {
   sway: "Rocks the effect back and forth.",
   spin: "Turns the effect around the centre.",
   orbit: "Circles the effect around its spot.",
+  random: "Every patch wanders its own way. Scatter sets how small the patches are.",
 };
 
 /**
@@ -90,34 +91,48 @@ const MOTION_HINTS: Record<MotionType, string> = {
 function MotionGroup({
   section,
   hasClock,
+  cells,
   playing,
   set,
 }: {
   section: StudioState["sections"][SectionKey];
   hasClock: boolean;
+  /** Drawn as cells, so Random moves each cell on its own. */
+  cells: boolean;
   playing: boolean;
   set: (key: string) => (v: Value) => void;
 }) {
   const m = motionOf(section);
   const directional = m.type === "drift" || m.type === "sway";
-  const ranged = m.type === "sway" || m.type === "orbit";
+  const ranged = m.type === "sway" || m.type === "orbit" || m.type === "random";
   const moving = m.type !== "off" || (hasClock && m.tempo !== 0);
   const note = !section.animated
     ? "This layer is held still. Press play in its header to let it move."
     : moving && !playing
       ? "Press Animate in the top bar to see it move."
-      : MOTION_HINTS[m.type];
+      : m.type === "random" && cells
+        ? "Every piece wanders its own way."
+        : MOTION_HINTS[m.type];
 
   return (
     <Group title="Motion" delay={80}>
-      <Segmented
-        label="Motion"
-        size="sm"
-        value={m.type}
-        options={MOTIONS}
-        onChange={(v) => set("motion")(v)}
-        render={(v) => <span className="capitalize">{v}</span>}
-      />
+      {/* Six choices don't fit one row of the panel, so they sit in a 3×2 grid. */}
+      <div className="grid grid-cols-3 gap-1 rounded-[16px] bg-white/[0.05] p-1" role="radiogroup" aria-label="Motion">
+        {MOTIONS.map((v) => (
+          <button
+            key={v}
+            type="button"
+            role="radio"
+            aria-checked={m.type === v}
+            onClick={() => set("motion")(v)}
+            className={`press h-8 rounded-[12px] text-[13px] capitalize ${
+              m.type === v ? "bg-bone font-medium text-ink" : "text-bone/70 hover:bg-white/[0.08] hover:text-bone"
+            }`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
       {directional && (
         <>
           <div className="grid grid-cols-8 gap-1" role="radiogroup" aria-label="Direction">
@@ -172,6 +187,17 @@ function MotionGroup({
           step={0.01}
           format={(v) => `${Math.round(v * 100)}%`}
           onChange={set("motionDistance")}
+        />
+      )}
+      {m.type === "random" && !cells && (
+        <Scrub
+          label="Scatter"
+          value={m.scatter}
+          min={0}
+          max={1}
+          step={0.01}
+          format={(v) => `${Math.round(v * 100)}%`}
+          onChange={set("motionScatter")}
         />
       )}
       {hasClock && (
@@ -336,7 +362,13 @@ export default function Inspector(p: Props) {
           <Select label="Blend" value={String(section.layerBlend ?? "normal")} options={BLEND_MODES} onChange={set("layerBlend")} />
         </Group>
 
-        <MotionGroup section={section} hasClock={schema.glsl.includes("uTime")} playing={p.playing} set={set} />
+        <MotionGroup
+          section={section}
+          hasClock={schema.glsl.includes("uTime")}
+          cells={Boolean(schema.cells)}
+          playing={p.playing}
+          set={set}
+        />
 
         <Group title="Settings" delay={100}>
           {schema.controls.map((c) => {

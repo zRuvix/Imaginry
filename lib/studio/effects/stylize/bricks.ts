@@ -9,6 +9,8 @@ const controls: Control[] = [
 /** Rebuilds the image from toy bricks with studs on top. */
 export default defineEffect({
   key: "bricks",
+  // Built from cells: Random motion moves each cell on its own.
+  cells: true,
   label: "Bricks",
   category: "Stylize",
   blurb: "Rebuilds the image from toy bricks.",
@@ -37,7 +39,7 @@ void main() {
   float s = max(uBrSize * unit(), 4.0 * px());
   vec2 cell = floor(fc / s);
   vec2 f = fract(fc / s) - 0.5;
-  vec3 c = floor(inputFc((cell + 0.5) * s) * uBrColors + 0.5) / uBrColors;
+  vec3 c = floor(inputFc((cell + 0.5 + cellWander(cell)) * s) * uBrColors + 0.5) / uBrColors;
 
   float bevel = smoothstep(0.42, 0.5, max(abs(f.x), abs(f.y)));
   vec3 col = c * (1.0 - bevel * 0.35) + (f.x < -f.y ? 0.06 : -0.06) * bevel;

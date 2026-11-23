@@ -142,7 +142,7 @@ function coerce(effect: string, c: Control, raw: unknown, warnings: string[]): V
 function motionSummary(s: SectionState) {
   const m = motionOf(s);
   return {
-    ...(m.type === "off" ? {} : { motion: { type: m.type, angle: m.angle, speed: m.speed, distance: m.distance } }),
+    ...(m.type === "off" ? {} : { motion: { type: m.type, angle: m.angle, speed: m.speed, distance: m.distance, scatter: m.scatter } }),
     ...(m.tempo === 1 ? {} : { tempo: m.tempo }),
   };
 }
@@ -245,6 +245,7 @@ function buildState(args: Args, warnings: string[]): StudioState {
         ["angle", "motionAngle", -180, 180],
         ["speed", "motionSpeed", -2, 2],
         ["distance", "motionDistance", 0, 1],
+        ["scatter", "motionScatter", 0, 1],
       ] as const) {
         if (motion[field] === undefined) continue;
         const v = Number(motion[field]);
@@ -339,10 +340,16 @@ const layerSchema = {
       description:
         "Move this layer's pattern while the picture below stays put (e.g. glass flutes sliding across the image). Plays when the design animates.",
       properties: {
-        type: { type: "string", enum: MOTIONS, description: "drift: steady slide; sway: back and forth; spin: rotate; orbit: circle." },
+        type: { type: "string", enum: MOTIONS, description: "drift: steady slide; sway: back and forth; spin: rotate; orbit: circle; random: every patch wanders its own way." },
         angle: { type: "number", minimum: -180, maximum: 180, description: "Direction in degrees for drift and sway; 0 is right, 90 is up." },
         speed: { type: "number", minimum: -2, maximum: 2, description: "Negative runs it the other way. Default 0.5." },
-        distance: { type: "number", minimum: 0, maximum: 1, description: "How far sway and orbit travel. Default 0.5." },
+        distance: { type: "number", minimum: 0, maximum: 1, description: "How far sway, orbit and random travel. Default 0.5." },
+        scatter: {
+          type: "number",
+          minimum: 0,
+          maximum: 1,
+          description: "Random only: 0 moves big swirls together, 1 moves roughly every dot or character on its own. Default 0.6.",
+        },
       },
       additionalProperties: false,
     },

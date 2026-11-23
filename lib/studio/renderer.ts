@@ -1,6 +1,6 @@
 import { EFFECTS } from "./effects";
 import type { Sections, Uniform } from "./effects/define";
-import { BLEND_MODES, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
+import { BLEND_MODES, SCHEMA_BY_KEY, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
 import { type AnimatedGif, isAnimatedGif } from "./gif";
 import { motionAt, motionOf } from "./motion";
@@ -43,8 +43,8 @@ export function layerTime(state: StudioState, key: SectionKey, time: number) {
 export function layerMotionUniforms(state: StudioState, key: SectionKey, time: number): Record<string, Uniform> {
   const t = layerTime(state, key, time);
   const m = motionOf(state.sections[key]);
-  const { off, rot } = motionAt(m, t);
-  return { uTime: t * m.tempo, uMoveOff: off, uMoveRot: rot };
+  const { off, rot, wander, cell } = motionAt(m, t, Boolean(SCHEMA_BY_KEY[key].cells));
+  return { uTime: t * m.tempo, uMoveOff: off, uMoveRot: rot, uWander: wander, uCellWander: cell };
 }
 
 /**

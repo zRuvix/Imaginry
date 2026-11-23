@@ -29,6 +29,10 @@ uniform float uLayerBlend;
 // through the inverse, so the picture under the effect stays put.
 uniform vec2 uMoveOff;
 uniform float uMoveRot;
+// Random wander: amplitude (shorter-side units), patches per shorter side, clock.
+uniform vec3 uWander;
+// Random motion for cell-based effects: amplitude (in cells), clock.
+uniform vec2 uCellWander;
 
 #define TAU 6.28318530718
 
@@ -71,13 +75,39 @@ vec3 screen(vec3 a, vec3 b) { return 1.0 - (1.0 - a) * (1.0 - b); }
 
 // Effect shaders read gl_FragCoord through motionFC() and uInput through
 // inputTex() (shader.ts rewrites them), so every effect can move.
+// Each patch of the pattern wanders around its home in its own direction:
+// two value-noise fields sliding different ways give every patch a bounded,
+// ever-changing offset.
+vec2 wanderAt(vec2 fc) {
+  if (uWander.x <= 0.0) return vec2(0.0);
+  float m = min(uRes.x, uRes.y);
+  vec2 q = fc / m * uWander.y + uSeed * 0.37;
+  float t = uWander.z;
+  vec2 a = vec2(noise(q + vec2(t, 0.3 * t)), noise(q + vec2(41.3, 17.9) - vec2(0.4 * t, t)));
+  vec2 b = vec2(noise(q * 1.7 + vec2(9.1, 3.7) - vec2(0.8 * t, 0.5 * t)), noise(q * 1.7 + vec2(-0.6 * t, 0.9 * t)));
+  return ((a + b) - 1.0) * 1.6 * uWander.x * m;
+}
+// A cell's own wandering offset, in cells: every character, dot or lens
+// heads its own way and keeps changing course. Zero unless Random is on.
+vec2 cellWander(vec2 id) {
+  if (uCellWander.x <= 0.0) return vec2(0.0);
+  float t = uCellWander.y;
+  vec2 h = vec2(hash(id + uSeed * 1.3), hash(id.yx + 7.7 + uSeed));
+  vec2 w = vec2(noise(vec2(t + h.x * 97.0, h.y * 53.0)), noise(vec2(h.y * 41.0, t * 0.9 + h.x * 71.0)));
+  return (w - 0.5) * 2.0 * uCellWander.x;
+}
+// Cell effects look this many cells around for neighbours that wandered in.
+int cellReach() { return uCellWander.x > 0.0 ? 1 : 0; }
+
 vec2 moveFc(vec2 fc) {
   vec2 c = uRes * 0.5;
-  return rot(uMoveRot) * (fc - c) + c - uMoveOff * min(uRes.x, uRes.y);
+  return rot(uMoveRot) * (fc - c) + c - uMoveOff * min(uRes.x, uRes.y) - wanderAt(fc);
 }
+// Exact for drift, sway, spin and orbit; for random wander a first-order
+// inverse, close enough that the picture below barely shifts.
 vec2 unmoveFc(vec2 fc) {
   vec2 c = uRes * 0.5;
-  return rot(-uMoveRot) * (fc - c + uMoveOff * min(uRes.x, uRes.y)) + c;
+  return rot(-uMoveRot) * (fc - c + uMoveOff * min(uRes.x, uRes.y) + wanderAt(fc)) + c;
 }
 vec4 motionFC() { return vec4(moveFc(gl_FragCoord.xy), gl_FragCoord.zw); }
 vec4 inputTex(vec2 uv) { return texture(uInput, unmoveFc(uv * uRes) / uRes); }

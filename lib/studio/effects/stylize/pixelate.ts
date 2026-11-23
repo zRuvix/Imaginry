@@ -5,6 +5,8 @@ const controls: Control[] = [slider("size", "Size", 2, 120, 1)];
 /** Big, honest pixels. */
 export default defineEffect({
   key: "pixelate",
+  // Built from cells: Random motion moves each cell on its own.
+  cells: true,
   label: "Pixelate",
   category: "Stylize",
   blurb: "Big, honest pixels.",
@@ -22,7 +24,9 @@ uniform float uPixSize;
 
 void main() {
   float s = max(uPixSize * unit(), px());
-  emit(inputFc((floor(gl_FragCoord.xy / s) + 0.5) * s));
+  vec2 cell = floor(gl_FragCoord.xy / s);
+  // With Random on, every block's colour comes from its own wandering spot.
+  emit(inputFc((cell + 0.5 + cellWander(cell)) * s));
 }
 `,
 });

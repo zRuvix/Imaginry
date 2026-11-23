@@ -11,6 +11,8 @@ const controls: Control[] = [
 /** Print-style dot screens. */
 export default defineEffect({
   key: "halftone",
+  // Built from cells: Random motion moves each cell on its own.
+  cells: true,
   label: "Halftone",
   category: "Stylize",
   blurb: "Print-style dot screens.",
@@ -50,18 +52,30 @@ void main() {
   float cs = max(uHalfSize * unit(), 2.0 * px());
   mat2 r = rot(radians(uHalfAngle));
   vec2 rf = r * fc;
-  vec2 cell = floor(rf / cs);
-  vec2 local = fract(rf / cs) - 0.5;
-  vec3 c = inputFc(transpose(r) * ((cell + 0.5) * cs));
-  float l = luma(c);
+  vec2 home = floor(rf / cs);
+  vec2 lf = fract(rf / cs);
   float aa = 1.5 / cs;
-  if (uHalfMono > 0.5) {
-    float rad = sqrt(1.0 - l) * 0.7;
-    emit(mix(uHalfPaper, uHalfInk, 1.0 - smoothstep(rad - aa, rad + aa, length(local))));
-  } else {
-    float rad = sqrt(l) * 0.7;
-    emit(mix(vec3(0.03), c * 1.1, 1.0 - smoothstep(rad - aa, rad + aa, length(local))));
+  int reach = cellReach();
+  float cover = 0.0;
+  vec3 dotColor = vec3(0.0);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      if (abs(i) > reach || abs(j) > reach) continue;
+      vec2 g = vec2(float(i), float(j));
+      vec2 cell = home + g;
+      vec2 local = lf - g - 0.5 - cellWander(cell);
+      vec3 c = inputFc(transpose(r) * ((cell + 0.5) * cs));
+      float l = luma(c);
+      float rad = (uHalfMono > 0.5 ? sqrt(1.0 - l) : sqrt(l)) * 0.7;
+      float k = 1.0 - smoothstep(rad - aa, rad + aa, length(local));
+      if (k > cover || (i == 0 && j == 0 && cover == 0.0)) {
+        cover = max(cover, k);
+        dotColor = c;
+      }
+    }
   }
+  if (uHalfMono > 0.5) emit(mix(uHalfPaper, uHalfInk, cover));
+  else emit(mix(vec3(0.03), dotColor * 1.1, cover));
 }
 `,
 });

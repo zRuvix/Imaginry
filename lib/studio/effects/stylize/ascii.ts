@@ -5,6 +5,8 @@ const controls: Control[] = [slider("size", "Size", 4, 40, 0.5), { key: "colored
 /** Rebuilds the image from characters. */
 export default defineEffect({
   key: "ascii",
+  // Built from cells: Random motion moves each cell on its own.
+  cells: true,
   label: "ASCII",
   category: "Stylize",
   blurb: "Rebuilds the image from characters.",
@@ -35,12 +37,7 @@ float character(int n, vec2 p) {
   return 0.0;
 }
 
-void main() {
-  vec2 fc = gl_FragCoord.xy;
-  float cs = max(uAsciiSize * unit(), 4.0 * px());
-  vec2 cell = floor(fc / cs);
-  vec3 c = inputFc((cell + 0.5) * cs);
-  float g = luma(c);
+int glyphFor(float g) {
   int n = 0;
   if (g > 0.1) n = 4096;
   if (g > 0.2) n = 65600;
@@ -50,7 +47,32 @@ void main() {
   if (g > 0.6) n = 15252014;
   if (g > 0.7) n = 13199452;
   if (g > 0.8) n = 11512810;
-  float on = character(n, fract(fc / cs) * 2.0 - 1.0);
+  return n;
+}
+
+void main() {
+  vec2 fc = gl_FragCoord.xy;
+  float cs = max(uAsciiSize * unit(), 4.0 * px());
+  vec2 home = floor(fc / cs);
+  vec2 local = fract(fc / cs);
+  // Each character takes its colour from its home cell and may wander into
+  // a neighbour's, so look one cell around when Random is on.
+  int reach = cellReach();
+  float on = 0.0;
+  vec3 c = inputFc((home + 0.5) * cs);
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      if (abs(i) > reach || abs(j) > reach) continue;
+      vec2 g = vec2(float(i), float(j));
+      vec2 cell = home + g;
+      vec3 cc = inputFc((cell + 0.5) * cs);
+      float hit = character(glyphFor(luma(cc)), (local - g - cellWander(cell)) * 2.0 - 1.0);
+      if (hit > on) {
+        on = hit;
+        c = cc;
+      }
+    }
+  }
   emit(uAsciiColored > 0.5 ? c * on * 1.15 : vec3(on * 0.92));
 }
 `,

@@ -116,6 +116,7 @@ function encodeLayer(state: StudioState, key: SectionKey) {
     if (motion.angle !== MOTION_DEFAULTS.angle) changed.push(`ma=${num(motion.angle)}`);
     if (motion.speed !== MOTION_DEFAULTS.speed) changed.push(`ms=${num(motion.speed)}`);
     if (motion.distance !== MOTION_DEFAULTS.distance) changed.push(`md=${num(motion.distance)}`);
+    if (motion.scatter !== MOTION_DEFAULTS.scatter) changed.push(`mc=${num(motion.scatter)}`);
   }
   if (motion.tempo !== MOTION_DEFAULTS.tempo) changed.push(`tp=${num(motion.tempo)}`);
 
@@ -158,6 +159,7 @@ function decodeCompact(text: string): StudioState | null {
       else if (k === "ma") section.motionAngle = Number(raw) || 0;
       else if (k === "ms") section.motionSpeed = Number(raw) || 0;
       else if (k === "md") section.motionDistance = Number(raw) || 0;
+      else if (k === "mc") section.motionScatter = Number(raw) || 0;
       else if (k === "tp") section.tempo = Math.max(0, Number(raw) || 0);
       else if (k === "t") {
         section.animated = false;

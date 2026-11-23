@@ -1,5 +1,5 @@
 import { drawList, layerMix, layerTime, toUniforms } from "./renderer";
-import { SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
+import { SCHEMA_BY_KEY, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
 import { MOTION_JS, motionOf, packMotion } from "./motion";
 
@@ -29,7 +29,7 @@ export function lookFor(state: StudioState, time: number): Look {
   const layers = drawList(state, false).map((key) => {
     const { opacity, blend } = layerMix(state, key);
     const motion = motionOf(state.sections[key]);
-    const packed = packMotion(motion);
+    const packed = packMotion(motion, Boolean(SCHEMA_BY_KEY[key].cells));
     const mix = {
       o: +opacity.toFixed(3),
       b: blend,
@@ -123,7 +123,7 @@ function mountImaginry(canvas, look, opts) {
       var t = layer.frozen == null ? time : layer.frozen, mv = motionAt(layer.m, t);
       uniforms(layer.p, Object.assign({}, look.uniforms, {
         uRes: [w, h], uDetail: 1, uPixel: 1, uImgSize: [1, 1], uTime: t * layer.tp,
-        uMoveOff: mv.off, uMoveRot: mv.rot, uLayerOpacity: layer.o, uLayerBlend: layer.b
+        uMoveOff: mv.off, uMoveRot: mv.rot, uWander: mv.wander, uCellWander: mv.cell, uLayerOpacity: layer.o, uLayerBlend: layer.b
       }));
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, i === 0 ? base : targets[(i - 1) % 2].tex);

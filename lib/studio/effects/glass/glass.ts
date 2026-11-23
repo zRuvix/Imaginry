@@ -20,6 +20,8 @@ const controls: Control[] = [
 /** Refracts everything below through lenses. */
 export default defineEffect({
   key: "glass",
+  // Built from cells: Random motion moves each cell on its own.
+  cells: true,
   label: "Glass",
   category: "Glass & optics",
   blurb: "Refracts everything below through lenses.",
@@ -111,7 +113,8 @@ Lens lensAt(vec2 q) {
     // Real flutes are never perfectly straight: the image bows into arcs
     // across each strip as refraction increases.
     float bow = (u * u - 0.4) * w * 0.45 * uGlassDist;
-    L.q = vec2(cx + (q.x - cx) * keep, q.y + shift + bow);
+    vec2 roam = cellWander(vec2(id, 0.0)) * w;
+    L.q = vec2(cx + (q.x - cx) * keep + roam.x * 0.4, q.y + shift + bow + roam.y * 1.5);
     L.n = vec2(slope(u), 0.0);
     L.u = u;
     L.edge = abs(u);
@@ -122,7 +125,7 @@ Lens lensAt(vec2 q) {
     vec2 u = fract(g) * 2.0 - 1.0;
     vec2 c = (id + 0.5) * w;
     vec2 shift = (vec2(hash(id + uSeed), hash(id.yx + 3.1 + uSeed)) - 0.5) * uGlassStagger * 0.15;
-    L.q = c + (q - c) * keep + shift;
+    L.q = c + (q - c) * keep + shift + cellWander(id) * w * 1.2;
     L.n = vec2(slope(u.x), slope(u.y));
     L.u = (u.x - u.y) * 0.5;
     L.edge = max(abs(u.x), abs(u.y));
@@ -130,6 +133,9 @@ Lens lensAt(vec2 q) {
     // hammered / frosted: tilt from a noise height field
     float k = seg * 0.5;
     float e = 0.004;
+    // No cells here: with Random on, the hammered surface itself slowly flows.
+    vec2 flow = uCellWander.x > 0.0 ? vec2(0.6, -0.4) * uCellWander.y * 0.15 : vec2(0.0);
+    q += flow / k;
     float h = fbm(q * k + uSeed);
     vec2 grad = vec2(fbm((q + vec2(e, 0.0)) * k + uSeed) - h, fbm((q + vec2(0.0, e)) * k + uSeed) - h) / e;
     L.n = grad / k * 1.2;
@@ -144,7 +150,7 @@ Lens lensAt(vec2 q) {
     float id = floor(x);
     float u = fract(x) * 2.0 - 1.0;
     float rc = (id + 0.5) * w;
-    float ang = atan(q.y, q.x) + (hash(vec2(id, uSeed)) - 0.5) * uGlassStagger * 1.5;
+    float ang = atan(q.y, q.x) + (hash(vec2(id, uSeed)) - 0.5) * uGlassStagger * 1.5 + cellWander(vec2(id, 0.0)).x * 0.6;
     L.q = vec2(cos(ang), sin(ang)) * (rc + (r - rc) * keep);
     L.n = dir * slope(u);
     L.u = u;
@@ -158,7 +164,7 @@ Lens lensAt(vec2 q) {
     vec2 c = (id + 0.5 + off) * w;
     float rr = min(length(l), 1.0);
     vec2 shift = (vec2(hash(id + uSeed), hash(id.yx + 7.0 + uSeed)) - 0.5) * uGlassStagger * 0.15;
-    L.q = c + (q - c) * keep + shift;
+    L.q = c + (q - c) * keep + shift + cellWander(id) * w * 1.2;
     L.n = l / sqrt(max(1.0 - rr * rr, 0.08));
     L.u = (l.x - l.y) * 0.5;
     L.edge = rr;

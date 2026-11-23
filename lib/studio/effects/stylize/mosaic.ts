@@ -10,6 +10,8 @@ const controls: Control[] = [
 /** Stained-glass cells with leaded edges. */
 export default defineEffect({
   key: "mosaic",
+  // Built from cells: Random motion moves each cell on its own.
+  cells: true,
   label: "Mosaic",
   category: "Stylize",
   blurb: "Stained-glass cells with leaded edges.",
@@ -49,7 +51,7 @@ void main() {
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
       vec2 g = vec2(float(i), float(j));
-      vec2 o = 0.5 + (hash2(ip + g + uSeed) - 0.5) * uMosJitter;
+      vec2 o = 0.5 + (hash2(ip + g + uSeed) - 0.5) * uMosJitter + cellWander(ip + g) * 0.45;
       vec2 r = g + o - fp;
       float d = dot(r, r);
       if (d < d1) {
