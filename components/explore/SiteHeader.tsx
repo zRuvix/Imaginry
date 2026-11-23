@@ -53,7 +53,7 @@ export default function SiteHeader() {
           </Link>
         ) : null}
         <span className="hidden sm:block">
-          <LaunchButton className="h-10 bg-bone px-4 text-[13.5px] text-ink hover:bg-white" iconSize={14} />
+          <LaunchButton className="h-10 px-4 text-[13.5px]" iconSize={14} />
         </span>
       </div>
     </header>

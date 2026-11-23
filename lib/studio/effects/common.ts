@@ -24,6 +24,11 @@ uniform sampler2D uInput;
 
 uniform float uLayerOpacity;
 uniform float uLayerBlend;
+// Layer motion (lib/studio/motion.ts): the layer's pattern is offset (in units
+// of the shorter side) and rotated about the centre; the layer below is read
+// through the inverse, so the picture under the effect stays put.
+uniform vec2 uMoveOff;
+uniform float uMoveRot;
 
 #define TAU 6.28318530718
 
@@ -64,11 +69,24 @@ float luma(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
 
 vec3 screen(vec3 a, vec3 b) { return 1.0 - (1.0 - a) * (1.0 - b); }
 
+// Effect shaders read gl_FragCoord through motionFC() and uInput through
+// inputTex() (shader.ts rewrites them), so every effect can move.
+vec2 moveFc(vec2 fc) {
+  vec2 c = uRes * 0.5;
+  return rot(uMoveRot) * (fc - c) + c - uMoveOff * min(uRes.x, uRes.y);
+}
+vec2 unmoveFc(vec2 fc) {
+  vec2 c = uRes * 0.5;
+  return rot(-uMoveRot) * (fc - c + uMoveOff * min(uRes.x, uRes.y)) + c;
+}
+vec4 motionFC() { return vec4(moveFc(gl_FragCoord.xy), gl_FragCoord.zw); }
+vec4 inputTex(vec2 uv) { return texture(uInput, unmoveFc(uv * uRes) / uRes); }
+
 vec2 toP(vec2 fc) { return (fc / uRes - 0.5) * vec2(aspect(), 1.0); }
-vec2 fragP() { return toP(gl_FragCoord.xy); }
+vec2 fragP() { return toP(motionFC().xy); }
 // The layer below, addressed in centered aspect space or in pixels.
-vec3 inputAt(vec2 p) { return texture(uInput, p / vec2(aspect(), 1.0) + 0.5).rgb; }
-vec3 inputFc(vec2 fc) { return texture(uInput, fc / uRes).rgb; }
+vec3 inputAt(vec2 p) { return inputTex(p / vec2(aspect(), 1.0) + 0.5).rgb; }
+vec3 inputFc(vec2 fc) { return inputTex(fc / uRes).rgb; }
 float unit() { return min(uRes.x, uRes.y) / 600.0 * uDetail; }
 float px() { return uPixel > 0.0 ? uPixel : 1.0; }
 // Photoshop-style blend of top over base, then faded by opacity.

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useRef } from "react";
 import { LEGAL_PAGES } from "@/lib/legal";
-import { BTN_MOTION } from "./buttonMotion";
 
 /** Panorama of sky over a low grassy rise; 2000×667 (3:1). */
 const PHOTO = "/landing/footer.webp";
@@ -68,7 +67,7 @@ export default function SkyFooter() {
             </h2>
             <Link
               href="/studio"
-              className={`font-outfit mt-6 inline-flex rounded-[10px] bg-[#1b1b1b] px-5 py-3 text-[14px] text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] hover:bg-[#2b2b2b] xl:rounded-[12px] xl:px-7 xl:py-4 xl:text-[16px] ${BTN_MOTION}`}
+              className="blue-button blue-button-large mt-6"
             >
               Open studio
             </Link>

@@ -134,5 +134,4 @@ export const CATEGORY_ICONS = {
   Distort: filled(RDrop, "CategoryDistort"),
   Texture: filled(RGrid, "CategoryTexture"),
   Stylize: filled(RBrush, "CategoryStylize"),
-  Lab: filled(MagicStar, "CategoryLab"),
 } as const;

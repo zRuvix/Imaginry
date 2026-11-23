@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useDesignImages } from "@/components/explore/DesignGrid";
 import type { SharedDesign } from "@/lib/profile";
-import { BTN_MOTION, CARD_MOTION, ZOOM_MOTION } from "./buttonMotion";
+import { CARD_MOTION, ZOOM_MOTION } from "./buttonMotion";
 
 type Page = { designs: SharedDesign[]; next: string | null };
 
@@ -60,7 +60,7 @@ export default function ExploreFeed() {
         </p>
         <Link
           href="/studio"
-          className={`font-outfit mt-6 inline-flex rounded-[10px] bg-[#1b1b1b] px-5 py-3 text-[14px] text-white hover:bg-[#2b2b2b] ${BTN_MOTION}`}
+          className="blue-button blue-button-large mt-6"
         >
           Open studio
         </Link>
@@ -118,7 +118,7 @@ export default function ExploreFeed() {
             type="button"
             onClick={more}
             disabled={loadingMore}
-            className={`font-outfit rounded-[10px] bg-[#f3f4f5] px-5 py-3 text-[14px] text-[#141414] hover:bg-[#e9ebed] disabled:cursor-wait disabled:opacity-60 ${BTN_MOTION}`}
+            className="blue-button blue-button-large disabled:cursor-wait disabled:opacity-60"
           >
             {loadingMore ? "Loading…" : "Show more designs"}
           </button>

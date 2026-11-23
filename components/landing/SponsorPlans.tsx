@@ -20,7 +20,7 @@ export default function SponsorPlans() {
             aria-checked={billing === b}
             onClick={() => setBilling(b)}
             className={`font-outfit min-h-10 rounded-[9px] px-4 text-[14px] capitalize ${BTN_MOTION} ${
-              billing === b ? "bg-white text-[#141414] shadow-[0_1px_2px_rgba(20,30,40,0.1)]" : "text-[#6b7075] hover:text-[#141414]"
+              billing === b ? "blue-button" : "text-[#6b7075] hover:text-[#141414]"
             }`}
           >
             {b}
@@ -67,9 +67,7 @@ export default function SponsorPlans() {
                 href={CREATOR_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`font-outfit mt-8 flex min-h-12 items-center justify-center rounded-[10px] text-[14.5px] ${BTN_MOTION} ${
-                  dark ? "bg-white text-[#141414] hover:bg-[#ededed]" : "bg-[#1b1b1b] text-white hover:bg-[#2b2b2b]"
-                }`}
+                className="blue-button blue-button-large mt-8"
               >
                 Book {plan.name}
               </a>

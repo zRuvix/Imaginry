@@ -5,7 +5,6 @@ import Link from "next/link";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import { useLenis } from "lenis/react";
 import { useRef, useState, type ReactNode } from "react";
-import { BTN_MOTION } from "./buttonMotion";
 
 type Tile = { name: string; meta: string; icon: IconName };
 
@@ -185,7 +184,7 @@ export default function PinnedFeatures({ hero }: { hero: ReactNode }) {
               </AnimatePresence>
               <Link
                 href="/studio"
-                className={`font-outfit mt-6 w-fit rounded-[12px] bg-[#6b6b6b] px-6 py-3.5 text-[15px] font-semibold text-white hover:bg-[#5c5c5c] xl:mt-8 xl:px-7 xl:py-4 xl:text-[17px] ${BTN_MOTION}`}
+                className="blue-button blue-button-large mt-6 w-fit xl:mt-8"
               >
                 {s.cta}
               </Link>
@@ -229,7 +228,7 @@ export default function PinnedFeatures({ hero }: { hero: ReactNode }) {
                   aria-selected={i === step}
                   onClick={() => goTo(i)}
                   className={`font-outfit min-h-11 flex-1 cursor-pointer rounded-[10px] text-[14px] font-semibold transition-colors duration-200 ${
-                    i === step ? "bg-[#141414] text-white" : "text-[#3a3d40]"
+                    i === step ? "blue-button" : "text-[#3a3d40]"
                   }`}
                 >
                   {t.tab}
@@ -271,7 +270,7 @@ export default function PinnedFeatures({ hero }: { hero: ReactNode }) {
             </AnimatePresence>
             <Link
               href="/studio"
-              className={`font-outfit mt-3 flex min-h-11 w-full items-center justify-center rounded-[10px] bg-[#6b6b6b] text-[15px] font-semibold text-white hover:bg-[#5c5c5c] ${BTN_MOTION}`}
+              className="blue-button blue-button-large mt-3 w-full"
             >
               {s.cta}
             </Link>

@@ -144,7 +144,7 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => setEditing(true)}
-                  className="press flex h-10 items-center gap-2 self-start rounded-full bg-white/[0.06] px-4 text-[13.5px] text-bone/85 hover:bg-white/[0.12] hover:text-bone md:self-auto"
+                  className="blue-button flex h-10 items-center gap-2 self-start rounded-full px-4 text-[13.5px] md:self-auto"
                 >
                   <Pencil size={13} /> Edit profile
                 </button>
@@ -163,7 +163,7 @@ export default function ProfilePage() {
                 </p>
                 {page.isOwner && (
                   <div className="mt-6 flex justify-center">
-                    <LaunchButton className="h-11 bg-bone px-5 text-[14px] text-ink hover:bg-white" iconSize={14} />
+                    <LaunchButton className="h-11 px-5 text-[14px]" iconSize={14} />
                   </div>
                 )}
               </div>

@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { GALLERY, type CuratedLook } from "@/lib/studio/looks";
 import { useLookImages } from "@/components/studio/useLookImages";
-import { BTN_MOTION, CARD_MOTION, ZOOM_MOTION } from "./buttonMotion";
+import { CARD_MOTION, ZOOM_MOTION } from "./buttonMotion";
 
 const LOOKS = GALLERY.slice(0, 12);
 
@@ -58,7 +58,7 @@ export default function LooksGallery() {
             </p>
             <Link
               href="/studio"
-              className={`font-outfit mt-5 inline-flex rounded-[10px] bg-[#1b1b1b] px-5 py-3 text-[14px] text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] hover:bg-[#2b2b2b] xl:rounded-[12px] xl:px-6 xl:py-3.5 xl:text-[15.5px] ${BTN_MOTION}`}
+              className="blue-button blue-button-large mt-5"
             >
               Browse all looks
             </Link>

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import {
+  ArrowRight,
   CATEGORY_ICONS,
   Dices,
   Eye,
@@ -15,6 +16,7 @@ import {
   Upload,
 } from "@/components/icons";
 import { IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
+import { MOTIONS, motionOf, type MotionType } from "@/lib/studio/motion";
 import { PALETTES } from "@/lib/studio/presets";
 import { BLEND_MODES, SCHEMA_BY_KEY, type SectionKey, type StudioState, type Value } from "@/lib/studio/schema";
 import CurveEditor from "./CurveEditor";
@@ -23,6 +25,8 @@ import { ColorInput, ColorList, IconButton, Scrub, Segmented, Select, Toggle } f
 type Props = {
   state: StudioState;
   selected: SectionKey | null;
+  /** Whether the studio clock is running (Animate). */
+  playing: boolean;
   imageUrl: string | null;
   onChange: (section: SectionKey, key: string, value: Value) => void;
   onShuffle: (key: SectionKey) => void;
@@ -70,6 +74,122 @@ function Palettes({ onPick }: { onPick: (colors: string[]) => void }) {
   );
 }
 
+const COMPASS = [0, 45, 90, 135, 180, -135, -90, -45];
+const MOTION_HINTS: Record<MotionType, string> = {
+  off: "",
+  drift: "Slides the effect steadily one way.",
+  sway: "Rocks the effect back and forth.",
+  spin: "Turns the effect around the centre.",
+  orbit: "Circles the effect around its spot.",
+};
+
+/**
+ * Moves the layer's effect over the picture below it (any effect), plus the
+ * tempo of the effect's own built-in animation where it has one.
+ */
+function MotionGroup({
+  section,
+  hasClock,
+  playing,
+  set,
+}: {
+  section: StudioState["sections"][SectionKey];
+  hasClock: boolean;
+  playing: boolean;
+  set: (key: string) => (v: Value) => void;
+}) {
+  const m = motionOf(section);
+  const directional = m.type === "drift" || m.type === "sway";
+  const ranged = m.type === "sway" || m.type === "orbit";
+  const moving = m.type !== "off" || (hasClock && m.tempo !== 0);
+  const note = !section.animated
+    ? "This layer is held still. Press play in its header to let it move."
+    : moving && !playing
+      ? "Press Animate in the top bar to see it move."
+      : MOTION_HINTS[m.type];
+
+  return (
+    <Group title="Motion" delay={80}>
+      <Segmented
+        label="Motion"
+        size="sm"
+        value={m.type}
+        options={MOTIONS}
+        onChange={(v) => set("motion")(v)}
+        render={(v) => <span className="capitalize">{v}</span>}
+      />
+      {directional && (
+        <>
+          <div className="grid grid-cols-8 gap-1" role="radiogroup" aria-label="Direction">
+            {COMPASS.map((a) => (
+              <button
+                key={a}
+                type="button"
+                role="radio"
+                aria-checked={Math.round(m.angle) === a || (a === 180 && Math.round(m.angle) === -180)}
+                aria-label={`Direction ${a}°`}
+                title={`${a}°`}
+                onClick={() => set("motionAngle")(a)}
+                className={`press flex h-8 items-center justify-center rounded-[10px] ${
+                  Math.round(m.angle) === a || (a === 180 && Math.round(m.angle) === -180)
+                    ? "bg-bone text-ink"
+                    : "bg-white/[0.05] text-bone/70 hover:bg-white/[0.1] hover:text-bone"
+                }`}
+              >
+                {/* Screen y points down, so a positive angle (up) turns the arrow anticlockwise. */}
+                <ArrowRight size={13} style={{ transform: `rotate(${-a}deg)` }} />
+              </button>
+            ))}
+          </div>
+          <Scrub
+            label="Direction"
+            value={m.angle}
+            min={-180}
+            max={180}
+            step={1}
+            format={(v) => `${Math.round(v)}°`}
+            onChange={set("motionAngle")}
+          />
+        </>
+      )}
+      {m.type !== "off" && (
+        <Scrub
+          label="Speed"
+          value={m.speed}
+          min={-2}
+          max={2}
+          step={0.01}
+          format={(v) => `${v.toFixed(2)}×`}
+          onChange={set("motionSpeed")}
+        />
+      )}
+      {ranged && (
+        <Scrub
+          label="Distance"
+          value={m.distance}
+          min={0}
+          max={1}
+          step={0.01}
+          format={(v) => `${Math.round(v * 100)}%`}
+          onChange={set("motionDistance")}
+        />
+      )}
+      {hasClock && (
+        <Scrub
+          label="Tempo"
+          value={m.tempo}
+          min={0}
+          max={3}
+          step={0.01}
+          format={(v) => `${v.toFixed(2)}×`}
+          onChange={set("tempo")}
+        />
+      )}
+      {note && <p className="px-1 pt-0.5 text-[12px] leading-snug text-bone/45">{note}</p>}
+    </Group>
+  );
+}
+
 export default function Inspector(p: Props) {
   const { state, selected } = p;
 
@@ -83,7 +203,7 @@ export default function Inspector(p: Props) {
         <button
           type="button"
           onClick={p.onBrowse}
-          className="press anim-rise mt-5 h-10 rounded-full bg-bone px-5 text-[13.5px] font-medium text-ink hover:bg-white"
+          className="blue-button anim-rise mt-5 h-10 rounded-full px-5 text-[13.5px] font-semibold"
           style={{ animationDelay: "120ms" }}
         >
           Browse effects
@@ -158,10 +278,10 @@ export default function Inspector(p: Props) {
             </button>
             {p.imageUrl && (
               <div className="grid grid-cols-2 gap-1.5">
-                <button type="button" onClick={p.onPickImage} className="press h-9 rounded-[12px] bg-white/[0.05] text-[13px] text-bone hover:bg-white/[0.09]">
+                <button type="button" onClick={p.onPickImage} className="blue-button h-9 rounded-[12px] text-[13px]">
                   Replace
                 </button>
-                <button type="button" onClick={p.onRemoveImage} className="press h-9 rounded-[12px] bg-white/[0.05] text-[13px] text-bone hover:bg-white/[0.09]">
+                <button type="button" onClick={p.onRemoveImage} className="blue-button h-9 rounded-[12px] text-[13px]">
                   Remove
                 </button>
               </div>
@@ -215,6 +335,8 @@ export default function Inspector(p: Props) {
           />
           <Select label="Blend" value={String(section.layerBlend ?? "normal")} options={BLEND_MODES} onChange={set("layerBlend")} />
         </Group>
+
+        <MotionGroup section={section} hasClock={schema.glsl.includes("uTime")} playing={p.playing} set={set} />
 
         <Group title="Settings" delay={100}>
           {schema.controls.map((c) => {

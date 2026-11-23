@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoMark } from "@/components/Logo";
 import MobileMenu from "./MobileMenu";
-import { BTN_MOTION } from "./buttonMotion";
 
 const LINKS = [
   { href: "/", label: "Home" },
@@ -39,7 +38,7 @@ export default function Navbar() {
               href={href}
               aria-current={active ? "page" : undefined}
               className={`font-outfit rounded-[10px] px-3.5 py-1.5 text-[13.5px] transition-colors xl:rounded-[11px] xl:px-5 xl:py-2 xl:text-[15.5px] duration-200 ${
-                active ? "bg-[#141414] text-white" : "text-[#3a3d40] hover:bg-black/[0.05] hover:text-[#141414]"
+                active ? "blue-button" : "text-[#3a3d40] hover:bg-black/[0.05] hover:text-[#141414]"
               }`}
             >
               {label}
@@ -51,7 +50,7 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
       <Link
         href="/studio"
-        className={`font-outfit hidden rounded-[10px] sm:inline-block bg-white px-4 py-2 text-[13.5px] font-medium xl:rounded-[12px] xl:px-6 xl:py-3 xl:text-[15.5px] text-[#141414] shadow-[0_1px_2px_rgba(20,30,40,0.06),0_8px_24px_-12px_rgba(20,30,40,0.18)] hover:bg-[#f4f5f6] ${BTN_MOTION}`}
+        className="blue-button font-outfit hidden min-h-9 items-center justify-center rounded-[11px] px-4 text-[13.5px] font-semibold sm:inline-flex xl:min-h-11 xl:px-6 xl:text-[15.5px]"
       >
         Open studio
       </Link>

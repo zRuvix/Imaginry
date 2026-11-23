@@ -25,15 +25,13 @@ function useCopy() {
   return { copied, copy };
 }
 
-function CopyButton({ done, onClick, label, dark = false }: { done: boolean; onClick: () => void; label: string; dark?: boolean }) {
+function CopyButton({ done, onClick, label }: { done: boolean; onClick: () => void; label: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
       aria-label={done ? "Copied" : label}
-      className={`font-outfit inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-[9px] px-3.5 text-[13px] ${BTN_MOTION} ${
-        done ? "bg-[#7f9b5c] text-white" : dark ? "bg-white/10 text-white hover:bg-white/20" : "bg-[#f3f4f5] text-[#141414] hover:bg-[#e9ebed]"
-      }`}
+      className="blue-button font-outfit inline-flex min-h-10 shrink-0 items-center gap-1.5 rounded-[9px] px-3.5 text-[13px] font-semibold"
     >
       <svg aria-hidden width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         {done ? <path d="M3 8.5l3 3 7-7" /> : <><rect x="5" y="5" width="9" height="9" rx="2" /><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" /></>}
@@ -145,7 +143,7 @@ export default function AgentsContent() {
                 aria-controls="setup-panel"
                 onClick={() => setActive(c.id)}
                 className={`font-outfit min-h-11 rounded-[10px] px-4 text-[14px] ${BTN_MOTION} ${
-                  c.id === active ? "bg-[#141414] text-white" : "bg-[#f3f4f5] text-[#3a3d40] hover:bg-[#e9ebed] hover:text-[#141414]"
+                  c.id === active ? "blue-button" : "bg-[#f3f4f5] text-[#3a3d40] hover:bg-[#e9ebed] hover:text-[#141414]"
                 }`}
               >
                 {c.name}
@@ -165,7 +163,7 @@ export default function AgentsContent() {
             <div className="mt-6 overflow-hidden rounded-[14px] bg-[#141414]">
               <div className="flex items-center justify-between gap-3 py-1.5 pl-4 pr-1.5">
                 <span className="truncate font-mono text-[12.5px] text-white/50">{label}</span>
-                <CopyButton dark done={copied === client.id} onClick={() => copy(client.id, client.code)} label={`Copy the ${client.name} setup`} />
+                <CopyButton done={copied === client.id} onClick={() => copy(client.id, client.code)} label={`Copy the ${client.name} setup`} />
               </div>
               <pre data-lenis-prevent className="overflow-x-auto px-4 pb-4 font-mono text-[13px] leading-relaxed text-white">
                 <code>{client.code}</code>

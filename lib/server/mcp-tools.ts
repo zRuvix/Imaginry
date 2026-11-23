@@ -1,4 +1,5 @@
 import "server-only";
+import { MOTIONS, type MotionType, motionOf } from "@/lib/studio/motion";
 import { SITE_URL } from "@/lib/seo";
 import { fitSize, PNG_MAX_SIDE, renderPng } from "@/lib/server/png";
 import { allowRequest, createShortLink, resolveShortLink } from "@/lib/server/shortlinks";
@@ -13,7 +14,7 @@ import {
   emptyState,
   SCHEMA,
   SCHEMA_BY_KEY,
-  STUDIO_KEYS,
+  SECTION_KEYS,
   type Control,
   type SectionKey,
   type SectionState,
@@ -53,7 +54,7 @@ export type Tool = {
 };
 
 /** Image layers need a photo uploaded in the studio, which a link can't carry. */
-const BUILDABLE: SectionKey[] = STUDIO_KEYS.filter((k) => k !== "image");
+const BUILDABLE: SectionKey[] = SECTION_KEYS.filter((k) => k !== "image");
 
 /** Long side of the preview image render_png sends inline. */
 const PREVIEW_SIDE = 800;
@@ -137,6 +138,15 @@ function coerce(effect: string, c: Control, raw: unknown, warnings: string[]): V
   }
 }
 
+/** A layer's motion and tempo for describeState, left out when they're at rest. */
+function motionSummary(s: SectionState) {
+  const m = motionOf(s);
+  return {
+    ...(m.type === "off" ? {} : { motion: { type: m.type, angle: m.angle, speed: m.speed, distance: m.distance } }),
+    ...(m.tempo === 1 ? {} : { tempo: m.tempo }),
+  };
+}
+
 /** A finished state as plain layers, top first, with every setting spelled out. */
 function describeState(state: StudioState) {
   return {
@@ -151,6 +161,7 @@ function describeState(state: StudioState) {
         opacity: Number(s.layerOpacity ?? 1),
         blend: String(s.layerBlend ?? "normal"),
         ...(s.animated ? {} : { frozen_time: Number(s.frozenTime) || 0 }),
+        ...motionSummary(s),
         values: Object.fromEntries(schema.controls.map((c) => [c.key, s[c.key]])),
       };
     }),
@@ -192,7 +203,7 @@ function buildState(args: Args, warnings: string[]): StudioState {
     const layer = raw as Args;
     const use = String(layer.use ?? layer.preset ?? layer.effect ?? "");
     const preset = PRESETS_BY_ID[use];
-    const key = (preset?.section ?? (STUDIO_KEYS.includes(use as SectionKey) ? use : null)) as SectionKey | null;
+    const key = (preset?.section ?? (SECTION_KEYS.includes(use as SectionKey) ? use : null)) as SectionKey | null;
     if (!key) throw new ToolError(`layers[${i}]: "${use}" is not an effect key or preset id (see list_effects)`);
     if (!BUILDABLE.includes(key)) throw new ToolError(`layers[${i}]: image layers need a photo uploaded in the studio`);
     if (state.order.includes(key)) throw new ToolError(`layers[${i}]: each effect can appear once; "${key}" is repeated`);
@@ -223,6 +234,28 @@ function buildState(args: Args, warnings: string[]): StudioState {
       const blend = BLEND_MODES.find((b) => b === String(layer.blend).toLowerCase());
       if (!blend) throw new ToolError(`layers[${i}].blend must be one of: ${BLEND_MODES.join(", ")}`);
       section.layerBlend = blend;
+    }
+    if (layer.motion !== undefined) {
+      const motion = layer.motion as Args;
+      if (!motion || typeof motion !== "object") throw new ToolError(`layers[${i}].motion must be an object`);
+      const type = String(motion.type ?? "drift") as MotionType;
+      if (!MOTIONS.includes(type)) throw new ToolError(`layers[${i}].motion.type must be one of: ${MOTIONS.join(", ")}`);
+      section.motion = type;
+      for (const [field, k, min, max] of [
+        ["angle", "motionAngle", -180, 180],
+        ["speed", "motionSpeed", -2, 2],
+        ["distance", "motionDistance", 0, 1],
+      ] as const) {
+        if (motion[field] === undefined) continue;
+        const v = Number(motion[field]);
+        if (!Number.isFinite(v)) throw new ToolError(`layers[${i}].motion.${field} must be a number`);
+        section[k] = Math.min(max, Math.max(min, v));
+      }
+    }
+    if (layer.tempo !== undefined) {
+      const v = Number(layer.tempo);
+      if (!Number.isFinite(v)) throw new ToolError(`layers[${i}].tempo must be a number from 0 to 3`);
+      section.tempo = Math.min(3, Math.max(0, v));
     }
     if (layer.frozen_time !== undefined) {
       section.animated = false;
@@ -301,6 +334,19 @@ const layerSchema = {
     blend: { type: "string", enum: BLEND_MODES, description: 'Blend over the layer below, default "normal".' },
     hidden: { type: "boolean", description: "Keep the layer in the stack but switched off." },
     frozen_time: { type: "number", description: "Hold this layer still at this time (seconds) while others animate." },
+    motion: {
+      type: "object",
+      description:
+        "Move this layer's pattern while the picture below stays put (e.g. glass flutes sliding across the image). Plays when the design animates.",
+      properties: {
+        type: { type: "string", enum: MOTIONS, description: "drift: steady slide; sway: back and forth; spin: rotate; orbit: circle." },
+        angle: { type: "number", minimum: -180, maximum: 180, description: "Direction in degrees for drift and sway; 0 is right, 90 is up." },
+        speed: { type: "number", minimum: -2, maximum: 2, description: "Negative runs it the other way. Default 0.5." },
+        distance: { type: "number", minimum: 0, maximum: 1, description: "How far sway and orbit travel. Default 0.5." },
+      },
+      additionalProperties: false,
+    },
+    tempo: { type: "number", minimum: 0, maximum: 3, description: "Speed of the effect's own animation, default 1." },
   },
   required: ["use"],
   additionalProperties: false,

@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useLenis } from "lenis/react";
 import { LogoMark } from "@/components/Logo";
-import { BTN_MOTION } from "./buttonMotion";
 
 type NavLink = { href: string; label: string };
 
@@ -50,7 +49,7 @@ export default function MobileMenu({ links, isActive }: { links: NavLink[]; isAc
         aria-expanded={open}
         aria-controls="mobile-menu"
         onClick={() => setOpen(true)}
-        className={`grid size-10 place-items-center rounded-[10px] bg-white text-[#141414] shadow-[0_1px_2px_rgba(20,30,40,0.06),0_8px_24px_-12px_rgba(20,30,40,0.18)] md:hidden ${BTN_MOTION}`}
+        className="blue-button grid size-10 place-items-center rounded-[10px] md:hidden"
       >
         <span aria-hidden className="flex w-4 flex-col gap-[5px]">
           <span className="h-[1.5px] w-full rounded-full bg-current" />
@@ -89,7 +88,7 @@ export default function MobileMenu({ links, isActive }: { links: NavLink[]; isAc
               type="button"
               aria-label="Close menu"
               onClick={close}
-              className={`grid size-10 place-items-center rounded-[10px] bg-[#f3f4f5] text-[#141414] hover:bg-[#e9ebed] ${BTN_MOTION}`}
+              className="blue-button grid size-10 place-items-center rounded-[10px]"
             >
               <svg aria-hidden width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
                 <path d="M2 2l10 10M12 2L2 12" />
@@ -109,10 +108,10 @@ export default function MobileMenu({ links, isActive }: { links: NavLink[]; isAc
                   style={{ transitionDelay: open ? `${80 + i * 40}ms` : "0ms" }}
                   className={`font-lexend flex items-center justify-between rounded-[12px] px-3 py-3 text-[26px] font-light tracking-[-0.03em] transition-[opacity,transform,background-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                     open ? "translate-x-0 opacity-100" : "translate-x-6 opacity-0"
-                  } ${active ? "bg-[#f3f4f5] text-[#121416]" : "text-[#3a3d40] hover:bg-[#f6f7f8] hover:text-[#121416]"}`}
+                  } ${active ? "blue-button" : "text-[#3a3d40] hover:bg-[#f6f7f8] hover:text-[#121416]"}`}
                 >
                   {label}
-                  {active && <span aria-hidden className="size-1.5 rounded-full bg-[#141414]" />}
+                  {active && <span aria-hidden className="size-1.5 rounded-full bg-current" />}
                 </Link>
               );
             })}
@@ -121,7 +120,7 @@ export default function MobileMenu({ links, isActive }: { links: NavLink[]; isAc
           <Link
             href="/studio"
             onClick={close}
-            className={`font-outfit mt-auto rounded-[12px] bg-[#1b1b1b] px-5 py-3.5 text-center text-[15px] text-white hover:bg-[#2b2b2b] ${BTN_MOTION}`}
+            className="blue-button blue-button-large mt-auto"
           >
             Open studio
           </Link>

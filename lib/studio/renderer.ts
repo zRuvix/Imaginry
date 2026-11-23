@@ -3,6 +3,7 @@ import type { Sections, Uniform } from "./effects/define";
 import { BLEND_MODES, SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
 import { type AnimatedGif, isAnimatedGif } from "./gif";
+import { motionAt, motionOf } from "./motion";
 
 export { hexToRgb } from "./effects/define";
 
@@ -33,6 +34,17 @@ export function drawList(state: StudioState, hasImage: boolean): SectionKey[] {
 export function layerTime(state: StudioState, key: SectionKey, time: number) {
   const s = state.sections[key];
   return s.animated ? time : Number(s.frozenTime) || 0;
+}
+
+/**
+ * Per-layer motion uniforms: the effect's own clock (scaled by its tempo)
+ * and the drift/sway/spin/orbit offset at this moment.
+ */
+export function layerMotionUniforms(state: StudioState, key: SectionKey, time: number): Record<string, Uniform> {
+  const t = layerTime(state, key, time);
+  const m = motionOf(state.sections[key]);
+  const { off, rot } = motionAt(m, t);
+  return { uTime: t * m.tempo, uMoveOff: off, uMoveRot: rot };
 }
 
 /**
@@ -251,7 +263,7 @@ export class Renderer {
       const mix = layerMix(state, key);
       this.applyUniforms(pass, {
         ...shared,
-        uTime: layerTime(state, key, time),
+        ...layerMotionUniforms(state, key, time),
         uLayerOpacity: mix.opacity,
         uLayerBlend: mix.blend,
       });

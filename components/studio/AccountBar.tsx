@@ -118,7 +118,7 @@ export default function AccountBar() {
                 <div className="mb-2 grid grid-cols-2 gap-2">
                   <Link
                     href={`/profile/${profile.username}`}
-                    className="press flex h-10 items-center justify-center gap-1.5 rounded-[14px] bg-raised text-[13px] text-bone/80 hover:text-bone"
+                    className="blue-button flex h-10 items-center justify-center gap-1.5 rounded-[14px] text-[13px]"
                   >
                     Profile <ArrowUpRight size={13} />
                   </Link>
@@ -128,7 +128,7 @@ export default function AccountBar() {
                       setEditing(true);
                       setOpen(false);
                     }}
-                    className="press flex h-10 items-center justify-center gap-1.5 rounded-[14px] bg-raised text-[13px] text-bone/80 hover:text-bone"
+                    className="blue-button flex h-10 items-center justify-center gap-1.5 rounded-[14px] text-[13px]"
                   >
                     <Pencil size={13} /> Edit
                   </button>
@@ -138,7 +138,7 @@ export default function AccountBar() {
                 type="button"
                 onClick={signOut}
                 disabled={busy}
-                className="press flex h-10 w-full items-center justify-center gap-2 rounded-[14px] bg-raised text-[13px] text-bone/80 hover:text-bone disabled:opacity-50"
+                className="blue-button flex h-10 w-full items-center justify-center gap-2 rounded-[14px] text-[13px] disabled:opacity-50"
               >
                 <LogOut size={14} />
                 Sign out
@@ -163,7 +163,7 @@ export default function AccountBar() {
                         setConfirmDelete(false);
                         setError(null);
                       }}
-                      className="press h-9 flex-1 rounded-[12px] bg-raised text-[12.5px] text-bone/75 hover:text-bone"
+                      className="blue-button h-9 flex-1 rounded-[12px] text-[12.5px]"
                     >
                       Cancel
                     </button>

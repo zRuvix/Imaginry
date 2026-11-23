@@ -145,7 +145,7 @@ export default function MobileStudio(p: Props) {
           type="button"
           aria-label="Copy share link"
           onClick={p.onShare}
-          className="press ml-1 flex size-10 items-center justify-center rounded-full bg-bone text-ink"
+          className="blue-button ml-1 flex size-10 items-center justify-center rounded-full"
         >
           <Share2 size={16} />
         </button>

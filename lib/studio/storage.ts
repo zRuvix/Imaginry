@@ -1,11 +1,12 @@
 import { formatCurves, parseCurves } from "./curves";
+import { MOTION_DEFAULTS, MOTIONS, motionOf } from "./motion";
 import { PRESETS_BY_ID } from "./presets";
 import {
   BLEND_MODES,
   emptyState,
   orderFromEnabled,
   SCHEMA_BY_KEY,
-  STUDIO_KEYS,
+  SECTION_KEYS,
   type Control,
   type SectionKey,
   type SectionState,
@@ -32,11 +33,11 @@ export function normalize(raw: unknown): StudioState | null {
   if (!raw || typeof raw !== "object" || !("sections" in raw)) return null;
   const input = raw as Partial<StudioState>;
   const base = emptyState(Number(input.seed) || 0);
-  for (const key of STUDIO_KEYS) {
+  for (const key of SECTION_KEYS) {
     const s = input.sections?.[key];
     if (s && typeof s === "object") base.sections[key] = { ...base.sections[key], ...s };
   }
-  const order = Array.isArray(input.order) ? input.order.filter((k) => STUDIO_KEYS.includes(k)) : [];
+  const order = Array.isArray(input.order) ? input.order.filter((k) => SECTION_KEYS.includes(k)) : [];
   base.order = orderFromEnabled(base.sections, order);
   return base;
 }
@@ -109,6 +110,14 @@ function encodeLayer(state: StudioState, key: SectionKey) {
   if (!sameValue(s.layerOpacity ?? 1, 1)) changed.push(`o=${num(s.layerOpacity)}`);
   if ((s.layerBlend ?? "normal") !== "normal") changed.push(`b=${BLEND_MODES.indexOf(String(s.layerBlend))}`);
   if (!s.animated) changed.push(`t=${num(s.frozenTime)}`);
+  const motion = motionOf(s);
+  if (motion.type !== "off") {
+    changed.push(`mv=${MOTIONS.indexOf(motion.type)}`);
+    if (motion.angle !== MOTION_DEFAULTS.angle) changed.push(`ma=${num(motion.angle)}`);
+    if (motion.speed !== MOTION_DEFAULTS.speed) changed.push(`ms=${num(motion.speed)}`);
+    if (motion.distance !== MOTION_DEFAULTS.distance) changed.push(`md=${num(motion.distance)}`);
+  }
+  if (motion.tempo !== MOTION_DEFAULTS.tempo) changed.push(`tp=${num(motion.tempo)}`);
 
   const id = fromPreset ? fromPreset.id : key;
   return `${s.enabled ? "" : "_"}${id}${changed.length ? `(${changed.join(",")})` : ""}`;
@@ -130,7 +139,7 @@ function decodeCompact(text: string): StudioState | null {
     if (!m) continue;
     const [, hidden, id, args] = m;
     const preset = PRESETS_BY_ID[id];
-    const key = preset ? preset.section : (STUDIO_KEYS as string[]).includes(id) ? (id as SectionKey) : null;
+    const key = preset ? preset.section : (SECTION_KEYS as string[]).includes(id) ? (id as SectionKey) : null;
     if (!key || order.includes(key)) continue;
 
     const schema = SCHEMA_BY_KEY[key];
@@ -145,6 +154,11 @@ function decodeCompact(text: string): StudioState | null {
       if (raw === undefined) continue;
       if (k === "o") section.layerOpacity = Number(raw);
       else if (k === "b") section.layerBlend = BLEND_MODES[Number(raw)] ?? "normal";
+      else if (k === "mv") section.motion = MOTIONS[Number(raw)] ?? "off";
+      else if (k === "ma") section.motionAngle = Number(raw) || 0;
+      else if (k === "ms") section.motionSpeed = Number(raw) || 0;
+      else if (k === "md") section.motionDistance = Number(raw) || 0;
+      else if (k === "tp") section.tempo = Math.max(0, Number(raw) || 0);
       else if (k === "t") {
         section.animated = false;
         section.frozenTime = Number(raw) || 0;

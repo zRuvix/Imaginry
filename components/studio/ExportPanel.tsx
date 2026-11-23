@@ -109,12 +109,10 @@ function Dropdown<T extends string | number>({
 
 function Action({
   onClick,
-  primary,
   disabled,
   children,
 }: {
   onClick: () => void;
-  primary?: boolean;
   disabled?: boolean;
   children: ReactNode;
 }) {
@@ -123,11 +121,7 @@ function Action({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`press relative h-10 w-full overflow-hidden rounded-full text-[13px] font-medium disabled:cursor-not-allowed disabled:opacity-50 ${
-        primary
-          ? "bg-bone text-ink hover:bg-white"
-          : "bg-white/[0.06] text-bone hover:bg-white/[0.1]"
-      }`}
+      className="blue-button relative h-10 w-full overflow-hidden rounded-full text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
     </button>
@@ -314,7 +308,7 @@ export default function ExportPanel(p: Props) {
             options={imageSizes.map((s) => ({ value: s.id, label: sizeLabel(s) }))}
             onChange={setImageSizeId}
           />
-          <Action primary onClick={downloadPng}>
+          <Action onClick={downloadPng}>
             Download PNG
           </Action>
         </Card>
@@ -399,12 +393,12 @@ export default function ExportPanel(p: Props) {
           {tab === "framer" ? (
             <>
               <Action onClick={() => copy(code.primary, "Component")}>1. Copy component</Action>
-              <Action primary onClick={() => copy(code.look!, "Look")}>
+              <Action onClick={() => copy(code.look!, "Look")}>
                 2. Copy look
               </Action>
             </>
           ) : (
-            <Action primary onClick={() => copy(code.primary, tab === "react" ? "Component" : "HTML")}>
+            <Action onClick={() => copy(code.primary, tab === "react" ? "Component" : "HTML")}>
               {tab === "react" ? "Copy component" : "Copy HTML"}
             </Action>
           )}

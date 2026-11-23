@@ -58,6 +58,12 @@ type Props = {
   onExport: () => void;
 };
 
+// Sponsors alternate between the two gaps (1st left, 2nd right, ...) so the
+// bar stays balanced however many are booked.
+const SIDE = Math.ceil(STUDIO_SLOTS / 2);
+const LEFT_SPONSORS = SPONSORS.filter((_, i) => i % 2 === 0).slice(0, SIDE);
+const RIGHT_SPONSORS = SPONSORS.filter((_, i) => i % 2 === 1).slice(0, SIDE);
+
 const pill = "glass-panel pointer-events-auto flex h-[52px] items-center gap-0.5 rounded-full px-2";
 
 export default function CommandBar(p: Props) {
@@ -67,20 +73,24 @@ export default function CommandBar(p: Props) {
   const isMain = (MAIN as readonly string[]).includes(p.aspect);
 
   return (
-    <div className="pointer-events-none absolute inset-x-4 top-4 z-30 flex items-start justify-between gap-3">
-      <div className={`${pill} pl-3 pr-2`}>
-        <Link href="/studio" aria-label="Imaginry studio" className="press group mr-2 text-bone hover:text-white">
-          <Logo size={28} textClass="text-[16px]" />
-        </Link>
-        <IconButton label="Undo (Ctrl+Z)" onClick={p.onUndo} disabled={!p.canUndo}>
-          <Undo2 size={15} />
-        </IconButton>
-        <IconButton label="Redo (Ctrl+Shift+Z)" onClick={p.onRedo} disabled={!p.canRedo}>
-          <Redo2 size={15} />
-        </IconButton>
-      </div>
+    // Three columns with equal outer tracks keep the tools pill on the exact
+    // centre of the window at any width, scale or sponsor count.
+    <div className="pointer-events-none absolute inset-x-4 top-4 z-30 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-start gap-3">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className={`${pill} shrink-0 pl-3 pr-2`}>
+          <Link href="/studio" aria-label="Imaginry studio" className="press group mr-2 text-bone hover:text-white">
+            <Logo size={28} textClass="text-[16px]" />
+          </Link>
+          <IconButton label="Undo (Ctrl+Z)" onClick={p.onUndo} disabled={!p.canUndo}>
+            <Undo2 size={15} />
+          </IconButton>
+          <IconButton label="Redo (Ctrl+Shift+Z)" onClick={p.onRedo} disabled={!p.canRedo}>
+            <Redo2 size={15} />
+          </IconButton>
+        </div>
 
-      <SponsorSlots sponsors={SPONSORS} slots={Math.floor(STUDIO_SLOTS / 2)} offset={0} />
+        <SponsorSlots sponsors={LEFT_SPONSORS} />
+      </div>
 
       <div className={pill}>
         <IconButton label="Surprise me (R)" onClick={p.onRandomize}>
@@ -169,29 +179,29 @@ export default function CommandBar(p: Props) {
         </IconButton>
       </div>
 
-      <SponsorSlots sponsors={SPONSORS} slots={Math.ceil(STUDIO_SLOTS / 2)} offset={Math.floor(STUDIO_SLOTS / 2)} />
+      <div className="flex min-w-0 items-center justify-end gap-3">
+        <SponsorSlots sponsors={RIGHT_SPONSORS} />
 
-      <div className={pill}>
-        <IconButton label="Copy share link" onClick={p.onShare}>
-          <Share2 size={15} />
-        </IconButton>
-        <IconButton label="Save to library" onClick={p.onSave}>
-          <Bookmark size={15} />
-        </IconButton>
-        <IconButton label="Publish" onClick={p.onPublish}>
-          <Globe size={15} />
-        </IconButton>
-        <button
-          type="button"
-          onClick={p.onExport}
-          aria-pressed={p.exportOpen}
-          className={`press ml-1 flex h-9 items-center gap-2 rounded-full px-4 text-[13.5px] font-medium ${
-            p.exportOpen ? "bg-ember text-ink" : "bg-bone text-ink hover:bg-white"
-          }`}
-        >
-          <Download size={14} />
-          Export
-        </button>
+        <div className={`${pill} shrink-0`}>
+          <IconButton label="Copy share link" onClick={p.onShare}>
+            <Share2 size={15} />
+          </IconButton>
+          <IconButton label="Save to library" onClick={p.onSave}>
+            <Bookmark size={15} />
+          </IconButton>
+          <IconButton label="Publish" onClick={p.onPublish}>
+            <Globe size={15} />
+          </IconButton>
+          <button
+            type="button"
+            onClick={p.onExport}
+            aria-pressed={p.exportOpen}
+            className="blue-button ml-1 flex h-9 items-center gap-2 rounded-full px-4 text-[13.5px] font-semibold"
+          >
+            <Download size={14} />
+            Export
+          </button>
+        </div>
       </div>
     </div>
   );

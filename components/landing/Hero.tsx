@@ -4,7 +4,6 @@ import StudioPreview from "./StudioPreview";
 import { HeroHill, HeroSky } from "./HeroSky";
 import { EnterFade, EnterLines, EnterSettle } from "./Enter";
 import { afterLines } from "./enterTiming";
-import { BTN_MOTION } from "./buttonMotion";
 
 /**
  * Rounded sky panel, exactly one screen tall: navbar, badge, three-line
@@ -39,7 +38,7 @@ export default function Hero() {
         <EnterFade delay={afterLines(3)} className="mt-[clamp(1.25rem,3.6svh,2.25rem)]">
           <Link
             href="/studio"
-            className={`font-outfit inline-flex rounded-[10px] bg-[#1b1b1b] px-5 py-3 text-[14px] text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] hover:bg-[#2b2b2b] xl:rounded-[12px] xl:px-7 xl:py-4 xl:text-[16.5px] ${BTN_MOTION}`}
+            className="blue-button blue-button-large"
           >
             Open studio
           </Link>

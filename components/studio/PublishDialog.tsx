@@ -101,7 +101,7 @@ export default function PublishDialog({
             <p className="text-[13.5px] leading-relaxed text-bone/70">“{published.title}” is on your profile.</p>
             <Link
               href={`/profile/${username}`}
-              className="press flex h-10 items-center justify-center gap-1.5 rounded-full bg-bone text-[13px] font-medium text-ink hover:bg-white"
+              className="blue-button flex h-10 items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold"
             >
               Your profile <ArrowUpRight size={13} />
             </Link>
@@ -127,7 +127,7 @@ export default function PublishDialog({
             <button
               type="submit"
               disabled={busy || design.order.length === 0}
-              className="press h-10 w-full rounded-full bg-bone text-[13.5px] font-medium text-ink hover:bg-white disabled:opacity-50"
+              className="blue-button h-10 w-full rounded-full text-[13.5px] font-semibold disabled:opacity-50"
             >
               {busy ? "Publishing…" : "Publish"}
             </button>

@@ -85,7 +85,7 @@ function Card({
           <LaunchButton
             href={`/studio#${design.data}`}
             label="Remix in studio"
-            className="h-10 bg-bone pl-3.5 pr-4 text-[13.5px] text-ink hover:bg-white"
+            className="h-10 pl-3.5 pr-4 text-[13.5px]"
             iconSize={13}
           />
           <div className="flex gap-1.5">
@@ -103,7 +103,7 @@ function Card({
               type="button"
               aria-label={`Copy a link to ${design.title}`}
               onClick={() => onCopy(design)}
-              className="press flex size-10 items-center justify-center rounded-full bg-black/45 text-bone backdrop-blur-md hover:bg-black/65"
+              className="blue-button flex size-10 items-center justify-center rounded-full"
             >
               <Share2 size={14} />
             </button>

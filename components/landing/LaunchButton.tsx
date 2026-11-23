@@ -6,8 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { Rocket } from "@/components/icons";
 import { prefersReducedMotion } from "./motion";
 
-/** Size and colors of the default (landing) button. */
-const LANDING = "h-11 pl-4 pr-5 text-[14.5px] bg-[var(--bone)] text-[var(--ink)] hover:bg-white";
+/** Size of the default launch button. */
+const LANDING = "h-11 pl-4 pr-5 text-[14.5px]";
 /** The rocket clears the button before the page changes. */
 const NAVIGATE_MS = 560;
 /** Long enough for a fresh rocket to land back in place. */
@@ -37,7 +37,7 @@ export default function LaunchButton({
 }: {
   href?: string;
   label?: string;
-  /** Size and colors; the shape and motion come with the button. */
+  /** Size and spacing of the button. */
   className?: string;
   iconSize?: number;
   /**
@@ -104,7 +104,7 @@ export default function LaunchButton({
         href={href}
         data-liftoff={liftoff ? "1" : "0"}
         onClick={onClick}
-        className={`launch-btn launch-orb group relative isolate inline-flex items-center overflow-hidden rounded-full pr-1.5 font-medium ${className}`}
+        className={`blue-button launch-btn launch-orb group relative isolate inline-flex items-center overflow-hidden rounded-full pr-1.5 font-medium ${className}`}
       >
         {/* Ember floods out of the porthole on hover */}
         <span aria-hidden className="launch-orb-flood absolute right-1.5 top-1/2 -z-10 aspect-square h-[calc(100%-12px)] -translate-y-1/2 rounded-full bg-[var(--ember)]" />
@@ -138,7 +138,7 @@ export default function LaunchButton({
       href={href}
       data-liftoff={liftoff ? "1" : "0"}
       onClick={onClick}
-      className={`launch-btn group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-medium transition-colors duration-500 ${className}`}
+      className={`blue-button launch-btn group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-full font-medium transition-colors duration-500 ${className}`}
     >
       <span className="relative grid size-[18px] place-items-center">
         {/* Flame flickers at the nozzle on hover */}

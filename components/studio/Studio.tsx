@@ -16,6 +16,7 @@ import { decodeShare, encodeShare, loadSaved, storeSaved, type SavedDesign } fro
 import { IMAGE_PAN, IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
 import { AnimatedGif, type StudioImage } from "@/lib/studio/gif";
 import { randomCurves } from "@/lib/studio/curves";
+import { motionDefaults } from "@/lib/studio/motion";
 import { GALLERY, stateForLook } from "@/lib/studio/looks";
 import { useHistory } from "@/lib/studio/useHistory";
 import { useMyProfile } from "@/lib/useMyProfile";
@@ -60,6 +61,39 @@ function withoutLayer(state: StudioState, key: SectionKey): StudioState {
 const LAYER_FLAGS = new Set(["enabled", "locked", "animated", "frozenTime"]);
 
 const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)];
+
+/** Fisher–Yates: a uniformly random order, without repeats. */
+function shuffle<T>(list: readonly T[]): T[] {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/** Sections "Surprise me" places itself: the gradient base, optional grain, and the photo (needs an upload). */
+const FIXED_SECTIONS = new Set<SectionKey>(["gradient", "grain", "image"]);
+
+/**
+ * Nudges a layer's sliders off their preset values by up to `amount` of each
+ * slider's range, and for the gradient sometimes swaps its type, so a
+ * random roll isn't just a stored preset.
+ */
+function withVariation(state: StudioState, key: SectionKey, amount: number): StudioState {
+  const schema = SCHEMA_BY_KEY[key];
+  const section: SectionState = { ...state.sections[key], preset: null };
+  for (const c of schema.controls) {
+    if (c.type === "slider") {
+      const cur = Number(section[c.key] ?? schema.defaults[c.key] ?? c.min);
+      const v = cur + (Math.random() * 2 - 1) * amount * (c.max - c.min);
+      section[c.key] = Math.min(c.max, Math.max(c.min, Math.round(v / c.step) * c.step));
+    } else if (c.type === "select" && key === "gradient" && Math.random() < 0.35) {
+      section[c.key] = pick(c.options);
+    }
+  }
+  return { ...state, sections: { ...state.sections, [key]: section } };
+}
 
 function randomHex() {
   const h = Math.random() * 360;
@@ -390,6 +424,7 @@ export default function Studio() {
           preset: null,
           layerOpacity: 1,
           layerBlend: "normal",
+          ...motionDefaults(),
         },
       },
     }));
@@ -404,11 +439,19 @@ export default function Studio() {
       next.sections[key] = { ...next.sections[key], enabled: false, preset: null };
     }
     next.order = [];
-    next = withPreset(next, pick(groupFor("gradient")!.presets));
-    const others = GROUPS.slice(1).filter((g) => g.section !== "grain" && g.section !== "gradient");
+    // A gradient is the color source, so it always starts the stack, but its
+    // palette, type and sliders vary so two rolls rarely share a base.
+    next = withVariation(withPreset(next, pick(groupFor("gradient")!.presets)), "gradient", 0.35);
+    if (Math.random() < 0.5) next.sections.gradient.colors = [...pick(PALETTES).colors];
+    // 1–3 distinct effects (shuffled, so no effect is picked twice), each a
+    // random preset nudged off its stored values.
+    const others = shuffle(GROUPS.filter((g) => !FIXED_SECTIONS.has(g.section)));
     const count = 1 + Math.floor(Math.random() * 3);
-    for (let i = 0; i < count; i++) next = withPreset(next, pick(pick(others).presets));
-    next = withPreset(next, GROUPS.find((g) => g.section === "grain")!.presets[0]);
+    for (const group of others.slice(0, count)) {
+      next = withVariation(withPreset(next, pick(group.presets)), group.section, 0.2);
+    }
+    // Grain is a finishing touch now and then, not on every roll.
+    if (Math.random() < 0.3) next = withPreset(next, pick(groupFor("grain")!.presets));
     // An uploaded photo survives: keep it as the base and let the new
     // gradient blend over it instead of covering it.
     const current = stateRef.current;
@@ -596,6 +639,7 @@ export default function Studio() {
     <Inspector
       state={state}
       selected={selected}
+      playing={playing}
       imageUrl={image?.src ?? null}
       onChange={updateSection}
       onShuffle={shuffleLayer}

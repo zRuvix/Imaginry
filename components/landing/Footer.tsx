@@ -214,7 +214,7 @@ export default function Footer({ revealFrom }: { revealFrom: () => HTMLElement |
         <button
           type="button"
           onClick={() => (lenis ? lenis.scrollTo(0, { duration: 2.6 }) : window.scrollTo({ top: 0, behavior: "smooth" }))}
-          className="transition-colors hover:text-[var(--bone)]"
+          className="blue-button rounded-[10px] px-3 py-2"
         >
           Back to top ↑
         </button>

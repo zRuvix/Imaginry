@@ -1,6 +1,7 @@
 import { drawList, layerMix, layerTime, toUniforms } from "./renderer";
-import { STUDIO_KEYS, type SectionKey, type StudioState } from "./schema";
+import { SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
+import { MOTION_JS, motionOf, packMotion } from "./motion";
 
 /** Drops comments, indentation and blank lines; GLSL needs the newlines after directives. */
 function minifyGlsl(src: string) {
@@ -15,7 +16,8 @@ function minifyGlsl(src: string) {
 export type Look = {
   uniforms: Record<string, number | number[]>;
   time: number;
-  layers: { key: SectionKey; frozen?: number; o: number; b: number }[];
+  /** `m`: packed motion (see motion.ts), `tp`: tempo of the effect's own animation. */
+  layers: { key: SectionKey; frozen?: number; o: number; b: number; m?: number[]; tp?: number }[];
 };
 
 export function lookFor(state: StudioState, time: number): Look {
@@ -26,7 +28,14 @@ export function lookFor(state: StudioState, time: number): Look {
   }
   const layers = drawList(state, false).map((key) => {
     const { opacity, blend } = layerMix(state, key);
-    const mix = { o: +opacity.toFixed(3), b: blend };
+    const motion = motionOf(state.sections[key]);
+    const packed = packMotion(motion);
+    const mix = {
+      o: +opacity.toFixed(3),
+      b: blend,
+      ...(packed ? { m: packed } : {}),
+      ...(motion.tempo !== 1 ? { tp: +motion.tempo.toFixed(3) } : {}),
+    };
     return state.sections[key].animated
       ? { key, ...mix }
       : { key, ...mix, frozen: +layerTime(state, key, time).toFixed(3) };
@@ -44,7 +53,8 @@ const shadersFor = (keys: readonly SectionKey[]) =>
  * Framework-free runtime shared by every embed. `mountImaginry(canvas, look, opts)`
  * draws the look's layers into the canvas and returns a cleanup function.
  */
-const RUNTIME = `function mountImaginry(canvas, look, opts) {
+const RUNTIME = `${MOTION_JS}
+function mountImaginry(canvas, look, opts) {
   opts = opts || {};
   var S = SHADERS;
   var gl = canvas.getContext("webgl2", { antialias: false, depth: false, premultipliedAlpha: false });
@@ -62,7 +72,7 @@ const RUNTIME = `function mountImaginry(canvas, look, opts) {
     return p;
   }
   var layers = look.layers.filter(function (l) { return S.fx[l.key]; }).map(function (l) {
-    return { p: program(S.fx[l.key]), frozen: l.frozen, o: l.o == null ? 1 : l.o, b: l.b || 0 };
+    return { p: program(S.fx[l.key]), frozen: l.frozen, o: l.o == null ? 1 : l.o, b: l.b || 0, m: l.m, tp: l.tp == null ? 1 : l.tp };
   });
   gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
@@ -110,9 +120,10 @@ const RUNTIME = `function mountImaginry(canvas, look, opts) {
       var last = i === layers.length - 1;
       gl.bindFramebuffer(gl.FRAMEBUFFER, last ? null : targets[i % 2].fbo);
       gl.useProgram(layer.p);
+      var t = layer.frozen == null ? time : layer.frozen, mv = motionAt(layer.m, t);
       uniforms(layer.p, Object.assign({}, look.uniforms, {
-        uRes: [w, h], uDetail: 1, uPixel: 1, uImgSize: [1, 1], uTime: layer.frozen == null ? time : layer.frozen,
-        uLayerOpacity: layer.o, uLayerBlend: layer.b
+        uRes: [w, h], uDetail: 1, uPixel: 1, uImgSize: [1, 1], uTime: t * layer.tp,
+        uMoveOff: mv.off, uMoveRot: mv.rot, uLayerOpacity: layer.o, uLayerBlend: layer.b
       }));
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, i === 0 ? base : targets[(i - 1) % 2].tex);
@@ -166,7 +177,7 @@ export function framerComponent() {
 import { addPropertyControls, ControlType } from "framer";
 import { useEffect, useRef } from "react";
 
-${runtime(STUDIO_KEYS)}
+${runtime(SECTION_KEYS)}
 
 /**
  * @framerSupportedLayoutWidth any

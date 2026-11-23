@@ -3,7 +3,6 @@ import Image from "next/image";
 import PageShell, { Panel } from "@/components/landing/PageShell";
 import SponsorFaq from "@/components/landing/SponsorFaq";
 import SponsorPlans from "@/components/landing/SponsorPlans";
-import { BTN_MOTION } from "@/components/landing/buttonMotion";
 import { PLANS } from "@/lib/sponsors";
 import { pageMeta } from "@/lib/seo";
 
@@ -32,7 +31,7 @@ export default function SponsorPage() {
       actions={
         <a
           href="#plans"
-          className={`font-outfit inline-flex rounded-[10px] bg-[#1b1b1b] px-5 py-3 text-[14px] text-white shadow-[0_10px_24px_-10px_rgba(0,0,0,0.5)] hover:bg-[#2b2b2b] xl:rounded-[12px] xl:px-7 xl:py-4 xl:text-[16px] ${BTN_MOTION}`}
+          className="blue-button blue-button-large"
         >
           See the plans
         </a>

@@ -305,14 +305,14 @@ export default function ProfileEditor({
               <button
                 type="button"
                 onClick={onClose}
-                className="press h-10 rounded-full px-4 text-[13px] text-bone/70 hover:bg-white/[0.06] hover:text-bone"
+                className="blue-button h-10 rounded-full px-4 text-[13px]"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                className="press h-10 rounded-full bg-bone px-5 text-[13px] font-medium text-ink hover:bg-white disabled:opacity-60"
+                className="blue-button h-10 rounded-full px-5 text-[13px] font-semibold disabled:opacity-60"
               >
                 {saving ? "Saving…" : "Save"}
               </button>

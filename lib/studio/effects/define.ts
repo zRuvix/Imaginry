@@ -16,9 +16,7 @@ export type Control =
   | { key: string; label: string; type: "curves" };
 
 export const CATEGORIES = ["Color", "Light", "Glass & optics", "Distort", "Texture", "Stylize"] as const;
-/** The Lab's own styles have their own category, which the studio never shelves. */
-export const LAB_CATEGORY = "Lab" as const;
-export type Category = (typeof CATEGORIES)[number] | typeof LAB_CATEGORY;
+export type Category = (typeof CATEGORIES)[number];
 
 export const BLEND_MODES = ["normal", "multiply", "screen", "overlay", "soft light", "difference", "add"];
 

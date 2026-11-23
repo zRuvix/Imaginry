@@ -1,14 +1,12 @@
 import { EFFECTS, type EffectKey } from "./effects";
 import type { EffectDefinition, Value } from "./effects/define";
+import { motionDefaults } from "./motion";
 
 export { BLEND_MODES, CATEGORIES, GLASS_FLUTED, type Category, type Control, type Value } from "./effects/define";
 
 /** Every effect is a section of the design state, and a possible layer. */
 export type SectionKey = EffectKey;
 export const SECTION_KEYS = EFFECTS.map((e) => e.key) as SectionKey[];
-
-/** Effects the studio offers: everything but the Lab's own styles. */
-export const STUDIO_KEYS = EFFECTS.filter((e) => e.category !== "Lab").map((e) => e.key) as SectionKey[];
 
 export type SectionState = {
   /** Visible (the eye in the Layers panel). */
@@ -48,6 +46,7 @@ export function emptyState(seed = 0): StudioState {
       // Every layer blends over the one below.
       layerOpacity: 1,
       layerBlend: "normal",
+      ...motionDefaults(),
       ...structuredClone(s.defaults),
     };
   }
