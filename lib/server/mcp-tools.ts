@@ -13,7 +13,7 @@ import {
   emptyState,
   SCHEMA,
   SCHEMA_BY_KEY,
-  SECTION_KEYS,
+  STUDIO_KEYS,
   type Control,
   type SectionKey,
   type SectionState,
@@ -53,7 +53,7 @@ export type Tool = {
 };
 
 /** Image layers need a photo uploaded in the studio, which a link can't carry. */
-const BUILDABLE: SectionKey[] = SECTION_KEYS.filter((k) => k !== "image");
+const BUILDABLE: SectionKey[] = STUDIO_KEYS.filter((k) => k !== "image");
 
 /** Long side of the preview image render_png sends inline. */
 const PREVIEW_SIDE = 800;
@@ -192,7 +192,7 @@ function buildState(args: Args, warnings: string[]): StudioState {
     const layer = raw as Args;
     const use = String(layer.use ?? layer.preset ?? layer.effect ?? "");
     const preset = PRESETS_BY_ID[use];
-    const key = (preset?.section ?? (SECTION_KEYS.includes(use as SectionKey) ? use : null)) as SectionKey | null;
+    const key = (preset?.section ?? (STUDIO_KEYS.includes(use as SectionKey) ? use : null)) as SectionKey | null;
     if (!key) throw new ToolError(`layers[${i}]: "${use}" is not an effect key or preset id (see list_effects)`);
     if (!BUILDABLE.includes(key)) throw new ToolError(`layers[${i}]: image layers need a photo uploaded in the studio`);
     if (state.order.includes(key)) throw new ToolError(`layers[${i}]: each effect can appear once; "${key}" is repeated`);

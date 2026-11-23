@@ -1,5 +1,5 @@
 import { drawList, layerMix, layerTime, toUniforms } from "./renderer";
-import { SECTION_KEYS, type SectionKey, type StudioState } from "./schema";
+import { STUDIO_KEYS, type SectionKey, type StudioState } from "./schema";
 import { LAYER_SHADERS, VERTEX_SHADER } from "./shader";
 
 /** Drops comments, indentation and blank lines; GLSL needs the newlines after directives. */
@@ -166,7 +166,7 @@ export function framerComponent() {
 import { addPropertyControls, ControlType } from "framer";
 import { useEffect, useRef } from "react";
 
-${runtime(SECTION_KEYS)}
+${runtime(STUDIO_KEYS)}
 
 /**
  * @framerSupportedLayoutWidth any

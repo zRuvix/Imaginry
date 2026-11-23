@@ -7,6 +7,9 @@ export { BLEND_MODES, CATEGORIES, GLASS_FLUTED, type Category, type Control, typ
 export type SectionKey = EffectKey;
 export const SECTION_KEYS = EFFECTS.map((e) => e.key) as SectionKey[];
 
+/** Effects the studio offers: everything but the Lab's own styles. */
+export const STUDIO_KEYS = EFFECTS.filter((e) => e.category !== "Lab").map((e) => e.key) as SectionKey[];
+
 export type SectionState = {
   /** Visible (the eye in the Layers panel). */
   enabled: boolean;

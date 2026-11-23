@@ -56,11 +56,14 @@ import paper from "./texture/paper";
 import pattern from "./texture/pattern";
 import plaid from "./texture/plaid";
 import type { EffectDefinition } from "./define";
+import { LAB_OVERLAYS, LAB_STYLES } from "@/lib/lab/styles";
 
 export const EFFECTS = [
   // sources
   image,
   gradient,
+  // the Lab's own sources (the studio never lists them)
+  ...LAB_STYLES,
   // things drawn over the source
   noise,
   blobs,
@@ -112,6 +115,8 @@ export const EFFECTS = [
   ascii,
   threshold,
   dither,
+  // the Lab's fluid sits over everything but the finishing passes
+  ...LAB_OVERLAYS,
   // finishing
   glitch,
   crt,

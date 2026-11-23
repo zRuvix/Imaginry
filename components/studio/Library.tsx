@@ -5,7 +5,9 @@ import { CATEGORY_ICONS, Check, Search, Upload, X } from "@/components/icons";
 import { useLookImages } from "./useLookImages";
 import { GALLERY, type CuratedLook } from "@/lib/studio/looks";
 import { GROUPS, type Preset } from "@/lib/studio/presets";
-import { CATEGORIES, SCHEMA, SCHEMA_BY_KEY, type Category, type StudioState } from "@/lib/studio/schema";
+import { CATEGORIES, SCHEMA_BY_KEY, STUDIO_KEYS, type Category, type StudioState } from "@/lib/studio/schema";
+
+const STUDIO_EFFECT_COUNT = STUDIO_KEYS.length;
 import type { SavedDesign } from "@/lib/studio/storage";
 import { Segmented } from "./controls";
 import { PRESET_MIME } from "./dnd";
@@ -213,7 +215,7 @@ export default function Library({
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder={`Search ${SCHEMA.length} effects`}
+                placeholder={`Search ${STUDIO_EFFECT_COUNT} effects`}
                 aria-label="Search effects"
                 className="min-w-0 flex-1 bg-transparent text-[13px] text-bone outline-none placeholder:text-bone/35"
               />

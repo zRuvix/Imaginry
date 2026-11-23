@@ -5,7 +5,7 @@ import {
   emptyState,
   orderFromEnabled,
   SCHEMA_BY_KEY,
-  SECTION_KEYS,
+  STUDIO_KEYS,
   type Control,
   type SectionKey,
   type SectionState,
@@ -32,11 +32,11 @@ export function normalize(raw: unknown): StudioState | null {
   if (!raw || typeof raw !== "object" || !("sections" in raw)) return null;
   const input = raw as Partial<StudioState>;
   const base = emptyState(Number(input.seed) || 0);
-  for (const key of SECTION_KEYS) {
+  for (const key of STUDIO_KEYS) {
     const s = input.sections?.[key];
     if (s && typeof s === "object") base.sections[key] = { ...base.sections[key], ...s };
   }
-  const order = Array.isArray(input.order) ? input.order.filter((k) => SECTION_KEYS.includes(k)) : [];
+  const order = Array.isArray(input.order) ? input.order.filter((k) => STUDIO_KEYS.includes(k)) : [];
   base.order = orderFromEnabled(base.sections, order);
   return base;
 }
@@ -130,7 +130,7 @@ function decodeCompact(text: string): StudioState | null {
     if (!m) continue;
     const [, hidden, id, args] = m;
     const preset = PRESETS_BY_ID[id];
-    const key = preset ? preset.section : (SECTION_KEYS as string[]).includes(id) ? (id as SectionKey) : null;
+    const key = preset ? preset.section : (STUDIO_KEYS as string[]).includes(id) ? (id as SectionKey) : null;
     if (!key || order.includes(key)) continue;
 
     const schema = SCHEMA_BY_KEY[key];
