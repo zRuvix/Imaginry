@@ -84,6 +84,57 @@ const MOTION_HINTS: Record<MotionType, string> = {
   random: "Every patch wanders its own way. Scatter sets how small the patches are.",
 };
 
+/** A 22px icon that acts out a motion (animated by .motion-glyph in globals.css). */
+function MotionGlyph({ type }: { type: MotionType }) {
+  return (
+    <svg viewBox="0 0 24 24" width={22} height={22} aria-hidden className="motion-glyph" fill="currentColor">
+      {type === "off" && (
+        <>
+          <circle cx="12" cy="12" r="3" />
+          <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.4" opacity="0.35" />
+        </>
+      )}
+      {type === "drift" && (
+        <g className="mg-drift">
+          <circle cx="12" cy="12" r="2.6" />
+          <circle cx="6.5" cy="12" r="1.8" opacity="0.5" />
+          <circle cx="2.5" cy="12" r="1.1" opacity="0.25" />
+        </g>
+      )}
+      {type === "sway" && (
+        <>
+          <path d="M4 16.5h16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.3" />
+          <circle className="mg-sway" cx="12" cy="11" r="3" />
+        </>
+      )}
+      {type === "spin" && (
+        <g className="mg-spin">
+          <rect x="7" y="7" width="10" height="10" rx="2.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <circle cx="12" cy="7" r="2" />
+        </g>
+      )}
+      {type === "orbit" && (
+        <>
+          <circle cx="12" cy="12" r="7.5" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3" />
+          <circle cx="12" cy="12" r="2.4" opacity="0.6" />
+          <g className="mg-orbit">
+            <circle cx="12" cy="4.5" r="2" />
+          </g>
+        </>
+      )}
+      {type === "random" && (
+        <g>
+          <circle className="mg-rnd" cx="7" cy="7.5" r="1.9" />
+          <circle className="mg-rnd" cx="16.5" cy="6.5" r="1.5" />
+          <circle className="mg-rnd" cx="11.5" cy="12.5" r="2.2" />
+          <circle className="mg-rnd" cx="6" cy="17" r="1.4" />
+          <circle className="mg-rnd" cx="17" cy="16.5" r="1.9" />
+        </g>
+      )}
+    </svg>
+  );
+}
+
 /**
  * Moves the layer's effect over the picture below it (any effect), plus the
  * tempo of the effect's own built-in animation where it has one.
@@ -116,19 +167,23 @@ function MotionGroup({
 
   return (
     <Group title="Motion" delay={80}>
-      {/* Six choices don't fit one row of the panel, so they sit in a 3×2 grid. */}
-      <div className="grid grid-cols-3 gap-1 rounded-[16px] bg-white/[0.05] p-1" role="radiogroup" aria-label="Motion">
+      {/* Tiles that act out their motion: hover one to preview it. */}
+      <div className="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Motion">
         {MOTIONS.map((v) => (
           <button
             key={v}
             type="button"
             role="radio"
             aria-checked={m.type === v}
+            title={v === "off" ? "No motion" : MOTION_HINTS[v]}
             onClick={() => set("motion")(v)}
-            className={`press h-8 rounded-[12px] text-[13px] capitalize ${
-              m.type === v ? "bg-bone font-medium text-ink" : "text-bone/70 hover:bg-white/[0.08] hover:text-bone"
+            className={`motion-tile press flex h-[58px] flex-col items-center justify-center gap-1 rounded-[14px] text-[12px] capitalize ${
+              m.type === v
+                ? "bg-bone font-medium text-ink"
+                : "bg-white/[0.05] text-bone/65 hover:bg-white/[0.09] hover:text-bone"
             }`}
           >
+            <MotionGlyph type={v} />
             {v}
           </button>
         ))}

@@ -119,7 +119,7 @@ Lens lensAt(vec2 q) {
     L.u = u;
     L.edge = abs(u);
   } else if (ty == 1) {
-    // grid of pillow lenses
+    // grid of pillow lenses; with Random on, each lens looks at its own wandering spot
     vec2 g = q * seg;
     vec2 id = floor(g);
     vec2 u = fract(g) * 2.0 - 1.0;

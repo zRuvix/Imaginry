@@ -95,6 +95,8 @@ type Props = {
   onRedo: () => void;
   onRandomize: () => void;
   onShare: () => void;
+  /** The What's new ? button, before the share button. */
+  help?: ReactNode;
   extras: ReactNode;
 };
 
@@ -141,6 +143,7 @@ export default function MobileStudio(p: Props) {
         <BarButton label={p.playing ? "Pause" : "Animate"} onClick={p.onTogglePlay}>
           {p.playing ? <Pause size={16} /> : <Play size={16} />}
         </BarButton>
+        {p.help}
         <button
           type="button"
           aria-label="Copy share link"

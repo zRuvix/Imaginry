@@ -857,3 +857,35 @@ html.rv-on [data-rise]:not(.is-in) { opacity: 0; transform: translateY(26px); }
   from { opacity: 0; transform: scale(1.06); }
   to { opacity: 1; transform: none; }
 }
+
+/* Studio Motion tiles: each icon acts out its motion. It holds a still pose
+   until the tile is hovered, focused or chosen. */
+.motion-glyph * { transform-box: view-box; transform-origin: 12px 12px; }
+/* More specific than the .mg-* animation shorthands below, which reset play state. */
+.motion-tile .motion-glyph * { animation-play-state: paused; }
+.motion-tile:is(:hover, :focus-visible, [aria-checked="true"]) .motion-glyph * { animation-play-state: running; }
+.mg-drift { animation: mg-drift 1.6s linear infinite; }
+.mg-sway { animation: mg-sway 1.4s ease-in-out infinite alternate; }
+.mg-spin { animation: mg-spin 2.4s linear infinite; }
+.mg-orbit { animation: mg-spin 1.8s linear infinite; }
+.mg-rnd { animation: mg-rnd 1.9s ease-in-out infinite alternate; }
+.mg-rnd:nth-child(2) { animation-duration: 1.3s; animation-delay: -0.4s; }
+.mg-rnd:nth-child(3) { animation-duration: 1.7s; animation-direction: alternate-reverse; }
+.mg-rnd:nth-child(4) { animation-duration: 1.1s; animation-delay: -0.8s; }
+.mg-rnd:nth-child(5) { animation-duration: 1.5s; animation-delay: -0.2s; animation-direction: alternate-reverse; }
+@keyframes mg-drift {
+  0% { transform: translateX(-7px); opacity: 0; }
+  20%, 80% { opacity: 1; }
+  100% { transform: translateX(7px); opacity: 0; }
+}
+@keyframes mg-sway { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+@keyframes mg-spin { to { transform: rotate(360deg); } }
+@keyframes mg-rnd {
+  0% { transform: translate(0, 0); }
+  33% { transform: translate(2.5px, -2px); }
+  66% { transform: translate(-2px, 2.5px); }
+  100% { transform: translate(1.5px, 1.5px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-glyph * { animation: none !important; }
+}

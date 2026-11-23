@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import {
   Bookmark,
   Compare,
@@ -56,6 +56,8 @@ type Props = {
   onPublish: () => void;
   exportOpen: boolean;
   onExport: () => void;
+  /** The What's new ? button, just left of the share/export pill. */
+  help?: ReactNode;
 };
 
 // Sponsors alternate between the two gaps (1st left, 2nd right, ...) so the
@@ -181,6 +183,8 @@ export default function CommandBar(p: Props) {
 
       <div className="flex min-w-0 items-center justify-end gap-3">
         <SponsorSlots sponsors={RIGHT_SPONSORS} />
+
+        {p.help}
 
         <div className={`${pill} shrink-0`}>
           <IconButton label="Copy share link" onClick={p.onShare}>

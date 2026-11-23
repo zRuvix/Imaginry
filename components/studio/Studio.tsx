@@ -29,6 +29,7 @@ import Library from "./Library";
 import MobileStudio, { type MobileSheet } from "./MobileStudio";
 import PublishDialog from "./PublishDialog";
 import Shortcuts from "./Shortcuts";
+import WhatsNew, { useWhatsNew, WhatsNewDock } from "./WhatsNew";
 import Stage, { ASPECTS, type Aspect, type PanZoom } from "./Stage";
 
 /** Renders a still on the shared offscreen context (returns its own canvas). */
@@ -144,6 +145,8 @@ export default function Studio() {
   const [zen, setZen] = useState(false);
   const [compare, setCompare] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  // What's new card and the ? button it docks into.
+  const news = useWhatsNew();
   const [publishOpen, setPublishOpen] = useState(false);
   const { user, profile } = useMyProfile();
   const [presetDragging, setPresetDragging] = useState(false);
@@ -754,10 +757,12 @@ export default function Studio() {
         onRedo={history.redo}
         onRandomize={randomize}
         onShare={handleShare}
+        help={<WhatsNewDock news={news} compact />}
         extras={
           <>
             {fileInputEl}
             {toastEl(sheet ? 76 : 158)}
+            <WhatsNew news={news} />
           </>
         }
       />
@@ -795,6 +800,7 @@ export default function Studio() {
           onPublish={handlePublish}
           exportOpen={exportOpen}
           onExport={() => setExportOpen((v) => !v)}
+          help={<WhatsNewDock news={news} />}
         />
       </div>
 
@@ -849,6 +855,8 @@ export default function Studio() {
       )}
 
       {shortcutsOpen && <Shortcuts onClose={() => setShortcutsOpen(false)} />}
+
+      <WhatsNew news={news} />
 
       {publishOpen && profile && (
         <PublishDialog
