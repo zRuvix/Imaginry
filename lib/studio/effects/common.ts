@@ -29,6 +29,8 @@ uniform float uLayerBlend;
 // through the inverse, so the picture under the effect stays put.
 uniform vec2 uMoveOff;
 uniform float uMoveRot;
+// Zoom about the centre as a natural log (0 = none; unset in older embeds).
+uniform float uMoveZoom;
 // Random wander: amplitude (shorter-side units), patches per shorter side, clock.
 uniform vec3 uWander;
 // Random motion for cell-based effects: amplitude (in cells), clock.
@@ -101,13 +103,13 @@ int cellReach() { return uCellWander.x > 0.0 ? 1 : 0; }
 
 vec2 moveFc(vec2 fc) {
   vec2 c = uRes * 0.5;
-  return rot(uMoveRot) * (fc - c) + c - uMoveOff * min(uRes.x, uRes.y) - wanderAt(fc);
+  return rot(uMoveRot) * (fc - c) * exp(-uMoveZoom) + c - uMoveOff * min(uRes.x, uRes.y) - wanderAt(fc);
 }
-// Exact for drift, sway, spin and orbit; for random wander a first-order
+// Exact for every motion but random; for random wander a first-order
 // inverse, close enough that the picture below barely shifts.
 vec2 unmoveFc(vec2 fc) {
   vec2 c = uRes * 0.5;
-  return rot(-uMoveRot) * (fc - c + uMoveOff * min(uRes.x, uRes.y) + wanderAt(fc)) + c;
+  return rot(-uMoveRot) * (fc - c + uMoveOff * min(uRes.x, uRes.y) + wanderAt(fc)) * exp(uMoveZoom) + c;
 }
 vec4 motionFC() { return vec4(moveFc(gl_FragCoord.xy), gl_FragCoord.zw); }
 vec4 inputTex(vec2 uv) { return texture(uInput, unmoveFc(uv * uRes) / uRes); }

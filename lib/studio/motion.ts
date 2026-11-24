@@ -10,16 +10,23 @@
  * animation (the clock its shader sees).
  */
 
-export const MOTIONS = ["off", "drift", "sway", "spin", "orbit", "random"] as const;
+// Saved designs, share links and embeds store a motion by its index here:
+// only ever add to the end.
+export const MOTIONS = ["off", "drift", "sway", "spin", "orbit", "random", "rock", "breathe", "bounce", "float", "weave", "shake"] as const;
+
+/** Motions that go somewhere: they use the direction. */
+export const DIRECTIONAL: readonly MotionType[] = ["drift", "sway", "bounce"];
+/** Motions with a size: they use the distance. */
+export const RANGED: readonly MotionType[] = ["sway", "orbit", "random", "rock", "breathe", "bounce", "float", "weave", "shake"];
 export type MotionType = (typeof MOTIONS)[number];
 
 export type LayerMotion = {
   type: MotionType;
-  /** Degrees, 0 = to the right, 90 = up. Used by drift and sway. */
+  /** Degrees, 0 = to the right, 90 = up. Used by drift, sway and bounce. */
   angle: number;
   /** Negative runs it the other way. */
   speed: number;
-  /** How far sway, orbit and random travel, 0–1. */
+  /** How far the ranged motions travel (swing, zoom, shake…), 0–1. */
   distance: number;
   /** Random only: how small the patches that wander on their own are (0 big swirls, 1 about one dot or character). */
   scatter: number;
@@ -65,6 +72,8 @@ export type MotionFrame = {
   off: [number, number];
   /** Rotation about the centre, radians. */
   rot: number;
+  /** Zoom about the centre, as a natural log: 0 is none, so embeds that predate it stay still. */
+  zoom: number;
   /**
    * Random wander: [amplitude (shorter-side units), patches per shorter side,
    * clock]. Each patch of the pattern drifts around its home on its own.
@@ -96,29 +105,70 @@ export function motionAt(m: LayerMotion, t: number, cells = false): MotionFrame 
   switch (m.type) {
     case "drift": {
       const d = m.speed * 0.08 * t;
-      return { off: [dir[0] * d, dir[1] * d], rot: 0, wander: STILL, cell: NO_CELL };
+      return { off: [dir[0] * d, dir[1] * d], rot: 0, zoom: 0, wander: STILL, cell: NO_CELL };
     }
     case "sway": {
       const d = m.distance * 0.25 * Math.sin(t * m.speed * 1.5);
-      return { off: [dir[0] * d, dir[1] * d], rot: 0, wander: STILL, cell: NO_CELL };
+      return { off: [dir[0] * d, dir[1] * d], rot: 0, zoom: 0, wander: STILL, cell: NO_CELL };
     }
     case "spin":
-      return { off: [0, 0], rot: m.speed * 0.3 * t, wander: STILL, cell: NO_CELL };
+      return { off: [0, 0], rot: m.speed * 0.3 * t, zoom: 0, wander: STILL, cell: NO_CELL };
     case "orbit": {
       const w = t * m.speed * 1.2;
       const r = m.distance * 0.15;
-      return { off: [Math.cos(w) * r, Math.sin(w) * r], rot: 0, wander: STILL, cell: NO_CELL };
+      return { off: [Math.cos(w) * r, Math.sin(w) * r], rot: 0, zoom: 0, wander: STILL, cell: NO_CELL };
     }
     case "random": {
       const clock = t * m.speed * 0.8;
       // Cell effects move each cell on their own; everything else wanders in patches.
       return cells
-        ? { off: [0, 0], rot: 0, wander: STILL, cell: [Math.min(0.8, m.distance * 0.9), clock] }
-        : { off: [0, 0], rot: 0, wander: wanderFor(m.distance, m.scatter, clock), cell: NO_CELL };
+        ? { off: [0, 0], rot: 0, zoom: 0, wander: STILL, cell: [Math.min(0.8, m.distance * 0.9), clock] }
+        : { off: [0, 0], rot: 0, zoom: 0, wander: wanderFor(m.distance, m.scatter, clock), cell: NO_CELL };
+    }
+    case "rock":
+      // A pendulum about the centre: up to about 35° either way.
+      return { off: [0, 0], rot: m.distance * 0.6 * Math.sin(t * m.speed * 1.5), zoom: 0, wander: STILL, cell: NO_CELL };
+    case "breathe":
+      // Slow zoom in and out, up to about a third bigger or smaller.
+      return { off: [0, 0], rot: 0, zoom: m.distance * 0.3 * Math.sin(t * m.speed * 1.2), wander: STILL, cell: NO_CELL };
+    case "bounce": {
+      // Hops along the direction and drops back, touching down sharply like a ball.
+      const d = m.distance * 0.2 * Math.abs(Math.sin(t * m.speed * 1.6));
+      return { off: [dir[0] * d, dir[1] * d], rot: 0, zoom: 0, wander: STILL, cell: NO_CELL };
+    }
+    case "float": {
+      // Bobbing on water: up and down, a slower side drift and a slight tilt.
+      const w = t * m.speed * 1.2;
+      const r = m.distance * 0.09;
+      return { off: [Math.sin(w * 0.63) * r * 0.45, Math.sin(w) * r], rot: Math.sin(w * 0.8 + 1) * m.distance * 0.07, zoom: 0, wander: STILL, cell: NO_CELL };
+    }
+    case "weave": {
+      // A figure 8 around the spot.
+      const w = t * m.speed;
+      const r = m.distance * 0.18;
+      return { off: [Math.sin(w) * r, Math.sin(2 * w) * r * 0.5], rot: 0, zoom: 0, wander: STILL, cell: NO_CELL };
+    }
+    case "shake": {
+      // Stop-motion jitter: a new nudge on every step; speed sets steps per second.
+      const k = Math.floor(t * (4 + 10 * Math.abs(m.speed)));
+      const amp = m.distance * 0.025;
+      return {
+        off: [(shakeHash(k) - 0.5) * amp, (shakeHash(k + 17) - 0.5) * amp],
+        rot: (shakeHash(k + 5) - 0.5) * m.distance * 0.05,
+        zoom: 0,
+        wander: STILL,
+        cell: NO_CELL,
+      };
     }
     default:
-      return { off: [0, 0], rot: 0, wander: STILL, cell: NO_CELL };
+      return { off: [0, 0], rot: 0, zoom: 0, wander: STILL, cell: NO_CELL };
   }
+}
+
+/** Repeatable 0–1 noise for shake's steps (the embed runtime uses the same formula). */
+function shakeHash(k: number) {
+  const x = Math.sin(k * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
 }
 
 /**
@@ -134,17 +184,25 @@ export function packMotion(m: LayerMotion, cells = false): number[] | undefined 
 /** `motionAt` for the embed runtime (ES5, takes the packed form). */
 export const MOTION_JS = `function motionAt(m, t) {
   var still = [0, 0, 0], none = [0, 0];
-  if (!m) return { off: [0, 0], rot: 0, wander: still, cell: none };
+  function f(off, rot, zoom) { return { off: off, rot: rot, zoom: zoom || 0, wander: still, cell: none }; }
+  function h(k) { var x = Math.sin(k * 12.9898) * 43758.5453; return x - Math.floor(x); }
+  if (!m) return f([0, 0], 0);
   var a = m[1] * Math.PI / 180, dx = Math.cos(a), dy = Math.sin(a), d;
-  if (m[0] === 1) { d = m[2] * 0.08 * t; return { off: [dx * d, dy * d], rot: 0, wander: still, cell: none }; }
-  if (m[0] === 2) { d = m[3] * 0.25 * Math.sin(t * m[2] * 1.5); return { off: [dx * d, dy * d], rot: 0, wander: still, cell: none }; }
-  if (m[0] === 3) return { off: [0, 0], rot: m[2] * 0.3 * t, wander: still, cell: none };
-  if (m[0] === 4) { var w = t * m[2] * 1.2, r = m[3] * 0.15; return { off: [Math.cos(w) * r, Math.sin(w) * r], rot: 0, wander: still, cell: none }; }
+  if (m[0] === 1) { d = m[2] * 0.08 * t; return f([dx * d, dy * d], 0); }
+  if (m[0] === 2) { d = m[3] * 0.25 * Math.sin(t * m[2] * 1.5); return f([dx * d, dy * d], 0); }
+  if (m[0] === 3) return f([0, 0], m[2] * 0.3 * t);
+  if (m[0] === 4) { var w = t * m[2] * 1.2, r = m[3] * 0.15; return f([Math.cos(w) * r, Math.sin(w) * r], 0); }
   if (m[0] === 5) {
     var clock = t * m[2] * 0.8, sc = m[4] == null ? 0.6 : m[4];
-    if (m[5]) return { off: [0, 0], rot: 0, wander: still, cell: [Math.min(0.8, m[3] * 0.9), clock] };
-    var f = 2 + 58 * Math.pow(sc, 1.5);
-    return { off: [0, 0], rot: 0, wander: [m[3] * 0.6 / f, f, clock], cell: none };
+    if (m[5]) return { off: [0, 0], rot: 0, zoom: 0, wander: still, cell: [Math.min(0.8, m[3] * 0.9), clock] };
+    var fp = 2 + 58 * Math.pow(sc, 1.5);
+    return { off: [0, 0], rot: 0, zoom: 0, wander: [m[3] * 0.6 / fp, fp, clock], cell: none };
   }
-  return { off: [0, 0], rot: 0, wander: still, cell: none };
+  if (m[0] === 6) return f([0, 0], m[3] * 0.6 * Math.sin(t * m[2] * 1.5));
+  if (m[0] === 7) return f([0, 0], 0, m[3] * 0.3 * Math.sin(t * m[2] * 1.2));
+  if (m[0] === 8) { d = m[3] * 0.2 * Math.abs(Math.sin(t * m[2] * 1.6)); return f([dx * d, dy * d], 0); }
+  if (m[0] === 9) { var fw = t * m[2] * 1.2, fr = m[3] * 0.09; return f([Math.sin(fw * 0.63) * fr * 0.45, Math.sin(fw) * fr], Math.sin(fw * 0.8 + 1) * m[3] * 0.07); }
+  if (m[0] === 10) { var ww = t * m[2], wr = m[3] * 0.18; return f([Math.sin(ww) * wr, Math.sin(2 * ww) * wr * 0.5], 0); }
+  if (m[0] === 11) { var k = Math.floor(t * (4 + 10 * Math.abs(m[2]))), sa = m[3] * 0.025; return f([(h(k) - 0.5) * sa, (h(k + 17) - 0.5) * sa], (h(k + 5) - 0.5) * m[3] * 0.05); }
+  return f([0, 0], 0);
 }`;

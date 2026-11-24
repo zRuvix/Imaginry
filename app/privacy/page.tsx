@@ -54,7 +54,7 @@ const SECTIONS: LegalSection[] = [
     body: (
       <>
         <p>
-          Signing in is optional. The studio works fully without an account. If you choose &ldquo;Continue with
+          You can design in the studio without an account; exporting images, video or embed code needs you to sign in. If you choose &ldquo;Continue with
           Google&rdquo;, Google asks your permission to share basic profile information with Imaginry. We request only
           the standard <code>openid</code>, <code>email</code> and <code>profile</code> scopes, which give us:
         </p>

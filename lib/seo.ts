@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { EFFECT_COUNT } from "./studio/effects";
 
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.imaginry.tech";
 export const SITE_NAME = "Imaginry";
@@ -6,7 +7,7 @@ export const CREATOR = "@zRuvix1";
 export const CREATOR_URL = "https://x.com/zRuvix1";
 
 export const DEFAULT_DESCRIPTION =
-  "Free browser studio for abstract backgrounds. Stack 51 shader effects like gradients, fluted glass and grain, then export PNG, looping video or embed code. No AI.";
+  `Free browser studio for abstract backgrounds. Stack ${EFFECT_COUNT} shader effects like gradients, fluted glass and grain, then export PNG, looping video or embed code. No AI.`;
 
 export const KEYWORDS = [
   "generative backgrounds",

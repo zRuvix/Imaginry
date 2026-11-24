@@ -30,7 +30,7 @@ export default function LegalLayout({
 }) {
   return (
     <SmoothScroll>
-      <main className="min-h-full bg-[#eef1f3] pt-2">
+      <main className="site-frame min-h-full bg-[#eef1f3] pt-2">
         <style href="landing-light" precedence="high">{LIGHT_PAGE}</style>
 
         <div className="px-2">

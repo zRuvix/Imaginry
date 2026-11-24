@@ -38,13 +38,13 @@ export function layerTime(state: StudioState, key: SectionKey, time: number) {
 
 /**
  * Per-layer motion uniforms: the effect's own clock (scaled by its tempo)
- * and the drift/sway/spin/orbit offset at this moment.
+ * and the layer motion (offset, turn, zoom) at this moment.
  */
 export function layerMotionUniforms(state: StudioState, key: SectionKey, time: number): Record<string, Uniform> {
   const t = layerTime(state, key, time);
   const m = motionOf(state.sections[key]);
-  const { off, rot, wander, cell } = motionAt(m, t, Boolean(SCHEMA_BY_KEY[key].cells));
-  return { uTime: t * m.tempo, uMoveOff: off, uMoveRot: rot, uWander: wander, uCellWander: cell };
+  const { off, rot, zoom, wander, cell } = motionAt(m, t, Boolean(SCHEMA_BY_KEY[key].cells));
+  return { uTime: t * m.tempo, uMoveOff: off, uMoveRot: rot, uMoveZoom: zoom, uWander: wander, uCellWander: cell };
 }
 
 /**

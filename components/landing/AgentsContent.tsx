@@ -2,9 +2,12 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { SITE_URL } from "@/lib/seo";
+import { EFFECT_COUNT } from "@/lib/studio/effects";
+import AgentTools from "./AgentTools";
 import Panel from "./Panel";
 import { BTN_MOTION } from "./buttonMotion";
 
+/** The MCP server. Apps sign in through the Allow screen (or send an account API key). */
 export const ENDPOINT = `${SITE_URL}/mcp`;
 
 /** Copies text and remembers which item was copied for 1.6s. */
@@ -41,11 +44,11 @@ function CopyButton({ done, onClick, label }: { done: boolean; onClick: () => vo
   );
 }
 
-/** The endpoint chip in the page hero. */
-export function EndpointChip() {
+/** The server URL with a copy button, beside the agents heading. */
+function EndpointChip() {
   const { copied, copy } = useCopy();
   return (
-    <div className="flex items-center gap-2 rounded-[12px] bg-white/90 py-1.5 pl-4 pr-1.5 shadow-[0_1px_2px_rgba(20,30,40,0.06),0_8px_24px_-12px_rgba(20,30,40,0.18)] backdrop-blur-md">
+    <div className="flex max-w-full items-center gap-2 rounded-[12px] bg-[#f3f4f5] py-1.5 pl-4 pr-1.5">
       <code className="truncate font-mono text-[13px] text-[#141414] sm:text-[14px]">{ENDPOINT}</code>
       <CopyButton done={copied === "hero"} onClick={() => copy("hero", ENDPOINT)} label="Copy the server URL" />
     </div>
@@ -55,61 +58,61 @@ export function EndpointChip() {
 type Client = { id: string; name: string; steps: ReactNode[]; code: string; file?: string };
 const json = (value: unknown) => JSON.stringify(value, null, 2);
 
+// Every app below signs in the same way: the first call opens Imaginry, the
+// person signs in and clicks Allow, and the app keeps the access it was given.
 const CLIENTS: Client[] = [
   {
     id: "claude",
     name: "Claude",
     steps: [
-      <>Open <b>Settings</b>, then <b>Connectors</b>.</>,
-      <>Choose <b>Add custom connector</b> and name it Imaginry.</>,
-      <>Paste the server URL and add it. No sign-in is needed.</>,
+      <>Open <b>Settings</b>, then <b>Connectors</b>, then <b>Add custom connector</b>.</>,
+      <>Name it Imaginry and paste the server URL.</>,
+      <>Imaginry opens: sign in and click <b>Allow</b>.</>,
     ],
     code: ENDPOINT,
   },
   {
     id: "claude-code",
     name: "Claude Code",
-    steps: [<>Run this once in your terminal.</>, <>Start a session and ask for a background.</>],
+    steps: [<>Run this once in your terminal.</>, <>In a session, type <b>/mcp</b>, pick imaginry and sign in. Click <b>Allow</b>.</>],
     code: `claude mcp add --transport http imaginry ${ENDPOINT}`,
-  },
-  {
-    id: "cursor",
-    name: "Cursor",
-    steps: [<>Open <b>Cursor Settings</b>, then <b>MCP</b>, then <b>Add new MCP server</b>.</>, <>Or add this to the file yourself.</>],
-    code: json({ mcpServers: { imaginry: { url: ENDPOINT } } }),
-    file: "~/.cursor/mcp.json",
-  },
-  {
-    id: "vscode",
-    name: "VS Code",
-    steps: [<>Add this file to your project, or run <b>MCP: Add Server</b>.</>, <>Use it from Copilot Chat in agent mode.</>],
-    code: json({ servers: { imaginry: { type: "http", url: ENDPOINT } } }),
-    file: ".vscode/mcp.json",
   },
   {
     id: "chatgpt",
     name: "ChatGPT",
     steps: [
       <>Turn on <b>Developer mode</b> in Settings, under <b>Connectors</b>.</>,
-      <>Create a connector, paste the server URL, and choose no authentication.</>,
+      <>Create a connector, paste the server URL and choose <b>OAuth</b>.</>,
+      <>Imaginry opens: sign in and click <b>Allow</b>.</>,
     ],
     code: ENDPOINT,
   },
   {
+    id: "cursor",
+    name: "Cursor",
+    steps: [
+      <>Open <b>Cursor Settings</b>, then <b>MCP</b>, then <b>Add new MCP server</b>, or add this to the file.</>,
+      <>Click <b>Needs login</b> next to imaginry, then <b>Allow</b>.</>,
+    ],
+    code: json({ mcpServers: { imaginry: { url: ENDPOINT } } }),
+    file: "~/.cursor/mcp.json",
+  },
+  {
+    id: "vscode",
+    name: "VS Code",
+    steps: [<>Add this file to your project, or run <b>MCP: Add Server</b>.</>, <>VS Code asks you to sign in the first time: click <b>Allow</b>.</>],
+    code: json({ servers: { imaginry: { type: "http", url: ENDPOINT } } }),
+    file: ".vscode/mcp.json",
+  },
+  {
     id: "other",
     name: "Other apps",
-    steps: [<>For an app that only runs local servers, bridge to Imaginry with mcp-remote.</>, <>Needs Node.js 18 or newer.</>],
+    steps: [
+      <>Apps that only run local servers: bridge with mcp-remote. It opens Imaginry for you to <b>Allow</b>. Needs Node.js 18 or newer.</>,
+      <>Scripts that can’t open a browser: make an API key in the studio’s account panel and send it as <b>Authorization: Bearer</b>.</>,
+    ],
     code: json({ mcpServers: { imaginry: { command: "npx", args: ["-y", "mcp-remote", ENDPOINT] } } }),
   },
-];
-
-const TOOLS: { names: string[]; title: string; body: string }[] = [
-  { names: ["create_design"], title: "Build a design", body: "Stacks presets and settings into layers and returns a link that opens in the studio." },
-  { names: ["random_design"], title: "Surprise me", body: "A random background like the studio’s R key, kept to a palette or a kind of effect if you like." },
-  { names: ["list_looks"], title: "Start from a look", body: "The gallery’s premade designs by mood, each ready to remix." },
-  { names: ["list_effects", "get_effect"], title: "Know every effect", body: "All 51 effects with their settings, ranges and presets, so the agent picks real values." },
-  { names: ["read_design"], title: "Edit a link", body: "Turns any studio or short link back into layers the agent can change." },
-  { names: ["render_png", "get_embed_code"], title: "Export it", body: "A PNG up to 2048px the agent can see, or HTML and React that draw the design live." },
 ];
 
 const PROMPTS = [
@@ -121,16 +124,22 @@ const PROMPTS = [
   "Which gallery looks would suit a podcast cover?",
 ];
 
-/** Setup, tools and prompts for the Agents page. */
+/** The MCP server on the landing: setup, tools and prompts. */
 export default function AgentsContent() {
   const { copied, copy } = useCopy();
   const [active, setActive] = useState(CLIENTS[0].id);
   const client = CLIENTS.find((c) => c.id === active)!;
-  const label = client.file ?? (client.code.startsWith("claude") ? "Terminal" : "Server URL");
+  const code = client.code;
+  const label = client.file ?? (code.startsWith("claude") ? "Terminal" : "Server URL");
 
   return (
     <>
-      <Panel id="setup" title="Add the server to your app" intro="One URL works everywhere. No account or key, and nothing you make is stored unless you ask for a short link.">
+      <Panel
+        id="agents"
+        title="Let your AI agent make the background"
+        intro={`Connect Claude, ChatGPT, Cursor or any MCP app to one URL. The first time, Imaginry asks you to sign in and Allow. It builds designs from the same ${EFFECT_COUNT} effects as the studio and hands back a link or embed code.`}
+        aside={<EndpointChip />}
+      >
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-10">
           <div role="tablist" aria-label="Your app" className="flex flex-wrap content-start gap-2">
             {CLIENTS.map((c) => (
@@ -163,32 +172,19 @@ export default function AgentsContent() {
             <div className="mt-6 overflow-hidden rounded-[14px] bg-[#141414]">
               <div className="flex items-center justify-between gap-3 py-1.5 pl-4 pr-1.5">
                 <span className="truncate font-mono text-[12.5px] text-white/50">{label}</span>
-                <CopyButton done={copied === client.id} onClick={() => copy(client.id, client.code)} label={`Copy the ${client.name} setup`} />
+                <CopyButton done={copied === client.id} onClick={() => copy(client.id, code)} label={`Copy the ${client.name} setup`} />
               </div>
               <pre data-lenis-prevent className="overflow-x-auto px-4 pb-4 font-mono text-[13px] leading-relaxed text-white">
-                <code>{client.code}</code>
+                <code>{code}</code>
               </pre>
             </div>
           </div>
         </div>
       </Panel>
 
-      <Panel id="tools" title="Eight tools, one studio behind them" intro="Your agent works with the same 51 effects and presets the studio uses, so what it makes opens and edits like anything you built by hand.">
-        <ul className="grid gap-2 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
-          {TOOLS.map((t) => (
-            <li key={t.title} className="rounded-[20px] bg-[#f6f7f8] p-5 sm:p-6">
-              <div className="flex flex-wrap gap-1.5">
-                {t.names.map((n) => (
-                  <code key={n} className="rounded-md bg-white px-2 py-1 font-mono text-[12px] text-[#141414] ring-1 ring-black/[0.06]">
-                    {n}
-                  </code>
-                ))}
-              </div>
-              <h3 className="font-lexend mt-5 text-[22px] font-light tracking-[-0.03em] text-[#121416]">{t.title}</h3>
-              <p className="font-outfit mt-2 text-[14.5px] leading-relaxed text-[#6b7075]">{t.body}</p>
-            </li>
-          ))}
-        </ul>
+      {/* AgentTools carries its own compact heading (tools-h). */}
+      <Panel id="tools">
+        <AgentTools />
       </Panel>
 
       <Panel id="prompts" title="Things to ask once it’s connected" intro="Plain words work. Copy one of these to try it.">
@@ -204,3 +200,4 @@ export default function AgentsContent() {
     </>
   );
 }
+

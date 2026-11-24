@@ -22,7 +22,7 @@ function PhotoBox({ children, style, className = "" }: { children: ReactNode; st
       className={`pointer-events-none absolute left-1/2 aspect-[3/2] w-[max(100%,calc((100svh-16px)*1.5))] -translate-x-1/2 ${className}`}
       // On wide, short screens the photo is taller than the hero; spend up to
       // 9rem of that spare sky sinking the hill so the grass doesn't eat the screenshot.
-      style={{ bottom: "calc(-1 * clamp(0px, (100vw - 16px) / 1.5 - (100svh - 16px), 9rem))", ...style }}
+      style={{ bottom: "calc(-1 * clamp(0px, (min(100vw, var(--frame)) - 16px) / 1.5 - (100svh - 16px), 9rem))", ...style }}
     >
       {children}
     </div>

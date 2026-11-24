@@ -1,15 +1,22 @@
 import { type NextRequest } from "next/server";
 import { SITE_URL } from "@/lib/seo";
+import { bearer, userForKey } from "@/lib/server/mcp-keys";
+import { ACCESS_PREFIX, userForAccessToken } from "@/lib/server/oauth";
 import { ToolContent, ToolError, TOOLS, TOOLS_BY_NAME, type ToolContext } from "@/lib/server/mcp-tools";
 
 // render_png runs headless Chromium on the CPU, which takes a few seconds.
 export const maxDuration = 60;
 
 /**
- * Public MCP server for AI agents, over Streamable HTTP in stateless mode:
+ * MCP server for AI agents, over Streamable HTTP in stateless mode:
  * every POST carries a JSON-RPC message (or batch) and gets a JSON reply.
  * There are no sessions and no server-to-client stream, so GET returns 405
  * to MCP clients asking for one.
+ *
+ * Every POST needs `Authorization: Bearer …`: an OAuth access token the app got
+ * when the person clicked Allow (lib/server/oauth, /oauth/authorize), or an
+ * account API key from the studio's account panel (lib/server/mcp-keys).
+ * Without one the reply is a 401, so nothing runs for anonymous callers.
  */
 
 const SUPPORTED_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"];
@@ -29,8 +36,8 @@ create_design returns a studio link the user opens to tweak and export PNG, loop
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id, Last-Event-ID",
-  "Access-Control-Expose-Headers": "Mcp-Protocol-Version",
+  "Access-Control-Allow-Headers": "Authorization, Content-Type, Accept, Mcp-Protocol-Version, Mcp-Session-Id, Last-Event-ID",
+  "Access-Control-Expose-Headers": "Mcp-Protocol-Version, WWW-Authenticate",
 };
 
 type Id = string | number | null;
@@ -104,7 +111,44 @@ async function handle(msg: Message, ctx: ToolContext) {
   }
 }
 
+/**
+ * 401 for a missing or dead token. The resource_metadata pointer is how MCP
+ * apps find the sign-in: they register, open the Allow screen, and retry.
+ */
+function unauthorized(request: NextRequest, hasToken: boolean) {
+  const origin = request.nextUrl.origin;
+  const message = hasToken
+    ? "This sign-in or API key isn't valid anymore. Reconnect the app, or make a new key in the studio's account panel."
+    : "Imaginry needs you to sign in. Connect from an MCP app to get the Allow screen, or send an account API key as Authorization: Bearer <key>.";
+  const params = [`realm="imaginry"`, `resource_metadata="${origin}/.well-known/oauth-protected-resource"`];
+  if (hasToken) params.push(`error="invalid_token"`);
+  return Response.json(failure(null, -32001, message), {
+    status: 401,
+    headers: { ...CORS, "WWW-Authenticate": `Bearer ${params.join(", ")}` },
+  });
+}
+
+/** The account behind a bearer token: an OAuth access token from the Allow screen, or an account API key. */
+async function userFor(token: string) {
+  if (token.startsWith(ACCESS_PREFIX)) return userForAccessToken(token);
+  return userForKey(token);
+}
+
 export async function POST(request: NextRequest) {
+  const token = bearer(request);
+  let userId: string | null = null;
+  try {
+    userId = token ? await userFor(token) : null;
+  } catch (e) {
+    // Fail closed: no key check, no tools.
+    console.error("[mcp] key check", e);
+    return Response.json(failure(null, -32603, "Couldn't check the API key right now. Try again in a moment."), {
+      status: 503,
+      headers: { ...CORS, "Retry-After": "30" },
+    });
+  }
+  if (!userId) return unauthorized(request, !!token);
+
   let body: unknown;
   try {
     body = await request.json();
@@ -112,7 +156,8 @@ export async function POST(request: NextRequest) {
     return json(failure(null, -32700, "Parse error"), 400);
   }
   const ctx: ToolContext = {
-    caller: request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local",
+    // Rate limits count per account.
+    caller: `user:${userId}`,
     origin: request.nextUrl.origin,
   };
 
@@ -135,7 +180,8 @@ export async function GET(request: NextRequest) {
   if (accept.includes("text/html")) return Response.redirect(new URL("/studio", request.url), 307);
   return json({
     name: SERVER_INFO.title,
-    description: "MCP server for AI agents. Connect an MCP client to this URL (Streamable HTTP).",
+    description: "MCP server for AI agents. Connect an MCP client to this URL (Streamable HTTP) with an account API key.",
+    auth: `Authorization: Bearer <key>. Make a key at ${SITE_URL}/#agents`,
     endpoint: `${SITE_URL}/mcp`,
     tools: TOOLS.map((t) => t.name),
   });

@@ -4,11 +4,13 @@ import { ChevronDown, X } from "@/components/icons";
 import { track } from "@/lib/events";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
+import { encodeShare } from "@/lib/studio/storage";
 import { renderOffscreen } from "@/lib/studio/renderer";
 import type { StudioState } from "@/lib/studio/schema";
 import type { StudioImage } from "@/lib/studio/gif";
 import { encodeLoop, videoSupported, type VideoFormat } from "@/lib/studio/video";
 import { ASPECTS, LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, stagePixelRatio, type Aspect } from "./Stage";
+import GoogleSignIn from "./GoogleSignIn";
 
 type Size = { id: string; label: string; width: number; height: number };
 
@@ -111,17 +113,20 @@ function Dropdown<T extends string | number>({
 function Action({
   onClick,
   disabled,
+  locked,
   children,
 }: {
   onClick: () => void;
   disabled?: boolean;
+  /** Signed out (true) or not known yet (null): the button can't be pressed. Sign-in is the card at the top. */
+  locked?: boolean | null;
   children: ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || locked === true || locked === null}
       className="blue-button relative h-10 w-full overflow-hidden rounded-full text-[13px] font-semibold disabled:cursor-not-allowed disabled:opacity-50"
     >
       {children}
@@ -139,6 +144,8 @@ type Props = {
   previewSize: { width: number; height: number };
   timeRef: RefObject<number>;
   speed: number;
+  /** Exports need an account. null while the session is still loading. */
+  signedIn: boolean | null;
   onClose: () => void;
   notify: (msg: string) => void;
 };
@@ -255,6 +262,14 @@ export default function ExportPanel(p: Props) {
     }
   };
 
+  // Signing up from the card at the top comes back to the same design (it rides
+  // in the hash) with this panel open again.
+  const signUpUrl = `/studio?export=1#${encodeShare(p.state)}`;
+  // Signed out, or still loading (null): the export buttons are disabled.
+  const locked = p.signedIn === null ? null : !p.signedIn;
+  // Signed out, every export button reads just "Export" and can't be pressed.
+  const gated = (label: string) => (p.signedIn === false ? "Export" : label);
+
   const embedNote = {
     framer: "Two pastes: the component onto your canvas, then the look into its Look property.",
     react: "One self-contained client component. Size it with CSS; it fills its box.",
@@ -276,6 +291,12 @@ export default function ExportPanel(p: Props) {
       </header>
 
       <div className="scroll-thin flex-1 space-y-3 overflow-y-auto p-3">
+        {p.signedIn === false && (
+          <section className="anim-rise rounded-[18px] bg-[#2460e8]/[0.14] p-3.5 ring-1 ring-[#5680f2]/30">
+            <h3 className="pb-3 text-[13.5px] font-semibold text-bone">Sign up to export</h3>
+            <GoogleSignIn callbackURL={signUpUrl} />
+          </section>
+        )}
         <Card title="Aspect ratio">
           <div className="grid grid-cols-2 gap-2">
             <Choice active={p.aspect === "fill"} onClick={() => p.onAspect("fill")}>
@@ -312,8 +333,8 @@ export default function ExportPanel(p: Props) {
             options={imageSizes.map((s) => ({ value: s.id, label: sizeLabel(s) }))}
             onChange={setImageSizeId}
           />
-          <Action onClick={downloadPng}>
-            Download PNG
+          <Action onClick={downloadPng} locked={locked}>
+            {gated("Download PNG")}
           </Action>
         </Card>
 
@@ -348,7 +369,7 @@ export default function ExportPanel(p: Props) {
               onChange={setSeconds}
             />
           </div>
-          <Action onClick={exportVideo} disabled={!videoSupported()}>
+          <Action onClick={exportVideo} disabled={!videoSupported()} locked={locked}>
             {progress !== null && (
               <span
                 className="absolute inset-y-0 left-0 bg-white/15 transition-[width]"
@@ -358,6 +379,8 @@ export default function ExportPanel(p: Props) {
             <span className="relative">
               {!videoSupported()
                 ? "Video export needs WebCodecs"
+                : locked
+                  ? gated(`Export ${format.toUpperCase()} loop`)
                 : progress !== null
                   ? `Encoding ${Math.round(progress * 100)}% · click to cancel`
                   : `Export ${format.toUpperCase()} loop`}
@@ -396,14 +419,14 @@ export default function ExportPanel(p: Props) {
           </div>
           {tab === "framer" ? (
             <>
-              <Action onClick={() => copy(code.primary, "Component")}>1. Copy component</Action>
-              <Action onClick={() => copy(code.look!, "Look")}>
-                2. Copy look
+              <Action onClick={() => copy(code.primary, "Component")} locked={locked}>
+                {gated("1. Copy component")}
               </Action>
+              {locked === false && <Action onClick={() => copy(code.look!, "Look")}>2. Copy look</Action>}
             </>
           ) : (
-            <Action onClick={() => copy(code.primary, tab === "react" ? "Component" : "HTML")}>
-              {tab === "react" ? "Copy component" : "Copy HTML"}
+            <Action onClick={() => copy(code.primary, tab === "react" ? "Component" : "HTML")} locked={locked}>
+              {gated(tab === "react" ? "Copy component" : "Copy HTML")}
             </Action>
           )}
         </Card>

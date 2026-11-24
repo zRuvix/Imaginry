@@ -7,9 +7,9 @@ import MobileMenu from "./MobileMenu";
 
 const LINKS = [
   { href: "/", label: "Home" },
-  { href: "/studio", label: "Studio" },
   { href: "/explore", label: "Explore" },
-  { href: "/agents", label: "Agents" },
+  { href: "/#agents", label: "Agents" },
+  { href: "/#pricing", label: "Pricing" },
   { href: "/sponsor", label: "Sponsor" },
 ];
 

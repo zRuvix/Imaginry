@@ -149,7 +149,7 @@ export default function Studio() {
   // What's new card and the ? button it docks into.
   const news = useWhatsNew();
   const [publishOpen, setPublishOpen] = useState(false);
-  const { user, profile } = useMyProfile();
+  const { user, profile, session } = useMyProfile();
   const [presetDragging, setPresetDragging] = useState(false);
 
   const timeRef = useRef(0);
@@ -511,12 +511,20 @@ export default function Studio() {
     }
   };
 
-  // Someone opened a short link that doesn't exist (or the service was down).
+  // Someone opened a short link that doesn't exist (or the service was down),
+  // or came back from signing in to export: reopen the export panel.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("link") !== "missing") return;
-    notify("That link doesn't exist anymore");
+    const missing = params.get("link") === "missing";
+    const exporting = params.get("export") === "1";
+    if (!missing && !exporting) return;
+    if (missing) notify("That link doesn't exist anymore");
+    if (exporting) {
+      setExportOpen(true);
+      setSheet("export");
+    }
     params.delete("link");
+    params.delete("export");
     const rest = params.toString();
     window.history.replaceState(
       null,
@@ -635,6 +643,7 @@ export default function Studio() {
       previewSize={previewSize}
       timeRef={timeRef}
       speed={speed}
+      signedIn={user ? true : session.isPending ? null : false}
       onClose={() => {
         setExportOpen(false);
         setSheet(null);

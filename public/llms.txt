@@ -1,6 +1,6 @@
 # Imaginry
 
-> Free studio for generative backgrounds. Stack 51 live effects like gradients, fluted glass, grain, halftone and glitch, then export PNG, looping MP4/WebM video or embed code. Runs in the browser, no account needed.
+> Free studio for generative backgrounds. Stack 56 live effects like gradients, fluted glass, grain, halftone and glitch, then export PNG, looping MP4/WebM video or embed code. Runs in the browser; exporting needs a free account.
 
 Imaginry is made by Ruvix (https://x.com/zRuvix1). Everything renders live on the GPU, and effects stack as layers that can be reordered and tweaked in real time.
 
@@ -13,14 +13,14 @@ Imaginry is made by Ruvix (https://x.com/zRuvix1). Everything renders live on th
 ## Key facts
 
 - Price: free.
-- Effects: 51, including gradients, fluted glass, grain, halftone and glitch.
+- Effects: 56, including gradients, fluted glass, grain, halftone, glitch, chrome, contours and pixel sort.
 - Exports: PNG stills, looping MP4 or WebM video, and embeddable code.
 - Tech: runs fully in the browser.
 - Alternative to: Pryzm.
 
 ## MCP server
 
-AI agents can build designs directly through the Imaginry MCP server at https://www.imaginry.tech/mcp (Streamable HTTP, no auth). Tools:
+AI agents can build designs directly through the Imaginry MCP server at https://www.imaginry.tech/mcp (Streamable HTTP). It needs an Imaginry account: MCP apps sign in with OAuth (the person clicks Allow on imaginry.tech; discovery at /.well-known/oauth-protected-resource), or send an account API key from the studio's account panel as `Authorization: Bearer <key>`. Tools:
 
 - list_effects, get_effect: the effect catalogue, with settings, ranges and presets.
 - list_looks: premade gallery designs to remix.

@@ -123,7 +123,7 @@ function mountImaginry(canvas, look, opts) {
       var t = layer.frozen == null ? time : layer.frozen, mv = motionAt(layer.m, t);
       uniforms(layer.p, Object.assign({}, look.uniforms, {
         uRes: [w, h], uDetail: 1, uPixel: 1, uImgSize: [1, 1], uTime: t * layer.tp,
-        uMoveOff: mv.off, uMoveRot: mv.rot, uWander: mv.wander, uCellWander: mv.cell, uLayerOpacity: layer.o, uLayerBlend: layer.b
+        uMoveOff: mv.off, uMoveRot: mv.rot, uMoveZoom: mv.zoom || 0, uWander: mv.wander, uCellWander: mv.cell, uLayerOpacity: layer.o, uLayerBlend: layer.b
       }));
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, i === 0 ? base : targets[(i - 1) % 2].tex);

@@ -5,13 +5,14 @@ import Link from "next/link";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from "motion/react";
 import { useLenis } from "lenis/react";
 import { useRef, useState, type ReactNode } from "react";
+import { EFFECT_COUNT } from "@/lib/studio/effects";
 
 type Tile = { name: string; meta: string; icon: IconName };
 
 const STEPS: { tab: string; sub: string; title: string; body: string; cta: string; tiles: Tile[]; dock: IconName[] }[] = [
   {
     tab: "Layers",
-    sub: "51 live effects",
+    sub: `${EFFECT_COUNT} live effects`,
     title: "Layers",
     body: "Stack gradients, glass, grain and glitch into one live canvas, reordered and blended in real time.",
     cta: "Start stacking",
@@ -66,7 +67,7 @@ const STEPS: { tab: string; sub: string; title: string; body: string; cta: strin
     tiles: [
       { name: "create_design", meta: "Stack layers", icon: "gradient" },
       { name: "random_design", meta: "Surprise me", icon: "spark" },
-      { name: "list_effects", meta: "51 effects", icon: "grain" },
+      { name: "list_effects", meta: `${EFFECT_COUNT} effects`, icon: "grain" },
       { name: "render_png", meta: "Up to 2048px", icon: "image" },
       { name: "get_embed_code", meta: "HTML or React", icon: "code" },
       { name: "read_design", meta: "From a link", icon: "link" },
@@ -144,10 +145,11 @@ export default function PinnedFeatures({ hero }: { hero: ReactNode }) {
           </motion.div>
         </motion.div>
 
-        {/* Desktop: two cards under the strip */}
-        <div className="absolute inset-x-2 bottom-2 top-[calc(8px+var(--top)*(100svh-16px)+8px)] hidden gap-2 lg:grid lg:grid-cols-2">
+        {/* Desktop: two cards under the strip. The wrapper lets clicks through to the
+            hero underneath; only the cards' revealed (unclipped) parts take them. */}
+        <div className="pointer-events-none absolute inset-x-2 bottom-2 top-[calc(8px+var(--top)*(100svh-16px)+8px)] hidden gap-2 lg:grid lg:grid-cols-2">
           {/* Left: tabs, then title, copy and button at the bottom */}
-          <motion.div style={{ ["--hide" as string]: hide }} className="[clip-path:inset(calc(var(--hide)*1%)_0_0_0_round_24px)] flex min-h-0 flex-col rounded-[24px] bg-[#f7f7f7]">
+          <motion.div style={{ ["--hide" as string]: hide }} className="pointer-events-auto [clip-path:inset(calc(var(--hide)*1%)_0_0_0_round_24px)] flex min-h-0 flex-col rounded-[24px] bg-[#f7f7f7]">
             <div className="relative grid grid-cols-4 border-b border-black/[0.07]">
               {STEPS.map((t, i) => (
                 <button
@@ -192,7 +194,7 @@ export default function PinnedFeatures({ hero }: { hero: ReactNode }) {
           </motion.div>
 
           {/* Right: rock photo with a grid of tiles and a small dock in the sky */}
-          <motion.div style={{ ["--hide" as string]: hide }} className="[clip-path:inset(calc(var(--hide)*1%)_0_0_0_round_24px)] relative min-h-0 overflow-hidden rounded-[24px]">
+          <motion.div style={{ ["--hide" as string]: hide }} className="pointer-events-auto [clip-path:inset(calc(var(--hide)*1%)_0_0_0_round_24px)] relative min-h-0 overflow-hidden rounded-[24px]">
             <Image src="/landing/rock.webp" alt="" fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover object-[60%_78%]" />
             <div className="absolute inset-x-0 top-0 flex h-[72%] flex-col items-center justify-center gap-3 px-4 xl:gap-4">
               <AnimatePresence mode="wait" initial={false}>

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main className="min-h-full bg-[#eef1f3] p-2 [color-scheme:light]">
+    <main className="site-frame min-h-full bg-[#eef1f3] p-2 [color-scheme:light]">
       <section className="relative isolate flex min-h-[max(460px,calc(100svh-16px))] flex-col overflow-clip rounded-[24px] bg-[#dce9f3] sm:rounded-[28px]">
         <HeroSky />
         <Navbar />

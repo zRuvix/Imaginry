@@ -43,6 +43,44 @@ await authOptions.database.query(`
   create index if not exists design_created_idx on design (created_at desc);
   create index if not exists design_user_idx on design (user_id, created_at desc);
 
+  -- MCP server API keys (lib/server/mcp-keys), one per account. Only a
+  -- SHA-256 of the key is kept; hint is its last four characters.
+  create table if not exists mcp_key (
+    user_id       text primary key references "user"(id) on delete cascade,
+    key_hash      text not null unique,
+    hint          text not null,
+    created_at    timestamptz not null default now(),
+    last_used_at  timestamptz
+  );
+
+  -- OAuth for MCP apps (lib/server/oauth): registered apps, one-time sign-in
+  -- codes and access/refresh tokens. Codes and tokens are stored as SHA-256.
+  create table if not exists oauth_client (
+    id             text primary key,
+    name           text not null,
+    redirect_uris  jsonb not null,
+    created_at     timestamptz not null default now()
+  );
+  create table if not exists oauth_code (
+    code_hash       text primary key,
+    client_id       text not null references oauth_client(id) on delete cascade,
+    user_id         text not null references "user"(id) on delete cascade,
+    redirect_uri    text not null,
+    code_challenge  text not null,
+    resource        text,
+    expires_at      timestamptz not null
+  );
+  create table if not exists oauth_token (
+    token_hash    text primary key,
+    kind          text not null check (kind in ('access', 'refresh')),
+    client_id     text not null references oauth_client(id) on delete cascade,
+    user_id       text not null references "user"(id) on delete cascade,
+    expires_at    timestamptz not null,
+    created_at    timestamptz not null default now(),
+    last_used_at  timestamptz
+  );
+  create index if not exists oauth_token_user_idx on oauth_token (user_id, client_id);
+
   -- Usage events for the admin dashboard (lib/server/events). Deleting an
   -- account unlinks its events; visitor is a daily-rotating hash, not an id.
   create table if not exists event (

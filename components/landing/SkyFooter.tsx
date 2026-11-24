@@ -23,7 +23,8 @@ const COLUMNS = [
     links: [
       { label: "Studio", href: "/studio" },
       { label: "Explore", href: "/explore" },
-      { label: "Agents", href: "/agents" },
+      { label: "Agents", href: "/#agents" },
+      { label: "Pricing", href: "/#pricing" },
     ],
   },
   { title: "Legal", links: LEGAL_PAGES },
@@ -107,7 +108,7 @@ export default function SkyFooter() {
           {/* Wordmark, behind the grass */}
           <div
             aria-hidden
-            className="absolute inset-x-0 bottom-[9%] flex justify-center overflow-hidden pt-[0.1em] font-lexend text-[24vw] lg:text-[clamp(4.5rem,21vw,24rem)] font-light leading-[0.8] tracking-[-0.07em] text-[#121416]"
+            className="absolute inset-x-0 bottom-[9%] flex justify-center overflow-hidden pt-[0.1em] font-lexend text-[24vw] lg:text-[clamp(4.5rem,min(21vw,calc(var(--frame)*0.21)),24rem)] font-light leading-[0.8] tracking-[-0.07em] text-[#121416]"
           >
             {WORD.split("").map((ch, i) => (
               <Letter key={i} ch={ch} i={i} p={p} />

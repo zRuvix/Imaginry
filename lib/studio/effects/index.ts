@@ -4,6 +4,7 @@
  * layer slots into the stack by default.
  */
 import adjust from "./color/adjust";
+import chrome from "./color/chrome";
 import curves from "./color/curves";
 import gradient from "./color/gradient";
 import gradientmap from "./color/gradient-map";
@@ -16,11 +17,14 @@ import bulge from "./distort/bulge";
 import glitch from "./distort/glitch";
 import kaleido from "./distort/kaleidoscope";
 import mirror from "./distort/mirror";
+import pixelsort from "./distort/pixel-sort";
 import polar from "./distort/polar";
 import shatter from "./distort/shatter";
+import stretch from "./distort/stretch";
 import tile from "./distort/tile";
 import twirl from "./distort/twirl";
 import waves from "./distort/waves";
+import blur from "./glass/blur";
 import glass from "./glass/glass";
 import motionblur from "./glass/motion-blur";
 import optics from "./glass/optics";
@@ -36,6 +40,7 @@ import lightleak from "./light/light-leak";
 import sparkle from "./light/sparkle";
 import ascii from "./stylize/ascii";
 import bricks from "./stylize/bricks";
+import contours from "./stylize/contours";
 import crosshatch from "./stylize/crosshatch";
 import crt from "./stylize/crt";
 import dither from "./stylize/dither";
@@ -80,8 +85,10 @@ export const EFFECTS = [
   twirl,
   bulge,
   waves,
+  stretch,
   shatter,
   // lenses and blur
+  blur,
   glass,
   zoomblur,
   motionblur,
@@ -95,6 +102,7 @@ export const EFFECTS = [
   curves,
   splittone,
   iridescent,
+  chrome,
   gradientmap,
   posterize,
   solarize,
@@ -102,6 +110,7 @@ export const EFFECTS = [
   mosaic,
   oilpaint,
   edges,
+  contours,
   emboss,
   pixelate,
   bricks,
@@ -113,6 +122,7 @@ export const EFFECTS = [
   threshold,
   dither,
   // finishing
+  pixelsort,
   glitch,
   crt,
   filmdust,
@@ -120,6 +130,9 @@ export const EFFECTS = [
 ] as const;
 
 export type EffectKey = (typeof EFFECTS)[number]["key"];
+
+/** How many effects the site talks about: every layer except the uploaded image. */
+export const EFFECT_COUNT = EFFECTS.length - 1;
 
 export const EFFECTS_BY_KEY = Object.fromEntries(EFFECTS.map((e) => [e.key, e])) as unknown as Record<
   EffectKey,

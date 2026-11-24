@@ -16,7 +16,7 @@ import {
   Upload,
 } from "@/components/icons";
 import { IMAGE_ZOOM } from "@/lib/studio/effects/color/image";
-import { MOTIONS, motionOf, type MotionType } from "@/lib/studio/motion";
+import { DIRECTIONAL, MOTIONS, motionOf, RANGED, type MotionType } from "@/lib/studio/motion";
 import { PALETTES } from "@/lib/studio/presets";
 import { BLEND_MODES, SCHEMA_BY_KEY, type SectionKey, type StudioState, type Value } from "@/lib/studio/schema";
 import CurveEditor from "./CurveEditor";
@@ -82,6 +82,12 @@ const MOTION_HINTS: Record<MotionType, string> = {
   spin: "Turns the effect around the centre.",
   orbit: "Circles the effect around its spot.",
   random: "Every patch wanders its own way. Scatter sets how small the patches are.",
+  rock: "Swings the effect back and forth like a pendulum.",
+  breathe: "Slowly zooms the effect in and out.",
+  bounce: "Hops the effect one way and lets it drop back.",
+  float: "Bobs the effect gently, like it’s on water.",
+  weave: "Traces a figure 8 around the spot.",
+  shake: "Stop-motion jitter. Speed sets how many jolts a second.",
 };
 
 /** A 22px icon that acts out a motion (animated by .motion-glyph in globals.css). */
@@ -122,6 +128,42 @@ function MotionGlyph({ type }: { type: MotionType }) {
           </g>
         </>
       )}
+      {type === "rock" && (
+        <g className="mg-rock">
+          <path d="M12 4v10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.5" />
+          <circle cx="12" cy="16.5" r="3" />
+        </g>
+      )}
+      {type === "breathe" && (
+        <>
+          <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3" />
+          <circle className="mg-breathe" cx="12" cy="12" r="5" />
+        </>
+      )}
+      {type === "bounce" && (
+        <>
+          <path d="M5 19.5h14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" opacity="0.3" />
+          <circle className="mg-bounce" cx="12" cy="16" r="2.8" />
+        </>
+      )}
+      {type === "float" && (
+        <>
+          <path d="M3 16c2 -1.4 4 -1.4 6 0s4 1.4 6 0s4 -1.4 6 0" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" opacity="0.35" />
+          <rect className="mg-float" x="8.5" y="8" width="7" height="5" rx="1.5" />
+        </>
+      )}
+      {type === "weave" && (
+        <>
+          <path d="M12 12c-2.5 -3.5 -7 -3.5 -7 0s4.5 3.5 7 0s7 -3.5 7 0s-4.5 3.5 -7 0" fill="none" stroke="currentColor" strokeWidth="1.2" opacity="0.3" />
+          <circle className="mg-weave" cx="12" cy="12" r="2.2" />
+        </>
+      )}
+      {type === "shake" && (
+        <g className="mg-shake">
+          <rect x="7.5" y="7.5" width="9" height="9" rx="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M4 9v6M20 9v6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" opacity="0.45" />
+        </g>
+      )}
       {type === "random" && (
         <g>
           <circle className="mg-rnd" cx="7" cy="7.5" r="1.9" />
@@ -154,8 +196,8 @@ function MotionGroup({
   set: (key: string) => (v: Value) => void;
 }) {
   const m = motionOf(section);
-  const directional = m.type === "drift" || m.type === "sway";
-  const ranged = m.type === "sway" || m.type === "orbit" || m.type === "random";
+  const directional = DIRECTIONAL.includes(m.type);
+  const ranged = RANGED.includes(m.type);
   const moving = m.type !== "off" || (hasClock && m.tempo !== 0);
   const note = !section.animated
     ? "This layer is held still. Press play in its header to let it move."
