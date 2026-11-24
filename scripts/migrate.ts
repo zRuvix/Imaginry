@@ -42,6 +42,20 @@ await authOptions.database.query(`
   );
   create index if not exists design_created_idx on design (created_at desc);
   create index if not exists design_user_idx on design (user_id, created_at desc);
+
+  -- Usage events for the admin dashboard (lib/server/events). Deleting an
+  -- account unlinks its events; visitor is a daily-rotating hash, not an id.
+  create table if not exists event (
+    id          bigserial primary key,
+    at          timestamptz not null default now(),
+    kind        text not null,
+    user_id     text references "user"(id) on delete set null,
+    visitor     text not null,
+    meta        jsonb not null default '{}'::jsonb
+  );
+  create index if not exists event_at_idx on event (at desc);
+  create index if not exists event_kind_at_idx on event (kind, at desc);
+  create index if not exists event_user_idx on event (user_id, at desc) where user_id is not null;
 `);
 console.log("App tables are up to date.");
 await authOptions.database.end();

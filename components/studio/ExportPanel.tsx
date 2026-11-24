@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, X } from "@/components/icons";
+import { track } from "@/lib/events";
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
 import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { renderOffscreen } from "@/lib/studio/renderer";
@@ -176,6 +177,7 @@ export default function ExportPanel(p: Props) {
       source.toBlob((blob) => {
         if (!blob) return p.notify("Export failed");
         download(blob, `imaginry-${imageSize.width}x${imageSize.height}.png`);
+        track("export_png", { width: imageSize.width, height: imageSize.height });
         p.notify(`Exported ${imageSize.width}×${imageSize.height} PNG`);
       }, "image/png");
     } catch (e) {
@@ -208,6 +210,7 @@ export default function ExportPanel(p: Props) {
       });
       const ext = format === "mp4" ? "mp4" : "webm";
       download(blob, `imaginry-${format}-${seconds}s.${ext}`);
+      track("export_video", { format, seconds, fps, width: videoSize.width, height: videoSize.height });
       p.notify(`Exported ${(blob.size / 1024 / 1024).toFixed(1)} MB ${format.toUpperCase()}`);
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) {
@@ -246,6 +249,7 @@ export default function ExportPanel(p: Props) {
     try {
       await navigator.clipboard.writeText(text);
       p.notify(`${what} copied`);
+      track("copy_embed", { tab, what });
     } catch {
       p.notify("Clipboard access was blocked");
     }

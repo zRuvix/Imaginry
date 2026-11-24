@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { track } from "@/lib/events";
 import { GROUPS, groupFor, PALETTES, PRESETS_BY_ID, type Preset } from "@/lib/studio/presets";
 import { renderOffscreen } from "@/lib/studio/renderer";
 import {
@@ -158,6 +159,8 @@ export default function Studio() {
   stateRef.current = state;
 
   const notify = useCallback((msg: string) => setToast((t) => ({ msg, n: (t?.n ?? 0) + 1 })), []);
+  // One visit per page load, for the admin dashboard's usage numbers.
+  useEffect(() => track("visit", { touch: window.matchMedia("(pointer: coarse)").matches }), []);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 2400);
@@ -502,6 +505,7 @@ export default function Studio() {
     try {
       await navigator.clipboard.writeText(url);
       notify(image ? "Link copied (uploaded photos aren't included)" : "Link copied");
+      track("share");
     } catch {
       notify(`Copy this link: ${url.replace(/^https?:\/\//, "")}`);
     }

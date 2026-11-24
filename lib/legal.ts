@@ -1,7 +1,7 @@
 import { CREATOR_URL } from "@/lib/seo";
 
 /** Shown as "Last updated" on every legal page; bump it when the text changes. */
-export const LEGAL_UPDATED = "2 November 2026";
+export const LEGAL_UPDATED = "24 November 2026";
 
 /** Who runs the site and how to reach them about privacy or legal questions. */
 export const OPERATOR = "Ruvix";

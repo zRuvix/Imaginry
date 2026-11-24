@@ -1,4 +1,5 @@
-import { type NextRequest } from "next/server";
+import { after, type NextRequest } from "next/server";
+import { recordEvent } from "@/lib/server/events";
 import { allowRequest } from "@/lib/server/shortlinks";
 import { currentUser, ensureProfile, exploreFeed, FEED_PAGE, publishDesign } from "@/lib/server/profiles";
 
@@ -29,5 +30,6 @@ export async function POST(request: NextRequest) {
   }
   await ensureProfile(user);
   const result = await publishDesign(user.id, body.title, body.design);
+  if (!("error" in result)) after(() => recordEvent("publish", { request, userId: user.id }));
   return Response.json(result, { status: "error" in result ? 400 : 201 });
 }

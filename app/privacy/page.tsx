@@ -7,7 +7,7 @@ import { pageMeta } from "@/lib/seo";
 export const metadata: Metadata = pageMeta({
   title: "Privacy Policy",
   description:
-    "How Imaginry handles your data: designs render on your device, photos never leave it, optional Google sign-in, no ad cookies, and only anonymous usage stats.",
+    "How Imaginry handles your data: designs render on your device, photos never leave it, optional Google sign-in, no ad cookies, and simple usage counts.",
   path: "/privacy",
   image: "/og/home.png",
   imageAlt: "Imaginry abstract background maker with a fluted blue glass ring",
@@ -160,6 +160,13 @@ const SECTIONS: LegalSection[] = [
             does not use cookies, does not build a profile of you and isn&rsquo;t shared with ad networks.
           </li>
           <li>
+            <strong>Studio activity.</strong> We count what happens in the studio: visits, exports, copied embed code,
+            shared links and published designs, with small details such as an export&rsquo;s size or format. If you&rsquo;re
+            signed in, these counts are linked to your account so we can see how the studio is used. If you aren&rsquo;t,
+            they carry only a key that changes every day and can&rsquo;t be traced back to you or your IP address. Nothing
+            is stored on your device for this, and deleting your account unlinks its activity from you.
+          </li>
+          <li>
             <strong>Server logs.</strong> Like any website, our hosting provider may briefly log technical request data
             such as IP address, user agent and time, for security and to keep the site running.
           </li>
@@ -201,7 +208,7 @@ const SECTIONS: LegalSection[] = [
           <li>show your profile and the designs you publish, as you choose (public or private);</li>
           <li>make short links resolve to the right design;</li>
           <li>keep the service secure and protect it from abuse;</li>
-          <li>understand which features and pages are useful, in aggregate;</li>
+          <li>understand which features and pages are useful, and how much the studio is used;</li>
           <li>deliver sponsorships we&rsquo;ve agreed with you.</li>
         </ul>
         <p>
@@ -288,8 +295,8 @@ export default function Page() {
           The short version: your designs render on your device, your photos never leave it, signing in is optional and there
           are no tracking cookies. If you sign in with Google we keep your name, email and profile picture to run your
           account, plus any profile details and designs you choose to publish. Profiles can be public or private, and
-          photos are never published. Otherwise we only see anonymous page stats and the settings of designs you choose to
-          share.
+          photos are never published. We count studio actions such as exports (linked to your account if you&rsquo;re signed in), see
+          anonymous page stats, and keep the settings of designs you choose to share.
         </p>
       }
       sections={SECTIONS}
