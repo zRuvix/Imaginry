@@ -152,8 +152,20 @@ export default function ProfileEditor({
   onClose,
   onSaved,
   onAvatarChange,
+  title = "Profile",
+  links = true,
+  children,
+  footerStart,
 }: {
   profile: Profile;
+  /** Heading of the card. */
+  title?: string;
+  /** Show the social link fields (saved links are kept either way). */
+  links?: boolean;
+  /** Extra content under the form fields (account actions in the studio). */
+  children?: React.ReactNode;
+  /** Shown at the left of the footer, beside Cancel and Save. */
+  footerStart?: React.ReactNode;
   onClose: () => void;
   onSaved: (p: Profile) => void;
   /** A new picture was saved (the form stays open). */
@@ -198,11 +210,11 @@ export default function ProfileEditor({
       <div
         ref={ref}
         role="dialog"
-        aria-label="Edit profile"
+        aria-label={title}
         className="anim-pop glass-panel flex max-h-[calc(100dvh-32px)] w-[460px] max-w-full flex-col rounded-[26px] text-bone"
       >
         <div className="flex items-center justify-between px-5 pb-3 pt-5">
-          <h2 className="font-display text-[20px]">Profile</h2>
+          <h2 className="font-display text-[20px]">{title}</h2>
           <button type="button" aria-label="Close" onClick={onClose} className="press text-bone/60 hover:text-bone">
             <X size={18} />
           </button>
@@ -248,32 +260,6 @@ export default function ProfileEditor({
               </label>
             </div>
 
-            <div>
-              <p className="mb-1.5 text-[12px] text-bone/55">Links (optional)</p>
-              <div className="space-y-2">
-                {SOCIALS.map((s) => (
-                  <label key={s.key} className="block">
-                    <div className="flex h-10 items-center gap-2 rounded-[12px] bg-white/[0.05] pl-3 transition-colors focus-within:bg-white/[0.09]">
-                      <span className="w-[72px] shrink-0 text-[12.5px] text-bone/50">{s.label}</span>
-                      <input
-                        value={socials[s.key] ?? ""}
-                        onChange={(e) => setSocials((v) => ({ ...v, [s.key as SocialKey]: e.target.value }))}
-                        placeholder={s.placeholder}
-                        autoComplete="off"
-                        spellCheck={false}
-                        aria-label={`${s.label} link`}
-                        aria-invalid={!!errors[`socials.${s.key}`]}
-                        className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[13px] outline-none placeholder:text-bone/25"
-                      />
-                    </div>
-                    {errors[`socials.${s.key}`] && (
-                      <span className="mt-1 block text-[12px] text-ember">{errors[`socials.${s.key}`]}</span>
-                    )}
-                  </label>
-                ))}
-              </div>
-            </div>
-
             <button
               type="button"
               role="switch"
@@ -297,10 +283,43 @@ export default function ProfileEditor({
                 />
               </span>
             </button>
+
+            {links && (
+              <div>
+                <p className="mb-1.5 text-[12px] text-bone/55">Links (optional)</p>
+                <div className="space-y-2">
+                  {SOCIALS.map((s) => (
+                    <label key={s.key} className="block">
+                      <div className="flex h-10 items-center gap-2 rounded-[12px] bg-white/[0.05] pl-3 transition-colors focus-within:bg-white/[0.09]">
+                        <span className="w-[72px] shrink-0 text-[12.5px] text-bone/50">{s.label}</span>
+                        <input
+                          value={socials[s.key] ?? ""}
+                          onChange={(e) => setSocials((v) => ({ ...v, [s.key as SocialKey]: e.target.value }))}
+                          placeholder={s.placeholder}
+                          autoComplete="off"
+                          spellCheck={false}
+                          aria-label={`${s.label} link`}
+                          aria-invalid={!!errors[`socials.${s.key}`]}
+                          className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[13px] outline-none placeholder:text-bone/25"
+                        />
+                      </div>
+                      {errors[`socials.${s.key}`] && (
+                        <span className="mt-1 block text-[12px] text-ember">{errors[`socials.${s.key}`]}</span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {children}
           </div>
 
           <div className="flex items-center justify-between gap-3 px-5 pb-5 pt-3">
-            <span className="min-w-0 truncate text-[12px] text-ember">{errors.form}</span>
+            <div className="flex min-w-0 items-center gap-3">
+              {footerStart}
+              <span className="min-w-0 truncate text-[12px] text-ember">{errors.form}</span>
+            </div>
             <div className="flex gap-2">
               <button
                 type="button"
