@@ -12,7 +12,11 @@ export async function POST(request: NextRequest) {
   } catch {
     return new Response(null, { status: 400 });
   }
-  if (!isEventKind(body.kind) || body.kind === "publish") return new Response(null, { status: 400 });
+  // Publishes and file exports are recorded by their own routes (exports count
+  // toward the Free plan's allowance, see app/api/export).
+  if (!isEventKind(body.kind) || body.kind === "publish" || body.kind === "export_png" || body.kind === "export_video") {
+    return new Response(null, { status: 400 });
+  }
   const kind = body.kind;
 
   try {

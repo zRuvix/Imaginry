@@ -177,7 +177,7 @@ function FreePlan({ billing }: { billing: Billing }) {
       <CurrentPlan
         name="Free"
         badge={lapsed ? <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11.5px] text-bone/70">Pro {billing.status}</span> : null}
-        note={`${FREE_LIMITS.exportsPerWeek} exports a week, images up to 1080px and video up to 720p.`}
+        note={`${FREE_LIMITS.exportsPerDay} export a day, images up to ${FREE_LIMITS.imageLongSide}px and video up to 720p.`}
       />
 
       <div className="rounded-[18px] border border-white/[0.07] p-5">

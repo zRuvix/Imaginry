@@ -16,7 +16,11 @@ export const yearTotal = (c: Cycle) => Math.round(PRO_PRICE[c] * 12 * 100) / 100
 /** Percent saved per month by paying yearly. */
 export const YEARLY_SAVING = Math.round((1 - PRO_PRICE.yearly / PRO_PRICE.monthly) * 100);
 
-export const FREE_LIMITS = { exportsPerWeek: 3 } as const;
+/**
+ * Free plan. Exports are counted on the server over a rolling 24 hours
+ * (lib/server/exports); the size caps are the long side in pixels.
+ */
+export const FREE_LIMITS = { exportsPerDay: 1, imageLongSide: 1080, videoLongSide: 1280 } as const;
 
 /** Starts a Dodo checkout for Pro (app/api/billing/checkout); redirects once signed in. */
 export const checkoutHref = (cycle: Cycle, from = "/#pricing") =>
@@ -27,7 +31,7 @@ export { EFFECT_COUNT };
 export type Feature = { text: string; off?: boolean };
 
 export const FREE_FEATURES: Feature[] = [
-  { text: `${FREE_LIMITS.exportsPerWeek} exports a week with a free account` },
+  { text: `${FREE_LIMITS.exportsPerDay} export a day with a free account` },
   { text: "Images at preview or Small, 1080px" },
   { text: "Video at preview or 720p" },
   { text: `All ${EFFECT_COUNT} effects, plus Surprise me` },

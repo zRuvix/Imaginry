@@ -11,8 +11,42 @@ import type { StudioImage } from "@/lib/studio/gif";
 import { encodeLoop, videoSupported, type VideoFormat } from "@/lib/studio/video";
 import { ASPECTS, LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, stagePixelRatio, type Aspect } from "./Stage";
 import GoogleSignIn from "./GoogleSignIn";
+import { BILLING_RETURN } from "./BillingPanel";
+import { FREE_LIMITS } from "@/lib/pricing";
 
-type Size = { id: string; label: string; width: number; height: number };
+type Size = { id: string; label: string; width: number; height: number; /** Needs Pro. */ pro?: boolean };
+
+/** Mirrors lib/server/exports' ExportQuota. */
+type Quota = { plan: "free" | "pro"; remaining: number | null; resetsAt: string | null };
+
+/** Claims one export on the server. Resolves with an error message when the plan doesn't allow it. */
+async function claimExport(body: {
+  kind: "export_png" | "export_video";
+  width: number;
+  height: number;
+  preview: boolean;
+  meta: Record<string, string | number>;
+}): Promise<{ quota?: Quota; error?: string }> {
+  const res = await fetch("/api/export", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  }).catch(() => null);
+  const data = (await res?.json().catch(() => null)) as { quota?: Quota; error?: string } | null;
+  if (!res?.ok) return { quota: data?.quota, error: data?.error ?? "Couldn't start the export. Try again." };
+  return { quota: data?.quota };
+}
+
+/** On Free, sizes above the cap are marked Pro; preview always stays free. */
+function withPlan(sizes: Size[], pro: boolean, cap: number): Size[] {
+  return sizes.map((s) => ({ ...s, pro: !pro && s.id !== "preview" && Math.max(s.width, s.height) > cap }));
+}
+
+function resetLabel(iso: string | null) {
+  if (!iso) return "tomorrow";
+  const hours = Math.ceil((new Date(iso).getTime() - Date.now()) / 36e5);
+  return hours <= 1 ? "in under an hour" : `in ${hours} hours`;
+}
 
 function sized(ratio: number, long: number) {
   return ratio >= 1
@@ -87,7 +121,7 @@ function Dropdown<T extends string | number>({
   label,
 }: {
   value: T;
-  options: { value: T; label: string }[];
+  options: { value: T; label: string; disabled?: boolean }[];
   onChange: (v: T) => void;
   label: string;
 }) {
@@ -100,7 +134,7 @@ function Dropdown<T extends string | number>({
         className="h-10 w-full cursor-pointer appearance-none rounded-[12px] bg-white/[0.05] pl-3.5 pr-8 text-[13px] text-bone outline-none transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] [&>option]:bg-surface"
       >
         {options.map((o) => (
-          <option key={String(o.value)} value={String(o.value)}>
+          <option key={String(o.value)} value={String(o.value)} disabled={o.disabled}>
             {o.label}
           </option>
         ))}
@@ -153,8 +187,24 @@ type Props = {
 export default function ExportPanel(p: Props) {
   const ratio = ASPECTS[p.aspect] ?? p.previewSize.width / Math.max(p.previewSize.height, 1);
   const preview = { width: Math.round(p.previewSize.width), height: Math.round(p.previewSize.height) };
-  const imageSizes = sizeOptions(ratio, preview, IMAGE_TIERS);
-  const videoSizes = sizeOptions(ratio, preview, VIDEO_TIERS);
+  // Plan and exports left today. null until known (or signed out).
+  const [quota, setQuota] = useState<Quota | null>(null);
+  useEffect(() => {
+    if (!p.signedIn) return setQuota(null);
+    let live = true;
+    fetch("/api/export", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: { quota?: Quota } | null) => live && setQuota(d?.quota ?? null))
+      .catch(() => {});
+    return () => {
+      live = false;
+    };
+  }, [p.signedIn]);
+  const pro = quota?.plan === "pro";
+  const outOfExports = quota?.plan === "free" && (quota.remaining ?? 0) <= 0;
+
+  const imageSizes = withPlan(sizeOptions(ratio, preview, IMAGE_TIERS), pro, FREE_LIMITS.imageLongSide);
+  const videoSizes = withPlan(sizeOptions(ratio, preview, VIDEO_TIERS), pro, FREE_LIMITS.videoLongSide);
 
   const [imageSizeId, setImageSizeId] = useState("Large");
   const [videoSizeId, setVideoSizeId] = useState("1080p");
@@ -166,9 +216,15 @@ export default function ExportPanel(p: Props) {
   const [tab, setTab] = useState<"framer" | "react" | "html">("framer");
   const [embedPreview, setEmbedPreview] = useState<string | null>(null);
 
-  const imageSize = imageSizes.find((s) => s.id === imageSizeId) ?? imageSizes[0];
-  const videoSize = videoSizes.find((s) => s.id === videoSizeId) ?? videoSizes[0];
-  const sizeLabel = (s: Size) => `${s.label} — ${s.width} × ${s.height}`;
+  // A Pro size picked (or defaulted) on Free falls back to the largest free one.
+  const pick = (sizes: Size[], id: string) => {
+    const want = sizes.find((s) => s.id === id);
+    return want && !want.pro ? want : ([...sizes].reverse().find((s) => !s.pro) ?? sizes[0]);
+  };
+  const imageSize = pick(imageSizes, imageSizeId);
+  const videoSize = pick(videoSizes, videoSizeId);
+  const sizeLabel = (s: Size) => `${s.label} — ${s.width} × ${s.height}${s.pro ? " · Pro" : ""}`;
+  const sizeChoices = (sizes: Size[]) => sizes.map((s) => ({ value: s.id, label: sizeLabel(s), disabled: s.pro }));
   // How many export pixels one pixel of the studio canvas covers, so grain,
   // threshold noise and other pixel-sized details come out as they looked.
   const pixelFor = (s: Size) =>
@@ -181,12 +237,19 @@ export default function ExportPanel(p: Props) {
         image: p.image,
         pixel: pixelFor(imageSize),
       });
-      source.toBlob((blob) => {
-        if (!blob) return p.notify("Export failed");
-        download(blob, `imaginry-${imageSize.width}x${imageSize.height}.png`);
-        track("export_png", { width: imageSize.width, height: imageSize.height });
-        p.notify(`Exported ${imageSize.width}×${imageSize.height} PNG`);
-      }, "image/png");
+      const blob = await new Promise<Blob | null>((resolve) => source.toBlob(resolve, "image/png"));
+      if (!blob) return p.notify("Export failed");
+      const claim = await claimExport({
+        kind: "export_png",
+        width: imageSize.width,
+        height: imageSize.height,
+        preview: imageSize.id === "preview",
+        meta: { width: imageSize.width, height: imageSize.height },
+      });
+      if (claim.quota) setQuota(claim.quota);
+      if (claim.error) return p.notify(claim.error);
+      download(blob, `imaginry-${imageSize.width}x${imageSize.height}.png`);
+      p.notify(`Exported ${imageSize.width}×${imageSize.height} PNG`);
     } catch (e) {
       p.notify(e instanceof Error ? e.message : "Export failed");
     }
@@ -215,9 +278,17 @@ export default function ExportPanel(p: Props) {
         onProgress: setProgress,
         signal: controller.signal,
       });
+      const claim = await claimExport({
+        kind: "export_video",
+        width: videoSize.width,
+        height: videoSize.height,
+        preview: videoSize.id === "preview",
+        meta: { format, seconds, fps, width: videoSize.width, height: videoSize.height },
+      });
+      if (claim.quota) setQuota(claim.quota);
+      if (claim.error) return p.notify(claim.error);
       const ext = format === "mp4" ? "mp4" : "webm";
       download(blob, `imaginry-${format}-${seconds}s.${ext}`);
-      track("export_video", { format, seconds, fps, width: videoSize.width, height: videoSize.height });
       p.notify(`Exported ${(blob.size / 1024 / 1024).toFixed(1)} MB ${format.toUpperCase()}`);
     } catch (e) {
       if (!(e instanceof DOMException && e.name === "AbortError")) {
@@ -269,6 +340,11 @@ export default function ExportPanel(p: Props) {
   const locked = p.signedIn === null ? null : !p.signedIn;
   // Signed out, every export button reads just "Export" and can't be pressed.
   const gated = (label: string) => (p.signedIn === false ? "Export" : label);
+  // Free with today's export spent: file exports wait until one frees up.
+  const spent = (label: string) => (outOfExports ? "Today's free export is used" : gated(label));
+  const upgradeUrl = `${BILLING_RETURN}#${encodeShare(p.state)}`;
+  // Embed is Pro only, so its buttons also wait for the plan to load.
+  const embedLocked = locked === false && quota === null ? null : locked;
 
   const embedNote = {
     framer: "Two pastes: the component onto your canvas, then the look into its Look property.",
@@ -295,6 +371,21 @@ export default function ExportPanel(p: Props) {
           <section className="anim-rise rounded-[18px] bg-[#2460e8]/[0.14] p-3.5 ring-1 ring-[#5680f2]/30">
             <h3 className="pb-3 text-[13.5px] font-semibold text-bone">Sign up to export</h3>
             <GoogleSignIn callbackURL={signUpUrl} />
+          </section>
+        )}
+        {quota?.plan === "free" && (
+          <section className="anim-rise flex items-center justify-between gap-3 rounded-[18px] bg-white/[0.04] px-4 py-3">
+            <p className="text-[12.5px] leading-snug text-bone/60">
+              {outOfExports
+                ? `Free export used. Next one ${resetLabel(quota.resetsAt)}.`
+                : `${quota.remaining} free export left today`}
+            </p>
+            <a
+              href={upgradeUrl}
+              className="press shrink-0 rounded-full bg-white/[0.08] px-3 py-1.5 text-[12px] font-semibold text-bone hover:bg-white/[0.14]"
+            >
+              Go Pro
+            </a>
           </section>
         )}
         <Card title="Aspect ratio">
@@ -330,11 +421,11 @@ export default function ExportPanel(p: Props) {
           <Dropdown
             label="Image size"
             value={imageSize.id}
-            options={imageSizes.map((s) => ({ value: s.id, label: sizeLabel(s) }))}
+            options={sizeChoices(imageSizes)}
             onChange={setImageSizeId}
           />
-          <Action onClick={downloadPng} locked={locked}>
-            {gated("Download PNG")}
+          <Action onClick={downloadPng} disabled={outOfExports} locked={locked}>
+            {spent("Download PNG")}
           </Action>
         </Card>
 
@@ -345,7 +436,7 @@ export default function ExportPanel(p: Props) {
           <Dropdown
             label="Video size"
             value={videoSize.id}
-            options={videoSizes.map((s) => ({ value: s.id, label: sizeLabel(s) }))}
+            options={sizeChoices(videoSizes)}
             onChange={setVideoSizeId}
           />
           <div className="grid grid-cols-3 gap-2">
@@ -369,7 +460,11 @@ export default function ExportPanel(p: Props) {
               onChange={setSeconds}
             />
           </div>
-          <Action onClick={exportVideo} disabled={!videoSupported()} locked={locked}>
+          <Action
+            onClick={exportVideo}
+            disabled={!videoSupported() || (outOfExports && progress === null)}
+            locked={locked}
+          >
             {progress !== null && (
               <span
                 className="absolute inset-y-0 left-0 bg-white/15 transition-[width]"
@@ -379,8 +474,8 @@ export default function ExportPanel(p: Props) {
             <span className="relative">
               {!videoSupported()
                 ? "Video export needs WebCodecs"
-                : locked
-                  ? gated(`Export ${format.toUpperCase()} loop`)
+                : locked || outOfExports
+                  ? spent(`Export ${format.toUpperCase()} loop`)
                 : progress !== null
                   ? `Encoding ${Math.round(progress * 100)}% · click to cancel`
                   : `Export ${format.toUpperCase()} loop`}
@@ -417,15 +512,22 @@ export default function ExportPanel(p: Props) {
               <img src={embedPreview} alt="Embed preview" className="size-full object-cover" />
             )}
           </div>
-          {tab === "framer" ? (
+          {quota?.plan === "free" ? (
+            <a
+              href={upgradeUrl}
+              className="blue-button flex h-10 w-full items-center justify-center rounded-full text-[13px] font-semibold"
+            >
+              Embed code is on Pro
+            </a>
+          ) : tab === "framer" ? (
             <>
-              <Action onClick={() => copy(code.primary, "Component")} locked={locked}>
+              <Action onClick={() => copy(code.primary, "Component")} locked={embedLocked}>
                 {gated("1. Copy component")}
               </Action>
-              {locked === false && <Action onClick={() => copy(code.look!, "Look")}>2. Copy look</Action>}
+              {embedLocked === false && <Action onClick={() => copy(code.look!, "Look")}>2. Copy look</Action>}
             </>
           ) : (
-            <Action onClick={() => copy(code.primary, tab === "react" ? "Component" : "HTML")} locked={locked}>
+            <Action onClick={() => copy(code.primary, tab === "react" ? "Component" : "HTML")} locked={embedLocked}>
               {gated(tab === "react" ? "Copy component" : "Copy HTML")}
             </Action>
           )}
