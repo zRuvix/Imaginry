@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
 
+const RYBBIT_HOST = "https://stats.zruvix.com";
+const UMAMI_HOST = "https://umi.bhaskarsaikia.dev";
+
 const nextConfig: NextConfig = {
   /* config options here */
   // Keep old links working: sponsor terms moved from /sponsor/terms, and the
@@ -18,6 +21,13 @@ const nextConfig: NextConfig = {
       { source: "/.well-known/oauth-protected-resource/:path*", destination: "/api/oauth/resource" },
       { source: "/.well-known/oauth-authorization-server/:path*", destination: "/api/oauth/metadata" },
       { source: "/.well-known/openid-configuration/:path*", destination: "/api/oauth/metadata" },
+      // Rybbit analytics served first-party, so blockers that drop third-party
+      // stats hosts let it through. The script calls back to the folder its src
+      // sits in (/_v/track, /_v/site/..., /_v/identify), so one prefix covers all.
+      { source: "/_v/:path*", destination: `${RYBBIT_HOST}/api/:path*` },
+      // Umami the same way: it posts to <script folder>/api/send, so /_u/script.js
+      // sends to /_u/api/send.
+      { source: "/_u/:path*", destination: `${UMAMI_HOST}/:path*` },
     ];
   },
   // The Allow / Deny screen must never load inside another site's frame.

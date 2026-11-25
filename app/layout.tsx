@@ -75,14 +75,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${familjen.variable} ${specialGothic.variable} ${cabinCondensed.variable} ${outfit.variable} ${lexend.variable} h-full antialiased`}
     >
       <head>
-        {/* Umami analytics */}
-        <script
-          defer
-          src="https://umi.bhaskarsaikia.dev/script.js"
-          data-website-id="39f68bbc-bfe7-4ceb-bec9-74defe2dffb4"
-        />
-        {/* Rybbit analytics */}
-        <script defer src="https://stats.zruvix.com/api/script.js?siteId=c9d40f5c030f" />
+        {/* Umami analytics, proxied first-party through /_u (see next.config.ts rewrites) */}
+        <script defer src="/_u/script.js" data-website-id="39f68bbc-bfe7-4ceb-bec9-74defe2dffb4" />
+        {/* Rybbit analytics, proxied first-party through /_v (see next.config.ts rewrites) */}
+        <script defer src="/_v/script.js" data-site-id="c9d40f5c030f" />
       </head>
       <body className="h-full" suppressHydrationWarning><NoImageDrag />
         {children}
