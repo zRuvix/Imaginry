@@ -159,7 +159,7 @@ function GetPro({ cycle }: { cycle: Cycle }) {
   const go = async () => {
     setBusy(true);
     setError(null);
-    const failed = await startCheckout(cycle);
+    const failed = await startCheckout(cycle, "/#pricing");
     if (failed) {
       setError(failed);
       setBusy(false);

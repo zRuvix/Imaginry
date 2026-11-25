@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { ArrowUpRight, Check } from "@/components/icons";
-import { fetchBilling, startCheckout, type Billing } from "@/lib/billing-client";
+import { fetchBilling, fetchInvoices, startCheckout, type Billing, type Invoice } from "@/lib/billing-client";
 import { FREE_LIMITS, PRO_FEATURES, PRO_PRICE, YEARLY_SAVING, yearTotal, type Cycle } from "@/lib/pricing";
 
 const money = (n: number) => (Number.isInteger(n) ? `${n}` : n.toFixed(2));
@@ -13,6 +13,9 @@ const SOLID =
   "press flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-full bg-bone px-4 text-[13px] font-semibold text-[#141210] hover:bg-white disabled:cursor-wait disabled:opacity-60";
 const SOFT =
   "press flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-white/[0.08] px-3.5 text-[12.5px] text-bone/85 hover:bg-white/[0.14] hover:text-bone";
+
+/** Where checkout's Back returns: the studio, with this panel open on Plan & billing. */
+export const BILLING_RETURN = "/studio?account=billing";
 
 /** Polls a few times after checkout, since the webhook can land a moment after the redirect. */
 const WAIT_TRIES = 6;
@@ -145,7 +148,9 @@ function ProPlan({ billing, welcome }: { billing: Billing; welcome: boolean }) {
         <Features />
       </div>
 
-      <p className="px-1 text-[12px] leading-relaxed text-bone/40">Card, invoices and cancelling are handled by Dodo Payments.</p>
+      <Invoices />
+
+      <p className="px-1 text-[12px] leading-relaxed text-bone/40">Card changes and cancelling are handled by Dodo Payments.</p>
     </div>
   );
 }
@@ -159,7 +164,7 @@ function FreePlan({ billing }: { billing: Billing }) {
   const upgrade = async () => {
     setBusy(true);
     setError(null);
-    const failed = await startCheckout(cycle);
+    const failed = await startCheckout(cycle, BILLING_RETURN);
     if (failed) {
       setError(failed);
       setBusy(false);
@@ -219,13 +224,80 @@ function FreePlan({ billing }: { billing: Billing }) {
         </div>
       </div>
 
-      {billing.hasCustomer && (
-        <div className="flex items-center justify-between gap-3 px-1">
-          <p className="text-[12.5px] text-bone/50">Past payments and invoices</p>
-          <a href="/api/billing/portal" className={SOFT}>
-            Invoices <ArrowUpRight size={12} />
+      {billing.hasCustomer && <Invoices />}
+    </div>
+  );
+}
+
+const amountOf = (i: Invoice) => {
+  try {
+    return new Intl.NumberFormat(undefined, { style: "currency", currency: i.currency }).format(i.amount / 100);
+  } catch {
+    return `${(i.amount / 100).toFixed(2)} ${i.currency}`;
+  }
+};
+const shortDate = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+
+const STATUS: Record<string, { label: string; tone: string }> = {
+  succeeded: { label: "Paid", tone: "text-[#4cc38a]" },
+  failed: { label: "Failed", tone: "text-[#ff6b70]" },
+  refunded: { label: "Refunded", tone: "text-bone/50" },
+};
+
+/** Subscription payments, newest first, each opening its invoice PDF. */
+function Invoices() {
+  const [items, setItems] = useState<Invoice[] | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let live = true;
+    fetchInvoices()
+      .then((v) => live && setItems(v))
+      .catch(() => live && setError(true));
+    return () => {
+      live = false;
+    };
+  }, []);
+
+  return (
+    <div className="px-1">
+      <p className="mb-2 text-[12px] text-bone/50">Invoices</p>
+      {error ? (
+        <p className="py-3 text-[12.5px] text-bone/45">
+          Couldn’t load invoices.{" "}
+          <a href="/api/billing/portal" className="underline underline-offset-2 hover:text-bone">
+            Open them on Dodo
           </a>
+          .
+        </p>
+      ) : !items ? (
+        <div className="space-y-2">
+          <div className="skeleton h-11 rounded-[12px]" />
+          <div className="skeleton h-11 rounded-[12px]" />
         </div>
+      ) : items.length === 0 ? (
+        <p className="py-3 text-[12.5px] text-bone/45">No payments yet.</p>
+      ) : (
+        <ul className="divide-y divide-white/[0.07]">
+          {items.map((i) => {
+            const st = STATUS[i.status] ?? { label: i.status, tone: "text-bone/50" };
+            return (
+              <li key={i.id} className="flex items-center gap-3 py-2.5 text-[13px]">
+                <span className="w-[104px] shrink-0 text-bone/80">{shortDate(i.date)}</span>
+                <span className="min-w-0 flex-1 tabular-nums text-bone/90">{amountOf(i)}</span>
+                <span className={`shrink-0 text-[12px] ${st.tone}`}>{st.label}</span>
+                <a
+                  href={i.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="press flex h-8 shrink-0 items-center gap-1 rounded-full bg-white/[0.08] px-3 text-[12px] text-bone/80 hover:bg-white/[0.14] hover:text-bone"
+                >
+                  PDF <ArrowUpRight size={11} />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       )}
     </div>
   );

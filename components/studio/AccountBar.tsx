@@ -26,8 +26,10 @@ export default function AccountBar() {
   const { data, isPending } = session;
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState(false);
-  // Coming back from Dodo checkout (?upgraded=1) opens the panel on Billing.
+  // Back from Dodo checkout: paid (?upgraded=1) or Back pressed (?account=billing)
+  // both open the panel on Plan & billing.
   const [upgraded, setUpgraded] = useState(false);
+  const [initial, setInitial] = useState<"account" | "billing">("account");
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, open, () => setOpen(false));
   const user = data?.user;
@@ -35,10 +37,13 @@ export default function AccountBar() {
   useEffect(() => {
     if (!user) return;
     const url = new URL(window.location.href);
-    if (url.searchParams.get("upgraded") !== "1") return;
+    const paid = url.searchParams.get("upgraded") === "1";
+    if (!paid && url.searchParams.get("account") !== "billing") return;
     url.searchParams.delete("upgraded");
+    url.searchParams.delete("account");
     window.history.replaceState(null, "", url);
-    setUpgraded(true);
+    setUpgraded(paid);
+    setInitial("billing");
     setPanel(true);
   }, [user]);
 
@@ -50,12 +55,13 @@ export default function AccountBar() {
           <AccountPanel
             email={user.email}
             profile={profile}
-            initial={upgraded ? "billing" : "account"}
+            initial={initial}
             justUpgraded={upgraded}
             onProfile={setProfile}
             onClose={() => {
               setPanel(false);
               setUpgraded(false);
+              setInitial("account");
             }}
           />,
           document.body,

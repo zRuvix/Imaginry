@@ -50,7 +50,20 @@ const PRO_STATUSES = ["active", "past_due"];
 type BillingUser = { id: string; email: string; name?: string | null };
 
 /** A fresh hosted checkout for Pro on the given cycle. Returns its URL. */
-export async function createCheckout(user: BillingUser, cycle: Cycle, origin: string) {
+/**
+ * A same-site path to send people back to, or the fallback. Only plain paths
+ * ("/studio?account=billing", "/#pricing"), never another host.
+ */
+export function safeReturnPath(v: unknown, fallback = "/#pricing") {
+  if (typeof v !== "string" || !v.startsWith("/") || v.startsWith("//") || v.includes("\\") || v.length > 200) return fallback;
+  return v;
+}
+
+/**
+ * A fresh hosted checkout for Pro on the given cycle. Returns its URL.
+ * `from` is where checkout's Back goes; paying always lands on the studio.
+ */
+export async function createCheckout(user: BillingUser, cycle: Cycle, origin: string, from = "/#pricing") {
   const productId = productFor(cycle);
   if (!productId) throw new Error(`DODO_PRO_${cycle.toUpperCase()}_PRODUCT_ID is not set`);
   const existing = await customerIdOf(user.id);
@@ -58,7 +71,7 @@ export async function createCheckout(user: BillingUser, cycle: Cycle, origin: st
     product_cart: [{ product_id: productId, quantity: 1 }],
     customer: existing ? { customer_id: existing } : { email: user.email, name: user.name || user.email },
     return_url: `${origin}/studio?upgraded=1`,
-    cancel_url: `${origin}/#pricing`,
+    cancel_url: `${origin}${safeReturnPath(from)}`,
     metadata: { user_id: user.id, cycle },
   });
   if (!session.checkout_url) throw new Error("Dodo returned no checkout URL");
@@ -148,6 +161,44 @@ export async function billingOf(userId: string): Promise<Billing> {
 
 export async function isPro(userId: string) {
   return (await billingOf(userId)).plan === "pro";
+}
+
+export type Invoice = {
+  id: string;
+  date: string;
+  /** In the currency's smallest unit (cents, paise). */
+  amount: number;
+  currency: string;
+  status: string;
+  /** Opens the invoice PDF. */
+  url: string;
+};
+
+/** The user's subscription payments, newest first, each with its invoice. */
+export async function invoicesOf(userId: string): Promise<Invoice[]> {
+  const customerId = await customerIdOf(userId);
+  if (!customerId) return [];
+  const page = await dodo().payments.list({ customer_id: customerId, page_size: 24 });
+  return page.items
+    .filter((p) => p.status === "succeeded" || p.status === "failed" || p.refund_status)
+    .map((p) => ({
+      id: p.payment_id,
+      date: p.created_at,
+      amount: p.total_amount,
+      currency: p.currency,
+      status: p.refund_status ? "refunded" : (p.status ?? "unknown"),
+      url: p.invoice_url || `/api/billing/invoices/${encodeURIComponent(p.payment_id)}`,
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** The invoice PDF for one of the user's own payments, or null if it isn't theirs. */
+export async function invoicePdf(userId: string, paymentId: string) {
+  const customerId = await customerIdOf(userId);
+  if (!customerId) return null;
+  const payment = await dodo().payments.retrieve(paymentId);
+  if (payment.customer.customer_id !== customerId) return null;
+  return dodo().invoices.payments.retrieve(paymentId);
 }
 
 /** A one-off link to Dodo's customer portal (cancel, change card, invoices), or null with no customer yet. */
