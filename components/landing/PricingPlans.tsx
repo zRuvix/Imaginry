@@ -4,8 +4,8 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useState, type ReactNode } from "react";
 import { ArrowRight } from "@/components/icons";
-import { authClient } from "@/lib/auth-client";
-import { checkoutHref, FREE_FEATURES, PRO_FEATURES, PRO_PRICE, YEARLY_SAVING, yearTotal, type Cycle, type Feature } from "@/lib/pricing";
+import { startCheckout } from "@/lib/billing-client";
+import { FREE_FEATURES, PRO_FEATURES, PRO_PRICE, YEARLY_SAVING, yearTotal, type Cycle, type Feature } from "@/lib/pricing";
 import { BTN_MOTION } from "./buttonMotion";
 import { EASE_ENTER } from "./enterTiming";
 
@@ -159,20 +159,11 @@ function GetPro({ cycle }: { cycle: Cycle }) {
   const go = async () => {
     setBusy(true);
     setError(null);
-    const res = await fetch("/api/billing/checkout", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ cycle }),
-    }).catch(() => null);
-    if (res?.status === 401) {
-      const { error } = await authClient.signIn.social({ provider: "google", callbackURL: checkoutHref(cycle) });
-      if (error) setBusy(false);
-      return;
+    const failed = await startCheckout(cycle);
+    if (failed) {
+      setError(failed);
+      setBusy(false);
     }
-    const data = (await res?.json().catch(() => null)) as { url?: string; error?: string } | null;
-    if (data?.url) return window.location.assign(data.url);
-    setError(data?.error ?? "Couldn't open checkout. Try again.");
-    setBusy(false);
   };
 
   return (

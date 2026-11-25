@@ -1,13 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowUpRight, ChevronDown, LogOut, User, X } from "@/components/icons";
-import ProfileEditor from "@/components/profile/ProfileEditor";
-import { authClient } from "@/lib/auth-client";
+import { ChevronDown, User } from "@/components/icons";
 import GoogleSignIn from "./GoogleSignIn";
-import McpAccess from "./McpAccess";
+import AccountPanel from "./AccountPanel";
 import { useMyProfile } from "@/lib/useMyProfile";
 import { useClickOutside } from "./controls";
 
@@ -23,174 +20,44 @@ function Avatar({ src, name }: { src?: string | null; name: string }) {
   );
 }
 
-const RED = "bg-[#e5484d] text-white hover:bg-[#d63c41]";
-
-/** Small red sign-out pill, pinned in the account panel's footer. */
-function SignOutButton({ onDone }: { onDone: () => void }) {
-  const [busy, setBusy] = useState(false);
-  return (
-    <button
-      type="button"
-      onClick={async () => {
-        setBusy(true);
-        await authClient.signOut();
-        setBusy(false);
-        onDone();
-      }}
-      disabled={busy}
-      className={`press flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-[13px] font-medium transition-colors disabled:opacity-50 ${RED}`}
-    >
-      <LogOut size={14} />
-      {busy ? "Signing out…" : "Sign out"}
-    </button>
-  );
-}
-
-/** Bottom of the account panel: who is signed in, their public page, delete. */
-function AccountActions({ email, username, onDone }: { email: string; username?: string; onDone: () => void }) {
-  const [busy, setBusy] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const deleteAccount = async () => {
-    setBusy(true);
-    setError(null);
-    const { error } = await authClient.deleteUser();
-    setBusy(false);
-    if (error) {
-      // Deleting needs a recent sign-in; older sessions have to sign in again first.
-      setError(
-        error.code === "SESSION_EXPIRED"
-          ? "For safety, sign out and sign in again, then delete."
-          : "Couldn’t delete your account. Try again.",
-      );
-      return;
-    }
-    onDone();
-  };
-
-  return (
-    <div className="rounded-[16px] bg-white/[0.04] p-3">
-      <div className="flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <p className="text-[13.5px]">Signed in with Google</p>
-          <p className="truncate text-[12px] text-bone/45">{email}</p>
-        </div>
-        {username && (
-          <Link
-            href={`/profile/${username}`}
-            className="press flex h-8 shrink-0 items-center gap-1 rounded-full bg-white/[0.07] px-3 text-[12.5px] text-bone/80 hover:bg-white/[0.12] hover:text-bone"
-          >
-            View profile <ArrowUpRight size={12} />
-          </Link>
-        )}
-      </div>
-
-      {confirmDelete ? (
-        <div className="anim-pop mt-3 rounded-[12px] bg-[#e5484d]/10 p-3">
-          <p className="text-[12.5px] leading-relaxed text-bone/75">
-            This permanently deletes your account and everything we store about it.
-          </p>
-          <div className="mt-2.5 flex justify-end gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setConfirmDelete(false);
-                setError(null);
-              }}
-              className="press h-8 rounded-full bg-white/[0.07] px-3 text-[12.5px] text-bone/80 hover:bg-white/[0.12]"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={deleteAccount}
-              disabled={busy}
-              className={`press h-8 rounded-full px-3 text-[12.5px] font-medium transition-colors disabled:opacity-50 ${RED}`}
-            >
-              {busy ? "Deleting…" : "Delete forever"}
-            </button>
-          </div>
-          {error && <p className="mt-2 text-[12px] text-[#ff6b70]">{error}</p>}
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setConfirmDelete(true)}
-          className="mt-2 text-[12px] text-bone/40 transition-colors hover:text-[#ff6b70]"
-        >
-          Delete account
-        </button>
-      )}
-    </div>
-  );
-}
-
-/** Shown for the moment between sign-in and the profile arriving. */
-function PanelLoading({ email, onClose }: { email: string; onClose: () => void }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, true, onClose);
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]">
-      <div
-        ref={ref}
-        role="dialog"
-        aria-label="Account"
-        className="anim-pop glass-panel w-[460px] max-w-full rounded-[26px] p-5 text-bone"
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-[20px]">Account</h2>
-          <button type="button" aria-label="Close" onClick={onClose} className="press text-bone/60 hover:text-bone">
-            <X size={18} />
-          </button>
-        </div>
-        <div className="space-y-3">
-          <div className="skeleton h-[104px] rounded-[16px]" />
-          <div className="skeleton h-10 rounded-[12px]" />
-          <AccountActions email={email} onDone={onClose} />
-        </div>
-        <div className="mt-4">
-          <SignOutButton onDone={onClose} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /** Account row under the Library: opens the account panel, or a sign-in card when signed out. */
 export default function AccountBar() {
   const { session, profile, setProfile } = useMyProfile();
   const { data, isPending } = session;
   const [open, setOpen] = useState(false);
   const [panel, setPanel] = useState(false);
+  // Coming back from Dodo checkout (?upgraded=1) opens the panel on Billing.
+  const [upgraded, setUpgraded] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, open, () => setOpen(false));
   const user = data?.user;
+
+  useEffect(() => {
+    if (!user) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("upgraded") !== "1") return;
+    url.searchParams.delete("upgraded");
+    window.history.replaceState(null, "", url);
+    setUpgraded(true);
+    setPanel(true);
+  }, [user]);
 
   return (
     <div ref={ref} className="relative h-full">
       {panel &&
         user &&
         createPortal(
-          profile ? (
-            <ProfileEditor
-              title="Account"
-              links={false}
-              profile={profile}
-              onClose={() => setPanel(false)}
-              onSaved={(p) => {
-                setProfile(p);
-                setPanel(false);
-              }}
-              onAvatarChange={setProfile}
-              footerStart={<SignOutButton onDone={() => setPanel(false)} />}
-            >
-              <McpAccess />
-              <AccountActions email={user.email} username={profile.username} onDone={() => setPanel(false)} />
-            </ProfileEditor>
-          ) : (
-            <PanelLoading email={user.email} onClose={() => setPanel(false)} />
-          ),
+          <AccountPanel
+            email={user.email}
+            profile={profile}
+            initial={upgraded ? "billing" : "account"}
+            justUpgraded={upgraded}
+            onProfile={setProfile}
+            onClose={() => {
+              setPanel(false);
+              setUpgraded(false);
+            }}
+          />,
           document.body,
         )}
       {open && !user && (

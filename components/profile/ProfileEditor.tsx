@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Dices, X } from "@/components/icons";
 import { avatarDataUri, newAvatarSeed } from "@/lib/avatar";
 import { useClickOutside } from "@/components/studio/controls";
@@ -15,7 +15,7 @@ import {
 } from "@/lib/profile";
 
 const field =
-  "h-10 w-full rounded-[12px] bg-white/[0.05] px-3 text-[13.5px] text-bone outline-none transition-colors placeholder:text-bone/30 focus:bg-white/[0.09]";
+  "h-10 w-full rounded-[12px] bg-white/[0.07] px-3 text-[13.5px] text-bone outline-none transition-colors placeholder:text-bone/30 focus:bg-white/[0.09]";
 
 function Label({ children, error }: { children: React.ReactNode; error?: string }) {
   return (
@@ -74,12 +74,12 @@ function AvatarPicker({
 
   const shown = seed ? avatarDataUri(seed) : profile.googleImage;
   const chip = (on: boolean) =>
-    `press relative size-9 shrink-0 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-[#1c1a17] transition-[box-shadow,transform] duration-300 hover:scale-110 ${
+    `press relative size-9 shrink-0 overflow-hidden rounded-full ring-2 ring-offset-2 ring-offset-transparent transition-[box-shadow,transform] duration-300 hover:scale-110 ${
       on ? "ring-bone" : "ring-transparent"
     }`;
 
   return (
-    <div className="rounded-[16px] bg-white/[0.04] p-3">
+    <div className="frost-well rounded-[16px] p-3">
       <div className="flex items-center gap-3">
         {shown ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -146,33 +146,36 @@ function AvatarPicker({
   );
 }
 
-/** Pop-up card for editing your public profile. */
-export default function ProfileEditor({
+/**
+ * The profile fields (picture, username, names, public switch, links) with
+ * their own save. `variant="modal"` pins Cancel and Save in a footer;
+ * `"inline"` puts one Save changes button under the fields (the studio's
+ * account panel).
+ */
+export function ProfileForm({
   profile,
-  onClose,
   onSaved,
   onAvatarChange,
-  title = "Profile",
+  onCancel,
   links = true,
+  variant = "modal",
   children,
   footerStart,
 }: {
   profile: Profile;
-  /** Heading of the card. */
-  title?: string;
-  /** Show the social link fields (saved links are kept either way). */
-  links?: boolean;
-  /** Extra content under the form fields (account actions in the studio). */
-  children?: React.ReactNode;
-  /** Shown at the left of the footer, beside Cancel and Save. */
-  footerStart?: React.ReactNode;
-  onClose: () => void;
   onSaved: (p: Profile) => void;
   /** A new picture was saved (the form stays open). */
   onAvatarChange?: (p: Profile) => void;
+  /** Shows a Cancel button in the modal footer. */
+  onCancel?: () => void;
+  /** Show the social link fields (saved links are kept either way). */
+  links?: boolean;
+  variant?: "modal" | "inline";
+  /** Extra content after the fields, before the save button. */
+  children?: ReactNode;
+  /** Modal only: shown at the left of the footer, beside Cancel and Save. */
+  footerStart?: ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  useClickOutside(ref, true, onClose);
   const [username, setUsername] = useState(profile.username);
   const [firstName, setFirstName] = useState(profile.firstName ?? "");
   const [lastName, setLastName] = useState(profile.lastName ?? "");
@@ -182,6 +185,12 @@ export default function ProfileEditor({
   const [saving, setSaving] = useState(false);
 
   const localUsernameError = username ? usernameError(username) : `At least 3 characters`;
+  const dirty =
+    username !== profile.username ||
+    firstName !== (profile.firstName ?? "") ||
+    lastName !== (profile.lastName ?? "") ||
+    isPublic !== profile.isPublic ||
+    JSON.stringify(socials) !== JSON.stringify(profile.socials);
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,13 +214,174 @@ export default function ProfileEditor({
     }
   };
 
+  const inline = variant === "inline";
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-[2px]">
+    <form onSubmit={save} className={inline ? "" : "flex min-h-0 flex-1 flex-col"}>
+      <div className={inline ? "space-y-4" : "min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-4"}>
+        <AvatarPicker
+          profile={profile}
+          name={displayName({ username, firstName, lastName })}
+          onChange={(p) => onAvatarChange?.(p)}
+        />
+
+        <label className="block">
+          <Label error={errors.username}>Username</Label>
+          <div className="flex h-10 items-center rounded-[12px] bg-white/[0.07] pl-3 transition-colors focus-within:bg-white/[0.11]">
+            <span className="text-[13.5px] text-bone/35">imaginry.tech/profile/</span>
+            <input
+              value={username}
+              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ""))}
+              maxLength={USERNAME_MAX}
+              minLength={3}
+              required
+              autoComplete="off"
+              spellCheck={false}
+              aria-invalid={!!errors.username}
+              className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[13.5px] outline-none"
+            />
+          </div>
+          {!errors.username && username !== profile.username && localUsernameError && (
+            <span className="mt-1 block text-[12px] text-bone/45">{localUsernameError}</span>
+          )}
+        </label>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="block">
+            <Label error={errors.firstName}>First name (optional)</Label>
+            <input value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={NAME_MAX} className={field} />
+          </label>
+          <label className="block">
+            <Label error={errors.lastName}>Last name (optional)</Label>
+            <input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={NAME_MAX} className={field} />
+          </label>
+        </div>
+
+        <button
+          type="button"
+          role="switch"
+          aria-checked={isPublic}
+          onClick={() => setIsPublic((v) => !v)}
+          className="frost-well flex w-full items-center justify-between gap-3 rounded-[16px] p-3 text-left"
+        >
+          <span>
+            <span className="block text-[13.5px]">{isPublic ? "Public profile" : "Private profile"}</span>
+            <span className="block text-[12px] leading-relaxed text-bone/45">
+              {isPublic
+                ? "Anyone can see your profile, and your designs appear in Explore."
+                : "Only you can see your profile, and your designs are hidden from Explore."}
+            </span>
+          </span>
+          <span className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-300 ${isPublic ? "bg-ember" : "bg-white/15"}`}>
+            <span
+              className={`absolute top-1 size-4 rounded-full bg-bone transition-transform duration-300 ${isPublic ? "translate-x-5" : "translate-x-1"}`}
+            />
+          </span>
+        </button>
+
+        {links && (
+          <div>
+            <p className="mb-1.5 text-[12px] text-bone/55">Links (optional)</p>
+            <div className="space-y-2">
+              {SOCIALS.map((s) => (
+                <label key={s.key} className="block">
+                  <div className="flex h-10 items-center gap-2 rounded-[12px] bg-white/[0.07] pl-3 transition-colors focus-within:bg-white/[0.11]">
+                    <span className="w-[72px] shrink-0 text-[12.5px] text-bone/50">{s.label}</span>
+                    <input
+                      value={socials[s.key] ?? ""}
+                      onChange={(e) => setSocials((v) => ({ ...v, [s.key as SocialKey]: e.target.value }))}
+                      placeholder={s.placeholder}
+                      autoComplete="off"
+                      spellCheck={false}
+                      aria-label={`${s.label} link`}
+                      aria-invalid={!!errors[`socials.${s.key}`]}
+                      className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[13px] outline-none placeholder:text-bone/25"
+                    />
+                  </div>
+                  {errors[`socials.${s.key}`] && (
+                    <span className="mt-1 block text-[12px] text-ember">{errors[`socials.${s.key}`]}</span>
+                  )}
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {children}
+      </div>
+
+      {inline ? (
+        <div className="mt-5 flex items-center justify-end gap-3">
+          <span className="min-w-0 truncate text-[12px] text-ember">{errors.form}</span>
+          <button
+            type="submit"
+            disabled={saving || !dirty}
+            className="press h-10 shrink-0 rounded-full bg-bone px-5 text-[13px] font-semibold text-[#141210] transition-opacity hover:bg-white disabled:cursor-default disabled:opacity-35"
+          >
+            {saving ? "Saving…" : "Save changes"}
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-3 px-5 pb-5 pt-3">
+          <div className="flex min-w-0 items-center gap-3">
+            {footerStart}
+            <span className="min-w-0 truncate text-[12px] text-ember">{errors.form}</span>
+          </div>
+          <div className="flex gap-2">
+            {onCancel && (
+              <button type="button" onClick={onCancel} className="blue-button h-10 rounded-full px-4 text-[13px]">
+                Cancel
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={saving}
+              className="blue-button h-10 rounded-full px-5 text-[13px] font-semibold disabled:opacity-60"
+            >
+              {saving ? "Saving…" : "Save"}
+            </button>
+          </div>
+        </div>
+      )}
+    </form>
+  );
+}
+
+/** Pop-up card for editing your public profile. */
+export default function ProfileEditor({
+  profile,
+  onClose,
+  onSaved,
+  onAvatarChange,
+  title = "Profile",
+  links = true,
+  children,
+  footerStart,
+}: {
+  profile: Profile;
+  /** Heading of the card. */
+  title?: string;
+  /** Show the social link fields (saved links are kept either way). */
+  links?: boolean;
+  /** Extra content under the form fields. */
+  children?: ReactNode;
+  /** Shown at the left of the footer, beside Cancel and Save. */
+  footerStart?: ReactNode;
+  onClose: () => void;
+  onSaved: (p: Profile) => void;
+  /** A new picture was saved (the form stays open). */
+  onAvatarChange?: (p: Profile) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, true, onClose);
+
+  return (
+    <div className="frost-scrim fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         ref={ref}
         role="dialog"
         aria-label={title}
-        className="anim-pop glass-panel flex max-h-[calc(100dvh-32px)] w-[460px] max-w-full flex-col rounded-[26px] text-bone"
+        className="anim-pop frost-panel flex max-h-[calc(100dvh-32px)] w-[460px] max-w-full flex-col rounded-[26px] text-bone"
       >
         <div className="flex items-center justify-between px-5 pb-3 pt-5">
           <h2 className="font-display text-[20px]">{title}</h2>
@@ -219,125 +389,16 @@ export default function ProfileEditor({
             <X size={18} />
           </button>
         </div>
-
-        <form onSubmit={save} className="flex min-h-0 flex-1 flex-col">
-          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-4">
-            <AvatarPicker
-              profile={profile}
-              name={displayName({ username, firstName, lastName })}
-              onChange={(p) => onAvatarChange?.(p)}
-            />
-
-            <label className="block">
-              <Label error={errors.username}>Username</Label>
-              <div className="flex h-10 items-center rounded-[12px] bg-white/[0.05] pl-3 transition-colors focus-within:bg-white/[0.09]">
-                <span className="text-[13.5px] text-bone/35">imaginry.tech/profile/</span>
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s/g, ""))}
-                  maxLength={USERNAME_MAX}
-                  minLength={3}
-                  required
-                  autoComplete="off"
-                  spellCheck={false}
-                  aria-invalid={!!errors.username}
-                  className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[13.5px] outline-none"
-                />
-              </div>
-              {!errors.username && username !== profile.username && localUsernameError && (
-                <span className="mt-1 block text-[12px] text-bone/45">{localUsernameError}</span>
-              )}
-            </label>
-
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block">
-                <Label error={errors.firstName}>First name (optional)</Label>
-                <input value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={NAME_MAX} className={field} />
-              </label>
-              <label className="block">
-                <Label error={errors.lastName}>Last name (optional)</Label>
-                <input value={lastName} onChange={(e) => setLastName(e.target.value)} maxLength={NAME_MAX} className={field} />
-              </label>
-            </div>
-
-            <button
-              type="button"
-              role="switch"
-              aria-checked={isPublic}
-              onClick={() => setIsPublic((v) => !v)}
-              className="flex w-full items-center justify-between gap-3 rounded-[16px] bg-white/[0.04] p-3 text-left"
-            >
-              <span>
-                <span className="block text-[13.5px]">{isPublic ? "Public profile" : "Private profile"}</span>
-                <span className="block text-[12px] leading-relaxed text-bone/45">
-                  {isPublic
-                    ? "Anyone can see your profile, and your designs appear in Explore."
-                    : "Only you can see your profile, and your designs are hidden from Explore."}
-                </span>
-              </span>
-              <span
-                className={`relative h-6 w-10 shrink-0 rounded-full transition-colors duration-300 ${isPublic ? "bg-ember" : "bg-white/15"}`}
-              >
-                <span
-                  className={`absolute top-1 size-4 rounded-full bg-bone transition-transform duration-300 ${isPublic ? "translate-x-5" : "translate-x-1"}`}
-                />
-              </span>
-            </button>
-
-            {links && (
-              <div>
-                <p className="mb-1.5 text-[12px] text-bone/55">Links (optional)</p>
-                <div className="space-y-2">
-                  {SOCIALS.map((s) => (
-                    <label key={s.key} className="block">
-                      <div className="flex h-10 items-center gap-2 rounded-[12px] bg-white/[0.05] pl-3 transition-colors focus-within:bg-white/[0.09]">
-                        <span className="w-[72px] shrink-0 text-[12.5px] text-bone/50">{s.label}</span>
-                        <input
-                          value={socials[s.key] ?? ""}
-                          onChange={(e) => setSocials((v) => ({ ...v, [s.key as SocialKey]: e.target.value }))}
-                          placeholder={s.placeholder}
-                          autoComplete="off"
-                          spellCheck={false}
-                          aria-label={`${s.label} link`}
-                          aria-invalid={!!errors[`socials.${s.key}`]}
-                          className="h-full min-w-0 flex-1 bg-transparent pr-3 text-[13px] outline-none placeholder:text-bone/25"
-                        />
-                      </div>
-                      {errors[`socials.${s.key}`] && (
-                        <span className="mt-1 block text-[12px] text-ember">{errors[`socials.${s.key}`]}</span>
-                      )}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {children}
-          </div>
-
-          <div className="flex items-center justify-between gap-3 px-5 pb-5 pt-3">
-            <div className="flex min-w-0 items-center gap-3">
-              {footerStart}
-              <span className="min-w-0 truncate text-[12px] text-ember">{errors.form}</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="blue-button h-10 rounded-full px-4 text-[13px]"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                className="blue-button h-10 rounded-full px-5 text-[13px] font-semibold disabled:opacity-60"
-              >
-                {saving ? "Saving…" : "Save"}
-              </button>
-            </div>
-          </div>
-        </form>
+        <ProfileForm
+          profile={profile}
+          links={links}
+          onSaved={onSaved}
+          onAvatarChange={onAvatarChange}
+          onCancel={onClose}
+          footerStart={footerStart}
+        >
+          {children}
+        </ProfileForm>
       </div>
     </div>
   );

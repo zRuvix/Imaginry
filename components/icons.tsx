@@ -9,6 +9,9 @@ import {
   ArrowUpRight as RArrowUpRight,
   AspectRatioSquare,
   Brush as RBrush,
+  Card as RCard,
+  Plug as RPlug,
+  UserSquare,
   ColorSwatch,
   Copy as RCopy,
   Drop as RDrop,
@@ -119,6 +122,9 @@ export const Trash = filled(Trash2, "Trash");
 export const Undo2 = filled(Undo, "Undo2");
 export const Upload = filled(RUpload, "Upload");
 export const User = filled(ProfileCircle, "User");
+export const UserCard = filled(UserSquare, "UserCard");
+export const CreditCard = filled(RCard, "CreditCard");
+export const Plug = filled(RPlug, "Plug");
 export const X = filled(CloseCircle, "X");
 export const Search = filled(RSearch, "Search");
 export const Keyboard = filled(RKeyboard, "Keyboard");

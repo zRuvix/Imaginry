@@ -1,6 +1,7 @@
 import "server-only";
 import DodoPayments from "dodopayments";
 import type { Subscription } from "dodopayments/resources/subscriptions";
+import type { Billing } from "@/lib/billing-client";
 import type { Cycle } from "@/lib/pricing";
 import { pool } from "./auth-options";
 
@@ -118,15 +119,6 @@ async function customerIdOf(userId: string) {
   return rows[0]?.customer_id ?? null;
 }
 
-export type Billing = {
-  plan: "free" | "pro";
-  cycle: Cycle | null;
-  status: string | null;
-  renewsAt: string | null;
-  cancelAtPeriodEnd: boolean;
-  /** True once they've had a subscription, so the billing portal has something to show. */
-  hasCustomer: boolean;
-};
 
 /** The user's plan, from their latest subscription. */
 export async function billingOf(userId: string): Promise<Billing> {

@@ -89,7 +89,7 @@ export default function McpAccess() {
   const loading = apps === null && !error;
 
   return (
-    <div className="rounded-[16px] bg-white/[0.04] p-3">
+    <div className="frost-well rounded-[16px] p-3">
       <p className="text-[13.5px]">Connect AI apps</p>
       <p className="mt-0.5 text-[12px] leading-relaxed text-bone/45">
         Add imaginry.tech/mcp to Claude, ChatGPT, Cursor or any MCP app. It asks you to Allow, then shows up here.
