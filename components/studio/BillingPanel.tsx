@@ -67,8 +67,8 @@ export default function BillingPanel({ justUpgraded = false }: { justUpgraded?: 
   return billing.plan === "pro" ? <ProPlan billing={billing} welcome={justUpgraded} /> : <FreePlan billing={billing} />;
 }
 
-/** "Current plan" card: label, plan name, an action on the right. */
-function CurrentPlan({ name, badge, action }: { name: string; badge?: ReactNode; action: ReactNode }) {
+/** "Current plan" card: label, plan name, an optional line under it, an optional action on the right. */
+function CurrentPlan({ name, badge, note, action }: { name: string; badge?: ReactNode; note?: ReactNode; action?: ReactNode }) {
   return (
     <div className="frost-well flex items-center gap-4 rounded-[18px] p-5">
       <div className="min-w-0 flex-1">
@@ -77,6 +77,7 @@ function CurrentPlan({ name, badge, action }: { name: string; badge?: ReactNode;
           {name}
           {badge}
         </p>
+        {note && <p className="mt-2 text-[12.5px] leading-relaxed text-bone/50">{note}</p>}
       </div>
       {action}
     </div>
@@ -176,21 +177,8 @@ function FreePlan({ billing }: { billing: Billing }) {
       <CurrentPlan
         name="Free"
         badge={lapsed ? <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11.5px] text-bone/70">Pro {billing.status}</span> : null}
-        action={
-          <button type="button" onClick={upgrade} disabled={busy} className={SOLID}>
-            {busy ? "Opening…" : "Upgrade to Pro"}
-          </button>
-        }
+        note={`${FREE_LIMITS.exportsPerWeek} exports a week, images up to 1080px and video up to 720p.`}
       />
-      {error && (
-        <p role="alert" className="-mt-2 px-1 text-[12px] text-[#ff9c8a]">
-          {error}
-        </p>
-      )}
-
-      <p className="px-1 text-[12.5px] leading-relaxed text-bone/50">
-        {FREE_LIMITS.exportsPerWeek} exports a week, images up to 1080px and video up to 720p.
-      </p>
 
       <div className="rounded-[18px] border border-white/[0.07] p-5">
         <div className="flex items-center justify-between gap-3">
@@ -222,6 +210,14 @@ function FreePlan({ billing }: { billing: Billing }) {
         <div className="mt-4 border-t border-white/[0.07] pt-4">
           <Features />
         </div>
+        <button type="button" onClick={upgrade} disabled={busy} className={`${SOLID} mt-5 w-full`}>
+          {busy ? "Opening checkout…" : `Upgrade to Pro ${cycle}`}
+        </button>
+        {error && (
+          <p role="alert" className="mt-2.5 text-[12px] text-[#ff9c8a]">
+            {error}
+          </p>
+        )}
       </div>
 
       {billing.hasCustomer && <Invoices />}
