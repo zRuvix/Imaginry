@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronDown, X } from "@/components/icons";
+import { ChevronDown, Lock, X } from "@/components/icons";
 import { track } from "@/lib/events";
-import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode, type RefObject } from "react";
 import { framerComponent, framerLook, htmlEmbed, lookFor, reactEmbed } from "@/lib/studio/embed";
 import { encodeShare } from "@/lib/studio/storage";
 import { renderOffscreen } from "@/lib/studio/renderer";
@@ -12,19 +12,22 @@ import { encodeLoop, videoSupported, type VideoFormat } from "@/lib/studio/video
 import { ASPECTS, LANDSCAPE_ASPECTS, PORTRAIT_ASPECTS, stagePixelRatio, type Aspect } from "./Stage";
 import GoogleSignIn from "./GoogleSignIn";
 import { BILLING_RETURN } from "./BillingPanel";
-import { FREE_LIMITS } from "@/lib/pricing";
+import { PLAN_LIMITS, sizeAllowed, type ExportKind, type Plan } from "@/lib/pricing";
+import { useClickOutside } from "./controls";
 
-type Size = { id: string; label: string; width: number; height: number; /** Needs Pro. */ pro?: boolean };
+type Size = { id: string; label: string; width: number; height: number; /** Above the plan's limit. */ locked: boolean };
 
 /** Mirrors lib/server/exports' ExportQuota. */
-type Quota = { plan: "free" | "pro"; remaining: number | null; resetsAt: string | null };
+type Quota = { plan: Plan; remaining: number | null; resetsAt: string | null };
 
-/** Claims one export on the server. Resolves with an error message when the plan doesn't allow it. */
+/**
+ * Claims one export on the server, which checks the plan's size limit and
+ * daily allowance. Resolves with an error message when it's refused.
+ */
 async function claimExport(body: {
   kind: "export_png" | "export_video";
   width: number;
   height: number;
-  preview: boolean;
   meta: Record<string, string | number>;
 }): Promise<{ quota?: Quota; error?: string }> {
   const res = await fetch("/api/export", {
@@ -35,11 +38,6 @@ async function claimExport(body: {
   const data = (await res?.json().catch(() => null)) as { quota?: Quota; error?: string } | null;
   if (!res?.ok) return { quota: data?.quota, error: data?.error ?? "Couldn't start the export. Try again." };
   return { quota: data?.quota };
-}
-
-/** On Free, sizes above the cap are marked Pro; preview always stays free. */
-function withPlan(sizes: Size[], pro: boolean, cap: number): Size[] {
-  return sizes.map((s) => ({ ...s, pro: !pro && s.id !== "preview" && Math.max(s.width, s.height) > cap }));
 }
 
 function resetLabel(iso: string | null) {
@@ -54,10 +52,27 @@ function sized(ratio: number, long: number) {
     : { width: Math.round(long * ratio), height: long };
 }
 
-function sizeOptions(ratio: number, preview: { width: number; height: number }, tiers: [string, number][]): Size[] {
+/**
+ * The sizes on offer for `plan`. Tiers above the plan's limit are locked (the
+ * server refuses them too); Preview shrinks to fit the limit rather than lock,
+ * so every plan keeps it.
+ */
+function sizeOptions(
+  plan: Plan,
+  kind: ExportKind,
+  ratio: number,
+  preview: { width: number; height: number },
+  tiers: [string, number][],
+): Size[] {
+  const cap = PLAN_LIMITS[plan].longSide[kind];
+  const fit = Math.min(1, cap / Math.max(preview.width, preview.height, 1));
+  const previewFit = { width: Math.floor(preview.width * fit), height: Math.floor(preview.height * fit) };
   return [
-    { id: "preview", label: "Preview", ...preview },
-    ...tiers.map(([label, long]) => ({ id: label, label, ...sized(ratio, long) })),
+    { id: "preview", label: "Preview", ...previewFit, locked: false },
+    ...tiers.map(([label, long]) => {
+      const s = sized(ratio, long);
+      return { id: label, label, ...s, locked: !sizeAllowed(plan, kind, s.width, s.height) };
+    }),
   ];
 }
 
@@ -86,7 +101,8 @@ function download(blob: Blob, name: string) {
 
 function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section className="anim-rise rounded-[18px] bg-white/[0.04]">
+    // Lifted while one of its dropdowns is open, so the menu sits over the next card.
+    <section className="anim-rise relative rounded-[18px] bg-white/[0.04] has-[[aria-expanded=true]]:z-30">
       <h3 className="px-4 pb-0.5 pt-3.5 text-[13.5px] font-semibold text-bone">{title}</h3>
       <div className="space-y-2.5 p-3.5 pt-2.5">{children}</div>
     </section>
@@ -114,32 +130,115 @@ function Choice({ active, onClick, children }: { active: boolean; onClick: () =>
   );
 }
 
+type Option<T> = {
+  value: T;
+  label: string;
+  /** Quiet second column, e.g. the pixel size. */
+  hint?: string;
+  /** On a higher plan: shown with a Pro tag, and picking it calls onLocked instead. */
+  locked?: boolean;
+};
+
+/** The studio's dropdown: the trigger shows the value, the menu springs open. Arrow keys move, Enter picks. */
 function Dropdown<T extends string | number>({
   value,
   options,
   onChange,
+  onLocked,
   label,
 }: {
   value: T;
-  options: { value: T; label: string; disabled?: boolean }[];
+  options: Option<T>[];
   onChange: (v: T) => void;
+  onLocked?: (o: Option<T>) => void;
   label: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  useClickOutside(ref, open, () => setOpen(false));
+  const current = options.find((o) => o.value === value) ?? options[0];
+
+  const choose = (o: Option<T>) => {
+    setOpen(false);
+    if (o.locked) onLocked?.(o);
+    else onChange(o.value);
+  };
+  const show = () => {
+    setActive(Math.max(0, options.indexOf(current)));
+    setOpen(true);
+  };
+  const onKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape") return setOpen(false);
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!open) return show();
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      setActive((i) => (i + step + options.length) % options.length);
+    } else if ((e.key === "Enter" || e.key === " ") && open) {
+      e.preventDefault();
+      choose(options[active]);
+    }
+  };
+
   return (
-    <div className="relative">
-      <select
-        aria-label={label}
-        value={String(value)}
-        onChange={(e) => onChange(options.find((o) => String(o.value) === e.target.value)!.value)}
-        className="h-10 w-full cursor-pointer appearance-none rounded-[12px] bg-white/[0.05] pl-3.5 pr-8 text-[13px] text-bone outline-none transition-colors hover:bg-white/[0.08] focus:bg-white/[0.08] [&>option]:bg-surface"
+    <div ref={ref} className="relative" onKeyDown={onKey}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`${label}: ${current.label}`}
+        onClick={() => (open ? setOpen(false) : show())}
+        className="press flex h-10 w-full items-center justify-between gap-2 rounded-[12px] bg-white/[0.05] px-3.5 text-[13px] hover:bg-white/[0.08] active:scale-[0.98]"
       >
-        {options.map((o) => (
-          <option key={String(o.value)} value={String(o.value)} disabled={o.disabled}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown size={14} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-bone/50" />
+        <span className="truncate text-bone">{current.label}</span>
+        <span className="flex shrink-0 items-center gap-2 text-bone/50">
+          {current.hint && <span className="tabular-nums">{current.hint}</span>}
+          <ChevronDown size={12} className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+        </span>
+      </button>
+      {open && (
+        <ul
+          role="listbox"
+          aria-label={label}
+          className="anim-menu glass-panel absolute inset-x-0 top-[calc(100%+6px)] z-40 max-h-72 overflow-y-auto rounded-[14px] p-1.5"
+          style={{ background: "rgba(23, 21, 18, 0.97)" }}
+        >
+          {options.map((o, i) => {
+            const selected = o.value === value;
+            return (
+              <li key={String(o.value)}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected}
+                  aria-disabled={o.locked || undefined}
+                  onClick={() => choose(o)}
+                  onMouseEnter={() => setActive(i)}
+                  className={`flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left text-[13px] transition-colors ${
+                    selected
+                      ? "bg-white/[0.1] text-bone"
+                      : i === active
+                        ? "bg-white/[0.06] text-bone"
+                        : "text-bone/70"
+                  } ${o.locked ? "text-bone/40" : ""}`}
+                >
+                  <span className="flex-1 truncate">{o.label}</span>
+                  {o.hint && <span className="tabular-nums text-[12px] text-bone/40">{o.hint}</span>}
+                  {o.locked ? (
+                    <span className="flex items-center gap-1 rounded-full bg-[#2460e8]/25 px-2 py-0.5 text-[11px] font-semibold text-[#9db8ff]">
+                      <Lock size={10} />
+                      Pro
+                    </span>
+                  ) : (
+                    <span className={`size-1.5 rounded-full ${selected ? "bg-ember" : "bg-transparent"}`} />
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -200,11 +299,12 @@ export default function ExportPanel(p: Props) {
       live = false;
     };
   }, [p.signedIn]);
-  const pro = quota?.plan === "pro";
-  const outOfExports = quota?.plan === "free" && (quota.remaining ?? 0) <= 0;
+  // Until the plan is known, offer only what Free allows.
+  const plan: Plan = quota?.plan ?? "free";
+  const outOfExports = quota !== null && quota.remaining !== null && quota.remaining <= 0;
 
-  const imageSizes = withPlan(sizeOptions(ratio, preview, IMAGE_TIERS), pro, FREE_LIMITS.imageLongSide);
-  const videoSizes = withPlan(sizeOptions(ratio, preview, VIDEO_TIERS), pro, FREE_LIMITS.videoLongSide);
+  const imageSizes = sizeOptions(plan, "image", ratio, preview, IMAGE_TIERS);
+  const videoSizes = sizeOptions(plan, "video", ratio, preview, VIDEO_TIERS);
 
   const [imageSizeId, setImageSizeId] = useState("Large");
   const [videoSizeId, setVideoSizeId] = useState("1080p");
@@ -216,15 +316,16 @@ export default function ExportPanel(p: Props) {
   const [tab, setTab] = useState<"framer" | "react" | "html">("framer");
   const [embedPreview, setEmbedPreview] = useState<string | null>(null);
 
-  // A Pro size picked (or defaulted) on Free falls back to the largest free one.
+  // A locked size picked (or defaulted) falls back to the largest one the plan allows.
   const pick = (sizes: Size[], id: string) => {
     const want = sizes.find((s) => s.id === id);
-    return want && !want.pro ? want : ([...sizes].reverse().find((s) => !s.pro) ?? sizes[0]);
+    return want && !want.locked ? want : ([...sizes].reverse().find((s) => !s.locked) ?? sizes[0]);
   };
   const imageSize = pick(imageSizes, imageSizeId);
   const videoSize = pick(videoSizes, videoSizeId);
-  const sizeLabel = (s: Size) => `${s.label} — ${s.width} × ${s.height}${s.pro ? " · Pro" : ""}`;
-  const sizeChoices = (sizes: Size[]) => sizes.map((s) => ({ value: s.id, label: sizeLabel(s), disabled: s.pro }));
+  const sizeChoices = (sizes: Size[]): Option<string>[] =>
+    sizes.map((s) => ({ value: s.id, label: s.label, hint: `${s.width} × ${s.height}`, locked: s.locked }));
+  const onLockedSize = (o: Option<string>) => p.notify(`${o.label} exports are on Pro`);
   // How many export pixels one pixel of the studio canvas covers, so grain,
   // threshold noise and other pixel-sized details come out as they looked.
   const pixelFor = (s: Size) =>
@@ -243,7 +344,6 @@ export default function ExportPanel(p: Props) {
         kind: "export_png",
         width: imageSize.width,
         height: imageSize.height,
-        preview: imageSize.id === "preview",
         meta: { width: imageSize.width, height: imageSize.height },
       });
       if (claim.quota) setQuota(claim.quota);
@@ -282,7 +382,6 @@ export default function ExportPanel(p: Props) {
         kind: "export_video",
         width: videoSize.width,
         height: videoSize.height,
-        preview: videoSize.id === "preview",
         meta: { format, seconds, fps, width: videoSize.width, height: videoSize.height },
       });
       if (claim.quota) setQuota(claim.quota);
@@ -373,7 +472,7 @@ export default function ExportPanel(p: Props) {
             <GoogleSignIn callbackURL={signUpUrl} />
           </section>
         )}
-        {quota?.plan === "free" && (
+        {quota && quota.remaining !== null && (
           <section className="anim-rise flex items-center justify-between gap-3 rounded-[18px] bg-white/[0.04] px-4 py-3">
             <p className="text-[12.5px] leading-snug text-bone/60">
               {outOfExports
@@ -423,6 +522,7 @@ export default function ExportPanel(p: Props) {
             value={imageSize.id}
             options={sizeChoices(imageSizes)}
             onChange={setImageSizeId}
+            onLocked={onLockedSize}
           />
           <Action onClick={downloadPng} disabled={outOfExports} locked={locked}>
             {spent("Download PNG")}
@@ -438,6 +538,7 @@ export default function ExportPanel(p: Props) {
             value={videoSize.id}
             options={sizeChoices(videoSizes)}
             onChange={setVideoSizeId}
+            onLocked={onLockedSize}
           />
           <div className="grid grid-cols-3 gap-2">
             {(["mp4", "webm", "av1"] as const).map((f) => (
@@ -512,7 +613,7 @@ export default function ExportPanel(p: Props) {
               <img src={embedPreview} alt="Embed preview" className="size-full object-cover" />
             )}
           </div>
-          {quota?.plan === "free" ? (
+          {quota && !PLAN_LIMITS[quota.plan].embed ? (
             <a
               href={upgradeUrl}
               className="blue-button flex h-10 w-full items-center justify-center rounded-full text-[13px] font-semibold"

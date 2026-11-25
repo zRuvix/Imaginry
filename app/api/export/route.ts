@@ -10,13 +10,13 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * POST { kind, width, height, preview, meta? } -> { quota } once an export is
+ * POST { kind, width, height, meta? } -> { quota } once an export is
  * allowed and counted, or 403 with { error, quota } when the plan doesn't allow it.
  */
 export async function POST(request: NextRequest) {
   const user = await currentUser(request);
   if (!user) return Response.json({ error: "Sign in first" }, { status: 401 });
-  let body: { kind?: unknown; width?: unknown; height?: unknown; preview?: unknown; meta?: unknown };
+  let body: { kind?: unknown; width?: unknown; height?: unknown; meta?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -24,14 +24,13 @@ export async function POST(request: NextRequest) {
   }
   const width = Number(body.width);
   const height = Number(body.height);
-  if (!isQuotaKind(body.kind) || !Number.isFinite(width) || !Number.isFinite(height)) {
+  if (!isQuotaKind(body.kind) || !(width > 0) || !(height > 0)) {
     return Response.json({ error: "Bad request" }, { status: 400 });
   }
   const result = await claimExport(user.id, body.kind, {
     request,
     width,
     height,
-    preview: body.preview === true,
     meta: body.meta,
   });
   if (!result.ok) return Response.json({ error: result.error, quota: result.quota }, { status: 403 });

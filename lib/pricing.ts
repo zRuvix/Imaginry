@@ -16,11 +16,28 @@ export const yearTotal = (c: Cycle) => Math.round(PRO_PRICE[c] * 12 * 100) / 100
 /** Percent saved per month by paying yearly. */
 export const YEARLY_SAVING = Math.round((1 - PRO_PRICE.yearly / PRO_PRICE.monthly) * 100);
 
+export type Plan = "free" | "pro";
+export type ExportKind = "image" | "video";
+
 /**
- * Free plan. Exports are counted on the server over a rolling 24 hours
- * (lib/server/exports); the size caps are the long side in pixels.
+ * What each plan may export. The single source for the studio's export panel
+ * (which locks what a plan can't use) and the server (lib/server/exports, which
+ * refuses it). Sizes are the long side in pixels; exports are counted over a
+ * rolling 24 hours, null meaning unlimited.
  */
-export const FREE_LIMITS = { exportsPerDay: 1, imageLongSide: 1080, videoLongSide: 1280 } as const;
+export const PLAN_LIMITS = {
+  free: { exportsPerDay: 1, longSide: { image: 1080, video: 1280 }, embed: false },
+  pro: { exportsPerDay: null, longSide: { image: 3840, video: 3840 }, embed: true },
+} as const satisfies Record<
+  Plan,
+  { exportsPerDay: number | null; longSide: Record<ExportKind, number>; embed: boolean }
+>;
+
+export const FREE_LIMITS = PLAN_LIMITS.free;
+
+/** Whether `plan` may export a `kind` at width × height. */
+export const sizeAllowed = (plan: Plan, kind: ExportKind, width: number, height: number) =>
+  Math.max(width, height) <= PLAN_LIMITS[plan].longSide[kind];
 
 /** Starts a Dodo checkout for Pro (app/api/billing/checkout); redirects once signed in. */
 export const checkoutHref = (cycle: Cycle, from = "/#pricing") =>
