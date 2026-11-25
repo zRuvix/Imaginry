@@ -18,8 +18,8 @@ export const YEARLY_SAVING = Math.round((1 - PRO_PRICE.yearly / PRO_PRICE.monthl
 
 export const FREE_LIMITS = { exportsPerWeek: 3 } as const;
 
-/** Where "Get Pro" leads. Checkout isn't wired yet; point this at it when it is. */
-export const PRO_HREF = "/studio?plan=pro";
+/** Starts a Dodo checkout for Pro (app/api/billing/checkout); redirects once signed in. */
+export const checkoutHref = (cycle: Cycle) => `/api/billing/checkout?cycle=${cycle}`;
 
 export { EFFECT_COUNT };
 

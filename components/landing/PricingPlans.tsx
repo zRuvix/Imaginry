@@ -4,7 +4,8 @@ import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useState, type ReactNode } from "react";
 import { ArrowRight } from "@/components/icons";
-import { FREE_FEATURES, PRO_FEATURES, PRO_HREF, PRO_PRICE, YEARLY_SAVING, yearTotal, type Cycle, type Feature } from "@/lib/pricing";
+import { authClient } from "@/lib/auth-client";
+import { checkoutHref, FREE_FEATURES, PRO_FEATURES, PRO_PRICE, YEARLY_SAVING, yearTotal, type Cycle, type Feature } from "@/lib/pricing";
 import { BTN_MOTION } from "./buttonMotion";
 import { EASE_ENTER } from "./enterTiming";
 
@@ -66,10 +67,7 @@ export default function PricingPlans() {
           price={<RollingPrice value={money(PRO_PRICE[cycle])} />}
           note={cycle === "yearly" ? `Billed $${money(yearTotal("yearly"))} a year` : "Billed monthly"}
           action={
-            <a href={PRO_HREF} className="blue-button group/btn flex min-h-14 items-center justify-between rounded-[16px] pl-6 pr-2 text-white">
-              <span className="font-outfit text-[15.5px] font-semibold">Get Pro</span>
-              <Arrow dark />
-            </a>
+            <GetPro cycle={cycle} />
           }
           features={PRO_FEATURES}
         />
@@ -147,6 +145,53 @@ function Card({
         ))}
       </ul>
     </li>
+  );
+}
+
+/**
+ * Opens Dodo checkout for the chosen cycle. Signed out, it goes through Google
+ * sign-in first and comes back via the checkout route, which redirects to payment.
+ */
+function GetPro({ cycle }: { cycle: Cycle }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const go = async () => {
+    setBusy(true);
+    setError(null);
+    const res = await fetch("/api/billing/checkout", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ cycle }),
+    }).catch(() => null);
+    if (res?.status === 401) {
+      const { error } = await authClient.signIn.social({ provider: "google", callbackURL: checkoutHref(cycle) });
+      if (error) setBusy(false);
+      return;
+    }
+    const data = (await res?.json().catch(() => null)) as { url?: string; error?: string } | null;
+    if (data?.url) return window.location.assign(data.url);
+    setError(data?.error ?? "Couldn't open checkout. Try again.");
+    setBusy(false);
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={go}
+        disabled={busy}
+        className="blue-button group/btn flex min-h-14 w-full cursor-pointer items-center justify-between rounded-[16px] pl-6 pr-2 text-white disabled:cursor-wait disabled:opacity-80"
+      >
+        <span className="font-outfit text-[15.5px] font-semibold">{busy ? "Opening checkout…" : "Get Pro"}</span>
+        <Arrow dark />
+      </button>
+      {error && (
+        <p role="alert" className="font-outfit mt-2.5 text-[13px] text-[#ff9c8a]">
+          {error}
+        </p>
+      )}
+    </>
   );
 }
 

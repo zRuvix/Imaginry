@@ -81,6 +81,21 @@ await authOptions.database.query(`
   );
   create index if not exists oauth_token_user_idx on oauth_token (user_id, client_id);
 
+  -- Pro subscriptions from Dodo Payments (lib/server/billing), one row per
+  -- Dodo subscription, overwritten by each webhook with its latest snapshot.
+  create table if not exists subscription (
+    subscription_id       text primary key,
+    user_id               text not null references "user"(id) on delete cascade,
+    customer_id           text not null,
+    product_id            text not null,
+    cycle                 text check (cycle in ('monthly', 'yearly')),
+    status                text not null,
+    next_billing_date     timestamptz,
+    cancel_at_period_end  boolean not null default false,
+    updated_at            timestamptz not null default now()
+  );
+  create index if not exists subscription_user_idx on subscription (user_id, updated_at desc);
+
   -- Usage events for the admin dashboard (lib/server/events). Deleting an
   -- account unlinks its events; visitor is a daily-rotating hash, not an id.
   create table if not exists event (
