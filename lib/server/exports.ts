@@ -65,7 +65,7 @@ export async function claimExport(
     }
     if (quota.remaining !== null && quota.remaining <= 0) {
       await db.query("rollback");
-      return refuse("Today's free export is used. Pro has unlimited exports.");
+      return refuse("Today's free exports are used. Pro has unlimited exports.");
     }
 
     await db.query(`insert into event (kind, user_id, visitor, meta) values ($1, $2, $3, $4)`, [

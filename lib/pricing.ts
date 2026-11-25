@@ -26,7 +26,7 @@ export type ExportKind = "image" | "video";
  * rolling 24 hours, null meaning unlimited.
  */
 export const PLAN_LIMITS = {
-  free: { exportsPerDay: 1, longSide: { image: 1080, video: 1280 }, embed: false },
+  free: { exportsPerDay: 10, longSide: { image: 1080, video: 1280 }, embed: false },
   pro: { exportsPerDay: null, longSide: { image: 3840, video: 3840 }, embed: true },
 } as const satisfies Record<
   Plan,
@@ -48,7 +48,7 @@ export { EFFECT_COUNT };
 export type Feature = { text: string; off?: boolean };
 
 export const FREE_FEATURES: Feature[] = [
-  { text: `${FREE_LIMITS.exportsPerDay} export a day with a free account` },
+  { text: `${FREE_LIMITS.exportsPerDay} exports a day with a free account` },
   { text: "Images at preview or Small, 1080px" },
   { text: "Video at preview or 720p" },
   { text: `All ${EFFECT_COUNT} effects, plus Surprise me` },

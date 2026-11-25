@@ -14,11 +14,9 @@ import GoogleSignIn from "./GoogleSignIn";
 import { BILLING_RETURN } from "./BillingPanel";
 import { PLAN_LIMITS, sizeAllowed, type ExportKind, type Plan } from "@/lib/pricing";
 import { useClickOutside } from "./controls";
+import { announceQuota, useExportQuota, type Quota } from "@/lib/exportQuota";
 
 type Size = { id: string; label: string; width: number; height: number; /** Above the plan's limit. */ locked: boolean };
-
-/** Mirrors lib/server/exports' ExportQuota. */
-type Quota = { plan: Plan; remaining: number | null; resetsAt: string | null };
 
 /**
  * Claims one export on the server, which checks the plan's size limit and
@@ -287,18 +285,7 @@ export default function ExportPanel(p: Props) {
   const ratio = ASPECTS[p.aspect] ?? p.previewSize.width / Math.max(p.previewSize.height, 1);
   const preview = { width: Math.round(p.previewSize.width), height: Math.round(p.previewSize.height) };
   // Plan and exports left today. null until known (or signed out).
-  const [quota, setQuota] = useState<Quota | null>(null);
-  useEffect(() => {
-    if (!p.signedIn) return setQuota(null);
-    let live = true;
-    fetch("/api/export", { cache: "no-store" })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d: { quota?: Quota } | null) => live && setQuota(d?.quota ?? null))
-      .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [p.signedIn]);
+  const quota = useExportQuota(p.signedIn);
   // Until the plan is known, offer only what Free allows.
   const plan: Plan = quota?.plan ?? "free";
   const outOfExports = quota !== null && quota.remaining !== null && quota.remaining <= 0;
@@ -346,7 +333,7 @@ export default function ExportPanel(p: Props) {
         height: imageSize.height,
         meta: { width: imageSize.width, height: imageSize.height },
       });
-      if (claim.quota) setQuota(claim.quota);
+      if (claim.quota) announceQuota(claim.quota);
       if (claim.error) return p.notify(claim.error);
       download(blob, `imaginry-${imageSize.width}x${imageSize.height}.png`);
       p.notify(`Exported ${imageSize.width}×${imageSize.height} PNG`);
@@ -384,7 +371,7 @@ export default function ExportPanel(p: Props) {
         height: videoSize.height,
         meta: { format, seconds, fps, width: videoSize.width, height: videoSize.height },
       });
-      if (claim.quota) setQuota(claim.quota);
+      if (claim.quota) announceQuota(claim.quota);
       if (claim.error) return p.notify(claim.error);
       const ext = format === "mp4" ? "mp4" : "webm";
       download(blob, `imaginry-${format}-${seconds}s.${ext}`);
@@ -439,8 +426,8 @@ export default function ExportPanel(p: Props) {
   const locked = p.signedIn === null ? null : !p.signedIn;
   // Signed out, every export button reads just "Export" and can't be pressed.
   const gated = (label: string) => (p.signedIn === false ? "Export" : label);
-  // Free with today's export spent: file exports wait until one frees up.
-  const spent = (label: string) => (outOfExports ? "Today's free export is used" : gated(label));
+  // Free with today's exports spent: file exports wait until one frees up.
+  const spent = (label: string) => (outOfExports ? "Today's free exports are used" : gated(label));
   const upgradeUrl = `${BILLING_RETURN}#${encodeShare(p.state)}`;
   // Embed is Pro only, so its buttons also wait for the plan to load.
   const embedLocked = locked === false && quota === null ? null : locked;
@@ -476,8 +463,8 @@ export default function ExportPanel(p: Props) {
           <section className="anim-rise flex items-center justify-between gap-3 rounded-[18px] bg-white/[0.04] px-4 py-3">
             <p className="text-[12.5px] leading-snug text-bone/60">
               {outOfExports
-                ? `Free export used. Next one ${resetLabel(quota.resetsAt)}.`
-                : `${quota.remaining} free export left today`}
+                ? `Free exports used. Next one ${resetLabel(quota.resetsAt)}.`
+                : `${quota.remaining} free ${quota.remaining === 1 ? "export" : "exports"} left today`}
             </p>
             <a
               href={upgradeUrl}

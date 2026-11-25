@@ -7,7 +7,7 @@ import { pageMeta } from "@/lib/seo";
 export const metadata: Metadata = pageMeta({
   title: "Terms of Use",
   description:
-    "The rules for using Imaginry: what you can do with your exports, what's not allowed, and the limits of a free browser studio.",
+    "The rules for using Imaginry: what you can do with your exports, Pro billing and refunds, and what's not allowed.",
   path: "/terms",
   image: "/og/home.png",
   imageAlt: "Imaginry abstract background maker with a fluted blue glass ring",
@@ -30,11 +30,40 @@ const SECTIONS: LegalSection[] = [
     title: "The service",
     body: (
       <p>
-        Imaginry is free to use. Designing in the studio needs no account; exporting images, video or embed code needs
-        you to sign in with Google. It runs in your browser, so what you can do depends on your device and
-        browser support for WebGL and video encoding. We may add, change or remove features, or pause the service, at any
-        time.
+        Imaginry is free to use, with a paid Pro plan for larger exports, unlimited exports and embed code. Designing in
+        the studio needs no account; exporting images, video or embed code needs you to sign in with Google. Free
+        accounts get a set number of exports in any rolling 24 hours, shown in the studio. It runs in your browser, so
+        what you can do depends on your device and browser support for WebGL and video encoding. We may add, change or
+        remove features, plan limits or prices, or pause the service, at any time.
       </p>
+    ),
+  },
+  {
+    id: "payments",
+    title: "Pro, payments and refunds",
+    body: (
+      <>
+        <p>
+          <strong>Billing.</strong> Pro is a subscription billed monthly or yearly in advance. Payments are handled by our
+          payment provider, Dodo Payments, who acts as the merchant of record and may add tax where it applies. Your plan
+          renews automatically until you cancel.
+        </p>
+        <p>
+          <strong>Cancelling.</strong> You can cancel anytime from Plan &amp; billing in your account. Pro stays active
+          until the end of the period you&rsquo;ve paid for, then your account moves back to Free. You won&rsquo;t be
+          charged again.
+        </p>
+        <p>
+          <strong>No refunds.</strong> Pro is a digital service that you can use the moment payment goes through, so all
+          payments are final and non-refundable, including for partly used periods, unused exports or a renewal you forgot
+          to cancel. Where the law where you live gives you a right to a refund that can&rsquo;t be waived, that right
+          still applies.
+        </p>
+        <p>
+          <strong>Price changes.</strong> If the price of Pro changes, we&rsquo;ll tell you before your next renewal, and
+          the new price applies from that renewal on.
+        </p>
+      </>
     ),
   },
   {
@@ -153,8 +182,9 @@ export default function Page() {
       title="Terms of Use"
       summary={
         <p>
-          Use Imaginry freely, keep what you make, and use it however you like, including commercially. Just don&rsquo;t
-          abuse the service or pass the tool itself off as yours.
+          Use Imaginry freely, keep what you make, and use it however you like, including commercially. Pro payments are
+          non-refundable, but you can cancel anytime. Just don&rsquo;t abuse the service or pass the tool itself off as
+          yours.
         </p>
       }
       sections={SECTIONS}

@@ -7,6 +7,8 @@ import GoogleSignIn from "./GoogleSignIn";
 import AccountPanel from "./AccountPanel";
 import { useMyProfile } from "@/lib/useMyProfile";
 import { useClickOutside } from "./controls";
+import { useExportQuota, type Quota } from "@/lib/exportQuota";
+import { FREE_LIMITS } from "@/lib/pricing";
 
 function Avatar({ src, name }: { src?: string | null; name: string }) {
   if (src) {
@@ -18,6 +20,13 @@ function Avatar({ src, name }: { src?: string | null; name: string }) {
       {name.slice(0, 1).toUpperCase()}
     </span>
   );
+}
+
+/** The account row's second line: exports left on Free, or the plan on Pro. */
+function quotaLine(q: Quota) {
+  if (q.remaining === null) return "Pro, unlimited exports";
+  if (q.remaining <= 0) return "No free exports left today";
+  return `${q.remaining} of ${FREE_LIMITS.exportsPerDay} free exports left today`;
 }
 
 /** Account row under the Library: opens the account panel, or a sign-in card when signed out. */
@@ -33,6 +42,7 @@ export default function AccountBar() {
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside(ref, open, () => setOpen(false));
   const user = data?.user;
+  const quota = useExportQuota(!!user);
 
   useEffect(() => {
     if (!user) return;
@@ -95,8 +105,19 @@ export default function AccountBar() {
             <User size={16} />
           </span>
         )}
-        <span className="min-w-0 flex-1 truncate text-[13px] text-bone/80">
-          {isPending ? "" : user ? (profile ? `@${profile.username}` : user.name || user.email) : "Sign in"}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="truncate text-[13px] leading-tight text-bone/80">
+            {isPending ? "" : user ? (profile ? `@${profile.username}` : user.name || user.email) : "Sign in"}
+          </span>
+          {user && quota && (
+            <span
+              className={`truncate text-[11.5px] leading-tight tabular-nums ${
+                quota.remaining !== null && quota.remaining <= 0 ? "text-[#ff8a8e]" : "text-bone/45"
+              }`}
+            >
+              {quotaLine(quota)}
+            </span>
+          )}
         </span>
         <ChevronDown
           size={14}
