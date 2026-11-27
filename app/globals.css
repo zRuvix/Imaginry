@@ -75,6 +75,7 @@
   --font-condensed: var(--font-cabin-condensed), var(--font-familjen), sans-serif;
   --font-outfit: var(--font-outfit), var(--font-familjen), sans-serif;
   --font-lexend: var(--font-lexend), var(--font-outfit), sans-serif;
+  --font-figtree: var(--font-figtree), var(--font-outfit), sans-serif;
 }
 
 html,

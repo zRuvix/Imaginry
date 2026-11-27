@@ -21,12 +21,45 @@ export const BILLING_RETURN = "/studio?account=billing";
 const WAIT_TRIES = 6;
 const WAIT_MS = 2000;
 
+/** Flip to true to open Plan & billing again. */
+export const BILLING_AVAILABLE = false;
+
+export default function BillingPanel({ justUpgraded = false }: { justUpgraded?: boolean }) {
+  return BILLING_AVAILABLE ? <LiveBilling justUpgraded={justUpgraded} /> : <BillingUnavailable />;
+}
+
+/** Shown while paid plans are switched off. */
+function BillingUnavailable() {
+  return (
+    <div className="space-y-5">
+      <CurrentPlan
+        name="Free"
+        badge={<span className="rounded-full bg-white/[0.08] px-2.5 py-0.5 text-[11.5px] text-bone/70">Billing not available yet</span>}
+        note={`${FREE_LIMITS.exportsPerDay} exports a day, images up to ${FREE_LIMITS.longSide.image}px and video up to 720p.`}
+      />
+      <div className="rounded-[18px] border border-white/[0.07] p-5">
+        <p className="text-[15px]">Pro is on its way</p>
+        <p className="mt-1.5 text-[12.5px] leading-relaxed text-bone/50">
+          Upgrades and payments aren’t open right now. Everything on the Free plan keeps working, and this is where you’ll
+          upgrade once Pro opens.
+        </p>
+        <div className="mt-4 border-t border-white/[0.07] pt-4 opacity-60">
+          <Features />
+        </div>
+        <button type="button" disabled className={`${SOLID} mt-5 w-full !cursor-not-allowed`}>
+          Currently not available
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /**
  * The account panel's Plan & billing section: the current plan, when it
  * renews or ends, a way into Dodo's portal (card, invoices, cancel), and
  * checkout for Free accounts.
  */
-export default function BillingPanel({ justUpgraded = false }: { justUpgraded?: boolean }) {
+function LiveBilling({ justUpgraded = false }: { justUpgraded?: boolean }) {
   const [billing, setBilling] = useState<Billing | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [waiting, setWaiting] = useState(justUpgraded);

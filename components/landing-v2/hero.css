@@ -1,0 +1,161 @@
+/*
+ * /landing hero entrance. Pure CSS so it starts on first paint and never
+ * waits for hydration. Every piece reads its start time from --d.
+ *
+ *   0ms     the painting unveils from a small framed canvas to full bleed
+ *   650ms   a band of sunlight sweeps across it
+ *   700ms   navigation drops in, link by link
+ *   850ms   headline rises letter by letter
+ *   ~1.9s   a brush stroke paints itself under "painted,"
+ *   ~2.0s   paragraph, buttons, then the caption
+ */
+
+.rh {
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-unveil: cubic-bezier(0.7, 0, 0.15, 1);
+}
+
+/* Painting: a dot appears in the middle, holds a beat, then opens to the full screen
+   while the image inside settles. 75% covers the corners on any aspect ratio. */
+@keyframes rh-unveil {
+  0% { clip-path: circle(0px at 50% 50%); animation-timing-function: cubic-bezier(0.34, 1.6, 0.6, 1); }
+  14% { clip-path: circle(9px at 50% 50%); }
+  26% { clip-path: circle(9px at 50% 50%); animation-timing-function: cubic-bezier(0.75, 0, 0.2, 1); }
+  100% { clip-path: circle(75% at 50% 50%); }
+}
+@keyframes rh-settle {
+  0% { transform: scale(1.32); }
+  100% { transform: scale(1); }
+}
+@keyframes rh-glow {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.rh-canvas {
+  animation: rh-unveil 1900ms linear both;
+}
+.rh-paint {
+  animation: rh-settle 2200ms var(--ease-out) both;
+}
+.rh-glow {
+  animation: rh-glow 1200ms ease-out 1300ms both;
+}
+
+/* One band of warm light crosses the painting after it opens */
+@keyframes rh-sweep {
+  0% { transform: translateX(-60%) skewX(-18deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateX(160%) skewX(-18deg); opacity: 0; }
+}
+.rh-sweep {
+  position: absolute;
+  inset: -10% auto -10% 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgba(255, 246, 225, 0.45) 50%, transparent);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+  animation: rh-sweep 2200ms cubic-bezier(0.45, 0, 0.2, 1) 1100ms both;
+}
+
+/* Letters rise out of a clip, tipped slightly, and straighten as they land */
+@keyframes rh-letter {
+  0% { transform: translateY(130%) rotate(8deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+.rh-word {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: clip;
+  overflow-clip-margin: 0.12em;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+  vertical-align: bottom;
+}
+.rh-letter {
+  display: inline-block;
+  transform-origin: 0% 100%;
+  animation: rh-letter 900ms var(--ease-out) var(--d, 0ms) both;
+}
+
+/* Brush stroke under the accent word */
+@keyframes rh-stroke {
+  /* Hidden until it starts drawing, so the round cap never shows as a dot */
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  2% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.rh-stroke path {
+  stroke-dasharray: 1 1.1;
+  stroke-dashoffset: 1;
+  animation: rh-stroke 750ms cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0ms) both;
+}
+
+/* Nav links drop from above their own clip */
+@keyframes rh-drop {
+  0% { transform: translateY(-130%); }
+  100% { transform: translateY(0); }
+}
+.rh-clip {
+  display: inline-block;
+  overflow: clip;
+}
+.rh-drop {
+  display: inline-block;
+  animation: rh-drop 800ms var(--ease-out) var(--d, 0ms) both;
+}
+
+/* Softer pieces: lift and fade */
+@keyframes rh-lift {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.rh-lift {
+  animation: rh-lift 900ms var(--ease-out) var(--d, 0ms) both;
+}
+
+/* Primary button grows out of a pill and its label slides in after */
+@keyframes rh-pop {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.rh-pop {
+  transform-origin: 0% 50%;
+  animation: rh-pop 800ms cubic-bezier(0.34, 1.4, 0.5, 1) var(--d, 0ms) both;
+}
+
+/* Hover: the label rolls up and a copy rolls in from below */
+.rh-roll {
+  display: inline-grid;
+  overflow: clip;
+}
+.rh-roll > span {
+  grid-area: 1 / 1;
+  transition: transform 550ms var(--ease-out);
+}
+.rh-roll > span:last-child {
+  transform: translateY(110%);
+}
+a:hover > .rh-roll > span:first-child,
+a:focus-visible > .rh-roll > span:first-child {
+  transform: translateY(-110%);
+}
+a:hover > .rh-roll > span:last-child,
+a:focus-visible > .rh-roll > span:last-child {
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rh-canvas,
+  .rh-paint,
+  .rh-glow,
+  .rh-letter,
+  .rh-stroke path,
+  .rh-drop,
+  .rh-lift,
+  .rh-pop {
+    animation: none;
+  }
+  .rh-stroke path { stroke-dashoffset: 0; }
+  .rh-sweep { display: none; }
+  .rh-roll > span { transition: none; }
+}

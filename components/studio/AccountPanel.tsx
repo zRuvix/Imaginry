@@ -6,7 +6,7 @@ import { ArrowUpRight, CreditCard, LogOut, Plug, UserCard, X } from "@/component
 import { ProfileForm } from "@/components/profile/ProfileEditor";
 import { authClient } from "@/lib/auth-client";
 import type { Profile } from "@/lib/profile";
-import BillingPanel from "./BillingPanel";
+import BillingPanel, { BILLING_AVAILABLE } from "./BillingPanel";
 import McpAccess from "./McpAccess";
 import { useClickOutside } from "./controls";
 
@@ -92,6 +92,9 @@ export default function AccountPanel({
                 <Icon size={16} />
               </span>
               <span className="whitespace-nowrap">{label}</span>
+              {id === "billing" && !BILLING_AVAILABLE && (
+                <span className="ml-auto hidden rounded-full bg-white/[0.08] px-2 py-0.5 text-[10.5px] text-bone/55 sm:inline">Soon</span>
+              )}
             </button>
           ))}
         </nav>

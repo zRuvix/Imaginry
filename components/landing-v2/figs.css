@@ -1,0 +1,61 @@
+/* Idle loops for the feature figures (Figs.tsx). */
+.fig-loop {
+  transform-box: fill-box;
+  will-change: transform;
+}
+@keyframes fig-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-9px); }
+}
+@keyframes fig-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes fig-work {
+  0%, 10%, 40%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fig-loop { animation: none !important; }
+}
+
+/* Gallery placeholder while a look renders (Gallery.tsx). */
+@keyframes gl-shimmer {
+  0% { background-position: 120% 0; }
+  100% { background-position: -20% 0; }
+}
+.gl-shimmer {
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%) #dfe5ec;
+  background-size: 250% 100%;
+  animation: gl-shimmer 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gl-shimmer { animation: none; }
+}
+
+/* "Using Imaginry…" shimmer in the chat demo (Agents.tsx). */
+@keyframes am-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+.am-shimmer {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.35) 30%, rgba(0, 0, 0, 0.85) 50%, rgba(0, 0, 0, 0.35) 70%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: am-shimmer 1.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .am-shimmer { animation: none; color: rgba(0, 0, 0, 0.5); }
+}
+
+/* Slow breathing glow on the footer painting's sun (SunsetFooter.tsx). */
+@keyframes sf-sun {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.94); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+}
+.sf-sun { animation: sf-sun 7s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .sf-sun { animation: none; }
+}
